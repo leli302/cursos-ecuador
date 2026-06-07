@@ -250,3 +250,45 @@ SELECT c.id, 'proximo', 'Este curso estará disponible próximamente', '2025-09-
 -- RESEÑAS DE EJEMPLO
 -- =============================================
 -- (Las reseñas se crean referenciando al usuario estudiante demo)
+
+-- =============================================
+-- MÓDULOS Y LECCIONES GENÉRICAS PARA EL RESTO DE CURSOS
+-- =============================================
+DO $$
+DECLARE
+    r_curso RECORD;
+    v_modulo_id INT;
+BEGIN
+    FOR r_curso IN SELECT id, nombre FROM cursos LOOP
+        -- Verificar si el curso ya tiene módulos
+        IF NOT EXISTS (SELECT 1 FROM modulos WHERE curso_id = r_curso.id) THEN
+            -- Módulo 1
+            INSERT INTO modulos (curso_id, titulo, descripcion, orden)
+            VALUES (r_curso.id, 'Introducción al Curso', 'Conceptos básicos y preparación del entorno.', 1)
+            RETURNING id INTO v_modulo_id;
+            
+            INSERT INTO lecciones (modulo_id, titulo, descripcion, duracion_minutos, orden, es_gratis) VALUES
+            (v_modulo_id, 'Bienvenida y presentación', 'Introducción al contenido y objetivos del curso.', 5, 1, true),
+            (v_modulo_id, 'Preparación del entorno de trabajo', 'Instalación y configuración de herramientas necesarias.', 15, 2, false);
+            
+            -- Módulo 2
+            INSERT INTO modulos (curso_id, titulo, descripcion, orden)
+            VALUES (r_curso.id, 'Fundamentos y Primeros Pasos', 'Temas clave y primeros ejemplos prácticos.', 2)
+            RETURNING id INTO v_modulo_id;
+            
+            INSERT INTO lecciones (modulo_id, titulo, descripcion, duracion_minutos, orden, es_gratis) VALUES
+            (v_modulo_id, 'Conceptos fundamentales', 'Explicación teórica y ejemplos sencillos.', 20, 1, false),
+            (v_modulo_id, 'Ejercicios de aplicación práctica', 'Retos guiados paso a paso.', 25, 2, false);
+            
+            -- Módulo 3
+            INSERT INTO modulos (curso_id, titulo, descripcion, orden)
+            VALUES (r_curso.id, 'Proyecto Final y Cierre', 'Consolidación de lo aprendido y siguientes pasos.', 3)
+            RETURNING id INTO v_modulo_id;
+            
+            INSERT INTO lecciones (modulo_id, titulo, descripcion, duracion_minutos, orden, es_gratis) VALUES
+            (v_modulo_id, 'Desarrollo del proyecto integrador', 'Proyecto de aplicación práctica de todo el curso.', 30, 1, false),
+            (v_modulo_id, 'Cierre de curso y recomendaciones', 'Siguientes pasos y obtención de tu certificado.', 10, 2, false);
+        END IF;
+    END LOOP;
+END $$;
+
