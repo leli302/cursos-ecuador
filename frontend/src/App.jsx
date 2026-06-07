@@ -15,6 +15,7 @@ import PremiumPage from './pages/public/PremiumPage';
 import CartPage from './pages/CartPage';
 import StudentDashboard from './pages/student/DashboardPage';
 import LibraryPage from './pages/student/LibraryPage';
+import ClassroomPage from './pages/student/ClassroomPage';
 import CertificatesPage from './pages/student/CertificatesPage';
 import PurchaseHistoryPage from './pages/student/PurchaseHistoryPage';
 import ProfilePage from './pages/student/ProfilePage';
@@ -56,6 +57,7 @@ function AppContent() {
           {/* Estudiante */}
           <Route path="/mi-panel" element={<ProtectedRoute><StudentDashboard /></ProtectedRoute>} />
           <Route path="/mi-biblioteca" element={<ProtectedRoute><LibraryPage /></ProtectedRoute>} />
+          <Route path="/aula/:id" element={<ProtectedRoute><ClassroomPage /></ProtectedRoute>} />
           <Route path="/mis-certificados" element={<ProtectedRoute><CertificatesPage /></ProtectedRoute>} />
           <Route path="/mis-compras" element={<ProtectedRoute><PurchaseHistoryPage /></ProtectedRoute>} />
           <Route path="/mi-perfil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />

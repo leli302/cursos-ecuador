@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../api/axios';
 import { BookOpen, PlayCircle, FileText, Download, Lock } from 'lucide-react';
 
@@ -38,7 +39,7 @@ export default function LibraryPage() {
                         <Lock size={14} /> Disponible: {course.fecha_disponible ? new Date(course.fecha_disponible).toLocaleDateString('es-EC', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }) : 'Próximamente'}
                       </button>
                     ) : (
-                      <button className="btn btn-primary btn-sm" style={{ flex: 1 }}><PlayCircle size={14} /> Continuar</button>
+                      <Link to={`/aula/${course.id}`} className="btn btn-primary btn-sm" style={{ flex: 1 }}><PlayCircle size={14} /> Continuar</Link>
                     )}
                     <button className="btn btn-outline btn-sm" disabled={course.estado === 'proximo'} style={course.estado === 'proximo' ? { cursor: 'not-allowed', opacity: 0.6 } : {}}><Download size={14} /></button>
                   </div>
