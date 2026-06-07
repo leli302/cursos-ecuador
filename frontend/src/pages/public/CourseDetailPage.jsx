@@ -226,9 +226,16 @@ export default function CourseDetailPage() {
               {/* Availability */}
               {availability && (
                 <div className={`availability-badge ${availability.tipo === 'disponible' ? 'available' : availability.tipo === 'proximo' ? 'upcoming' : 'limited'} mb-4 w-full`}
-                  style={{ justifyContent: 'center' }}>
-                  <div className="pulse-dot" />
-                  {availability.mensaje}
+                  style={{ justifyContent: 'center', flexDirection: 'column', gap: '4px', padding: '10px' }}>
+                  <div className="flex items-center gap-2" style={{ justifyContent: 'center' }}>
+                    <div className="pulse-dot" />
+                    <span>{availability.mensaje}</span>
+                  </div>
+                  {availability.tipo === 'proximo' && availability.fecha_estimada && (
+                    <span className="text-xs font-semibold" style={{ opacity: 0.9 }}>
+                      Fecha de inicio: {new Date(availability.fecha_estimada).toLocaleDateString('es-EC', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}
+                    </span>
+                  )}
                 </div>
               )}
 

@@ -54,9 +54,9 @@ const addToCart = async (req, res, next) => {
   try {
     const { curso_id } = req.body;
 
-    // Verificar que el curso existe y está disponible
+    // Verificar que el curso existe y está disponible o próximo (preventa)
     const course = await query(
-      "SELECT id, precio, precio_premium, estado FROM cursos WHERE id = $1 AND estado = 'disponible'",
+      "SELECT id, precio, precio_premium, estado FROM cursos WHERE id = $1 AND estado IN ('disponible', 'proximo')",
       [curso_id]
     );
     if (course.rows.length === 0) {
