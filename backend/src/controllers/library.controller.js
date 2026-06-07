@@ -8,6 +8,7 @@ const getLibrary = async (req, res, next) => {
               u.nombre as instructor_nombre, u.apellido as instructor_apellido,
               i.fecha_inscripcion, i.estado as inscripcion_estado,
               cv.numero_version,
+              (SELECT fecha_estimada FROM disponibilidad_curso WHERE curso_id = c.id ORDER BY creado_en DESC LIMIT 1) as fecha_disponible,
               COALESCE(
                 (SELECT ROUND(AVG(CASE WHEN pu.completado THEN 100 ELSE pu.porcentaje END))
                  FROM progreso_usuario pu

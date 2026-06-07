@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
-import { BookOpen, PlayCircle, FileText, Download } from 'lucide-react';
+import { BookOpen, PlayCircle, FileText, Download, Lock } from 'lucide-react';
 
 export default function LibraryPage() {
   const [library, setLibrary] = useState({ courses: [], certificates: [] });
@@ -27,12 +27,20 @@ export default function LibraryPage() {
                   <p className="text-xs text-muted mb-3">v{course.numero_version} · {course.instructor_nombre}</p>
                   <div className="progress-bar mb-2"><div className="progress-bar-fill" style={{ width: `${course.progreso}%` }} /></div>
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-muted">{course.progreso}% completado</span>
-                    <span className={`badge ${course.progreso >= 100 ? 'badge-green' : 'badge-blue'}`}>{course.progreso >= 100 ? 'Completado' : 'En progreso'}</span>
+                    <span className="text-muted">{course.estado === 'proximo' ? 'Sin iniciar' : `${course.progreso}% completado`}</span>
+                    <span className={`badge ${course.estado === 'proximo' ? 'badge-purple' : course.progreso >= 100 ? 'badge-green' : 'badge-blue'}`}>
+                      {course.estado === 'proximo' ? 'Preventa' : course.progreso >= 100 ? 'Completado' : 'En progreso'}
+                    </span>
                   </div>
                   <div className="flex gap-2 mt-4">
-                    <button className="btn btn-primary btn-sm" style={{ flex: 1 }}><PlayCircle size={14} /> Continuar</button>
-                    <button className="btn btn-outline btn-sm"><Download size={14} /></button>
+                    {course.estado === 'proximo' ? (
+                      <button className="btn btn-secondary btn-sm" style={{ flex: 1, cursor: 'not-allowed', opacity: 0.8 }} disabled>
+                        <Lock size={14} /> Disponible: {course.fecha_disponible ? new Date(course.fecha_disponible).toLocaleDateString('es-EC', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }) : 'Próximamente'}
+                      </button>
+                    ) : (
+                      <button className="btn btn-primary btn-sm" style={{ flex: 1 }}><PlayCircle size={14} /> Continuar</button>
+                    )}
+                    <button className="btn btn-outline btn-sm" disabled={course.estado === 'proximo'} style={course.estado === 'proximo' ? { cursor: 'not-allowed', opacity: 0.6 } : {}}><Download size={14} /></button>
                   </div>
                 </div>
               </div>
