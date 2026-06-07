@@ -81,15 +81,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Demo credentials */}
-          <div style={{ marginTop: 'var(--space-6)', padding: 'var(--space-4)', background: 'rgba(78,205,196,0.05)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(78,205,196,0.1)' }}>
-            <p className="text-xs text-muted text-center mb-2">Cuentas de demostración:</p>
-            <div className="text-xs text-muted">
-              <p><strong>Admin:</strong> admin@cursosecuador.com</p>
-              <p><strong>Estudiante:</strong> estudiante@cursosecuador.com</p>
-              <p className="mt-1" style={{ color: 'var(--text-muted)' }}>Contraseña para ambos: <code style={{ color: 'var(--accent-teal)' }}>123456</code></p>
-            </div>
-          </div>
+
         </div>
       </div>
     </div>
