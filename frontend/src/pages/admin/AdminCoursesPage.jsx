@@ -179,6 +179,7 @@ export default function AdminCoursesPage() {
                   <button className="btn-icon" title="Desactivar" onClick={() => handleDelete(c.id)} style={{ color: 'var(--accent-red)' }}><Trash2 size={14} /></button>
                 </div>
               </td>
+             </tr>
           ))}</tbody>
         </table></div>
         
