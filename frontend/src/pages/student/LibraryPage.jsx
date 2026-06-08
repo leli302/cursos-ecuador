@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
-import { BookOpen, PlayCircle, FileText, Download, Lock } from 'lucide-react';
+import { BookOpen, PlayCircle, FileText, Download, Lock, Code, Briefcase, Palette, Megaphone, Languages, Award } from 'lucide-react';
 
 export default function LibraryPage() {
   const { isAdmin, isInstructor } = useAuth();
@@ -15,6 +15,44 @@ export default function LibraryPage() {
   }
   const [library, setLibrary] = useState({ courses: [], certificates: [] });
   const [loading, setLoading] = useState(true);
+
+  const getCategoryIcon = (categoryName) => {
+    switch (categoryName) {
+      case 'Tecnología':
+        return <Code size={40} style={{ color: '#ffffff', opacity: 0.9 }} />;
+      case 'Negocios':
+        return <Briefcase size={40} style={{ color: '#ffffff', opacity: 0.9 }} />;
+      case 'Diseño':
+        return <Palette size={40} style={{ color: '#ffffff', opacity: 0.9 }} />;
+      case 'Marketing':
+        return <Megaphone size={40} style={{ color: '#ffffff', opacity: 0.9 }} />;
+      case 'Idiomas':
+        return <Languages size={40} style={{ color: '#ffffff', opacity: 0.9 }} />;
+      case 'Arte y Cultura':
+        return <Award size={40} style={{ color: '#ffffff', opacity: 0.9 }} />;
+      default:
+        return <BookOpen size={40} style={{ color: '#ffffff', opacity: 0.9 }} />;
+    }
+  };
+
+  const getCategoryGradient = (categoryName) => {
+    switch (categoryName) {
+      case 'Tecnología':
+        return 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)';
+      case 'Negocios':
+        return 'linear-gradient(135deg, #10B981 0%, #047857 100%)';
+      case 'Diseño':
+        return 'linear-gradient(135deg, #EC4899 0%, #BE185D 100%)';
+      case 'Marketing':
+        return 'linear-gradient(135deg, #F97316 0%, #C2410C 100%)';
+      case 'Idiomas':
+        return 'linear-gradient(135deg, #A855F7 0%, #6B21A8 100%)';
+      case 'Arte y Cultura':
+        return 'linear-gradient(135deg, #F59E0B 0%, #B45309 100%)';
+      default:
+        return 'linear-gradient(135deg, #6B7280 0%, #374151 100%)';
+    }
+  };
 
   useEffect(() => {
     api.get('/library').then(({ data }) => { setLibrary(data); setLoading(false); }).catch(() => setLoading(false));
@@ -30,7 +68,39 @@ export default function LibraryPage() {
           <div className="grid grid-3 stagger-children">
             {library.courses.map(course => (
               <div key={course.id} className="card" style={{ padding: 0, overflow: 'hidden' }}>
-                <img src={course.imagen || `https://placehold.co/640x360/142241/4ECDC4?text=Curso&font=roboto`} alt={course.nombre} style={{ width: '100%', height: 160, objectFit: 'cover' }} />
+                <div className="course-image" style={{ 
+                  position: 'relative', 
+                  height: 160, 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  background: course.imagen ? 'transparent' : getCategoryGradient(course.categoria_nombre) 
+                }}>
+                  {course.imagen ? (
+                    <img
+                      src={course.imagen}
+                      alt={course.nombre}
+                      loading="lazy"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => { 
+                        e.target.style.display = 'none';
+                        e.target.parentNode.style.background = getCategoryGradient(course.categoria_nombre);
+                        const iconWrapper = document.createElement('div');
+                        iconWrapper.style.display = 'flex';
+                        iconWrapper.style.alignItems = 'center';
+                        iconWrapper.style.justifyContent = 'center';
+                        iconWrapper.style.height = '100%';
+                        iconWrapper.style.width = '100%';
+                        iconWrapper.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ffffff; opacity: 0.9;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>`;
+                        e.target.parentNode.appendChild(iconWrapper);
+                      }}
+                    />
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+                      {getCategoryIcon(course.categoria_nombre)}
+                    </div>
+                  )}
+                </div>
                 <div style={{ padding: 'var(--space-5)' }}>
                   <span className="badge badge-teal mb-2">{course.categoria_nombre}</span>
                   <h3 style={{ fontSize: 'var(--text-base)', fontWeight: 600, marginBottom: 'var(--space-2)' }}>{course.nombre}</h3>

@@ -5,7 +5,7 @@ import CourseCard from '../../components/common/CourseCard';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
-import { Star, Clock, Users, BookOpen, ShoppingCart, Zap, Crown, ChevronDown, ChevronUp, PlayCircle, FileText, Lock, Check } from 'lucide-react';
+import { Star, Clock, Users, BookOpen, ShoppingCart, Zap, Crown, ChevronDown, ChevronUp, PlayCircle, FileText, Lock, Check, Award, Infinity, Palette, Code, TrendingUp } from 'lucide-react';
 
 export default function CourseDetailPage() {
   const { id } = useParams();
@@ -16,6 +16,26 @@ export default function CourseDetailPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [expandedModules, setExpandedModules] = useState({});
+
+  const getModuleIcon = (title) => {
+    const t = title.toLowerCase();
+    if (t.includes('introduc') || t.includes('bienvenida') || t.includes('conceptos') || t.includes('fundamento')) {
+      return <BookOpen size={18} style={{ color: 'var(--accent-teal)' }} />;
+    }
+    if (t.includes('diseño') || t.includes('ui') || t.includes('ux') || t.includes('pantalla') || t.includes('interfaz') || t.includes('maqueta')) {
+      return <Palette size={18} style={{ color: 'var(--accent-teal)' }} />;
+    }
+    if (t.includes('desarrollo') || t.includes('código') || t.includes('program') || t.includes('python') || t.includes('javascript') || t.includes('react') || t.includes('base de datos') || t.includes('sql') || t.includes('api')) {
+      return <Code size={18} style={{ color: 'var(--accent-teal)' }} />;
+    }
+    if (t.includes('negocio') || t.includes('venta') || t.includes('market') || t.includes('publicidad') || t.includes('ads') || t.includes('sri') || t.includes('financ') || t.includes('contabil')) {
+      return <TrendingUp size={18} style={{ color: 'var(--accent-teal)' }} />;
+    }
+    if (t.includes('final') || t.includes('certific') || t.includes('proyecto') || t.includes('examen') || t.includes('concl')) {
+      return <Award size={18} style={{ color: 'var(--accent-teal)' }} />;
+    }
+    return <BookOpen size={18} style={{ color: 'var(--accent-teal)' }} />;
+  };
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -148,7 +168,7 @@ export default function CourseDetailPage() {
                       padding: 'var(--space-4) var(--space-5)', background: 'transparent', color: 'var(--text-primary)', textAlign: 'left'
                     }}>
                       <div className="flex items-center gap-3">
-                        <BookOpen size={18} style={{ color: 'var(--accent-teal)' }} />
+                        {getModuleIcon(mod.titulo)}
                         <span style={{ fontWeight: 600 }}>{mod.titulo}</span>
                         <span className="badge badge-blue" style={{ fontSize: '0.6rem' }}>{mod.lecciones?.length || 0} lecciones</span>
                       </div>
@@ -271,16 +291,16 @@ export default function CourseDetailPage() {
               {/* Includes */}
               <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 'var(--space-4)' }}>
                 <p className="text-sm font-semibold mb-3">Este curso incluye:</p>
-                {[
-                  `${course.duracion_horas} horas de contenido`,
-                  `${totalLessons} lecciones en video`,
-                  'Recursos descargables',
-                  'Acceso de por vida',
-                  'Certificado de finalización'
+                [
+                  { icon: <Clock size={14} style={{ color: 'var(--accent-teal)' }} />, text: `${course.duracion_horas} horas de contenido` },
+                  { icon: <PlayCircle size={14} style={{ color: 'var(--accent-teal)' }} />, text: `${totalLessons} lecciones en video` },
+                  { icon: <FileText size={14} style={{ color: 'var(--accent-teal)' }} />, text: 'Recursos descargables' },
+                  { icon: <Infinity size={14} style={{ color: 'var(--accent-teal)' }} />, text: 'Acceso de por vida' },
+                  { icon: <Award size={14} style={{ color: 'var(--accent-teal)' }} />, text: 'Certificado de finalización' }
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2 mb-2">
-                    <Check size={14} style={{ color: 'var(--accent-green)' }} />
-                    <span className="text-sm text-muted">{item}</span>
+                    {item.icon}
+                    <span className="text-sm text-muted">{item.text}</span>
                   </div>
                 ))}
               </div>
