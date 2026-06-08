@@ -63,6 +63,14 @@ const processPayment = async (req, res, next) => {
             [aulaId]
           );
 
+          // Obtener total_ventas del curso para decidir fecha de inicio dinámica
+          const cursoRes = await client.query(
+            'SELECT total_ventas FROM cursos WHERE id = $1',
+            [item.curso_id]
+          );
+          const totalVentas = cursoRes.rows[0]?.total_ventas || 0;
+          const diasEspera = totalVentas >= 100 ? 5 : 21;
+
           // Crear siguiente aula
           const aulaCount = await client.query(
             'SELECT COUNT(*) as count FROM aulas WHERE curso_id = $1',
@@ -70,7 +78,7 @@ const processPayment = async (req, res, next) => {
           );
           const nextNum = parseInt(aulaCount.rows[0].count) + 1;
           const nextDate = new Date();
-          nextDate.setDate(nextDate.getDate() + 30);
+          nextDate.setDate(nextDate.getDate() + diasEspera);
 
           await client.query(
             `INSERT INTO aulas (curso_id, nombre, cupo_maximo, fecha_inicio, estado)
