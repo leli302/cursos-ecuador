@@ -69,7 +69,16 @@ const processPayment = async (req, res, next) => {
             [item.curso_id]
           );
           const totalVentas = cursoRes.rows[0]?.total_ventas || 0;
-          const diasEspera = totalVentas >= 100 ? 5 : 21;
+          const diasEspera = totalVentas >= 100 ? 3 : 7;
+
+          // Obtener fecha de inicio del aula anterior que se acaba de llenar
+          const prevAulaRes = await client.query(
+            'SELECT fecha_inicio FROM aulas WHERE id = $1',
+            [aulaId]
+          );
+          const prevFechaInicio = prevAulaRes.rows[0]?.fecha_inicio 
+            ? new Date(prevAulaRes.rows[0].fecha_inicio) 
+            : new Date();
 
           // Crear siguiente aula
           const aulaCount = await client.query(
@@ -77,7 +86,7 @@ const processPayment = async (req, res, next) => {
             [item.curso_id]
           );
           const nextNum = parseInt(aulaCount.rows[0].count) + 1;
-          const nextDate = new Date();
+          const nextDate = new Date(prevFechaInicio);
           nextDate.setDate(nextDate.getDate() + diasEspera);
 
           await client.query(

@@ -217,7 +217,7 @@ SELECT c.id, 'Aula 1', 100, 78, '2025-01-15', 'activa' FROM cursos c WHERE c.cod
 INSERT INTO aulas (curso_id, nombre, cupo_maximo, cupo_ocupado, fecha_inicio, estado)
 SELECT c.id, 'Aula 1', 100, 100, '2025-01-10', 'llena' FROM cursos c WHERE c.codigo = 'TEC-0002';
 INSERT INTO aulas (curso_id, nombre, cupo_maximo, cupo_ocupado, fecha_inicio, estado)
-SELECT c.id, 'Aula 2', 100, 45, '2025-03-01', 'activa' FROM cursos c WHERE c.codigo = 'TEC-0002';
+SELECT c.id, 'Aula 2', 100, 45, '2025-01-17', 'activa' FROM cursos c WHERE c.codigo = 'TEC-0002';
 INSERT INTO aulas (curso_id, nombre, cupo_maximo, cupo_ocupado, fecha_inicio, estado)
 SELECT c.id, 'Aula 1', 100, 52, '2025-02-01', 'activa' FROM cursos c WHERE c.codigo = 'MKT-0001';
 INSERT INTO aulas (curso_id, nombre, cupo_maximo, cupo_ocupado, fecha_inicio, estado)
