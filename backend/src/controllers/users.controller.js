@@ -210,4 +210,57 @@ const updateUserRoles = async (req, res, next) => {
   }
 };
 
-module.exports = { getUsers, getUserById, updateUser, changePassword, updateAvatar, updateUserRoles };
+// POST /api/users (Admin only)
+const createUser = async (req, res, next) => {
+  try {
+    const { nombre, apellido, email, password, telefono, estado, roles } = req.body;
+
+    // Verificar si el email ya existe
+    const existing = await query('SELECT id FROM usuarios WHERE email = $1', [email]);
+    if (existing.rows.length > 0) {
+      return res.status(409).json({ error: 'Este email ya está registrado.' });
+    }
+
+    // Hash de contraseña
+    const salt = await bcrypt.genSalt(12);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // Crear usuario
+    const result = await query(
+      `INSERT INTO usuarios (nombre, apellido, email, password_hash, telefono, estado, email_verificado)
+       VALUES ($1, $2, $3, $4, $5, $6, true) RETURNING id, nombre, apellido, email, telefono, avatar, estado, creado_en`,
+      [nombre, apellido, email, passwordHash, telefono || null, estado !== undefined ? estado : true]
+    );
+
+    const user = result.rows[0];
+
+    // Asignar roles
+    const rolesToAssign = roles && Array.isArray(roles) && roles.length > 0 ? roles : ['estudiante'];
+    for (const roleName of rolesToAssign) {
+      const roleResult = await query('SELECT id FROM roles WHERE nombre = $1', [roleName]);
+      if (roleResult.rows.length > 0) {
+        await query(
+          'INSERT INTO usuario_roles (usuario_id, rol_id) VALUES ($1, $2)',
+          [user.id, roleResult.rows[0].id]
+        );
+      }
+    }
+
+    // Crear carrito vacío
+    await query('INSERT INTO carrito (usuario_id) VALUES ($1) ON CONFLICT DO NOTHING', [user.id]);
+
+    await logAction(req.user.id, 'CREATE_USER', `Administrador creó usuario: ${email}`, req.ip);
+
+    res.status(201).json({
+      message: 'Usuario creado exitosamente.',
+      user: {
+        ...user,
+        roles: rolesToAssign
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { getUsers, getUserById, updateUser, changePassword, updateAvatar, updateUserRoles, createUser };

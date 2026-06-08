@@ -11,6 +11,8 @@ export default function AdminUsersPage() {
 
   // Modal State
   const [editingUser, setEditingUser] = useState(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [newUser, setNewUser] = useState({ nombre: '', apellido: '', email: '', password: '', telefono: '', estado: true, roles: ['estudiante'] });
   const [saving, setSaving] = useState(false);
 
   const fetchUsers = async () => {
@@ -89,10 +91,41 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleNewUserRoleToggle = (role) => {
+    const currentRoles = newUser.roles || [];
+    const updatedRoles = currentRoles.includes(role)
+      ? currentRoles.filter(r => r !== role)
+      : [...currentRoles, role];
+    setNewUser({ ...newUser, roles: updatedRoles });
+  };
+
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    if (!newUser.nombre || !newUser.apellido || !newUser.email || !newUser.password) {
+      toast.error('Completa los campos obligatorios');
+      return;
+    }
+    setSaving(true);
+    try {
+      await api.post('/users', newUser);
+      toast.success('Usuario creado correctamente');
+      setIsCreateOpen(false);
+      setNewUser({ nombre: '', apellido: '', email: '', password: '', telefono: '', estado: true, roles: ['estudiante'] });
+      fetchUsers();
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Error al crear el usuario');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="page">
       <div className="container">
-        <h1 className="page-title mb-8">Gestionar Usuarios</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="page-title" style={{ margin: 0 }}>Gestionar Usuarios</h1>
+          <button className="btn btn-primary" onClick={() => setIsCreateOpen(true)}>+ Crear Usuario</button>
+        </div>
         
         <div className="flex gap-4 mb-6">
           <div style={{ flex: 1, position: 'relative' }}>
@@ -251,6 +284,117 @@ export default function AdminUsersPage() {
                 </button>
                 <button type="submit" className="btn btn-primary w-full" disabled={saving}>
                   <Save size={16} /> {saving ? 'Guardando...' : 'Guardar'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Create User Modal */}
+      {isCreateOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', zIndex: 1000, padding: '20px'
+        }} className="animate-fade-in">
+          <div className="card-glass animate-scale" style={{ width: '100%', maxWidth: 500, padding: 'var(--space-6)' }}>
+            <div className="flex justify-between items-center mb-6">
+              <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 700, margin: 0 }}>Crear Nuevo Usuario</h3>
+              <button className="btn-icon" onClick={() => setIsCreateOpen(false)}><X size={20} /></button>
+            </div>
+
+            <form onSubmit={handleCreateUser}>
+              <div className="grid grid-2 gap-4">
+                <div className="form-group">
+                  <label className="form-label">Nombre *</label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    value={newUser.nombre} 
+                    onChange={(e) => setNewUser({ ...newUser, nombre: e.target.value })} 
+                    required 
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Apellido *</label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    value={newUser.apellido} 
+                    onChange={(e) => setNewUser({ ...newUser, apellido: e.target.value })} 
+                    required 
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Email *</label>
+                <input 
+                  type="email" 
+                  className="form-input" 
+                  value={newUser.email} 
+                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} 
+                  required 
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Contraseña *</label>
+                <input 
+                  type="password" 
+                  className="form-input" 
+                  value={newUser.password} 
+                  onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} 
+                  placeholder="Mínimo 6 caracteres"
+                  required 
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Teléfono</label>
+                <input 
+                  type="text" 
+                  className="form-input" 
+                  value={newUser.telefono} 
+                  onChange={(e) => setNewUser({ ...newUser, telefono: e.target.value })} 
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Estado</label>
+                <select 
+                  className="form-input" 
+                  value={newUser.estado ? 'true' : 'false'} 
+                  onChange={(e) => setNewUser({ ...newUser, estado: e.target.value === 'true' })}
+                >
+                  <option value="true">Activo</option>
+                  <option value="false">Inactivo</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label mb-2" style={{ display: 'block' }}>Roles *</label>
+                <div className="flex gap-4 flex-wrap">
+                  {['administrador', 'instructor', 'estudiante'].map(role => (
+                    <label key={role} className="flex items-center gap-2 text-sm" style={{ cursor: 'pointer' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={newUser.roles?.includes(role)} 
+                        onChange={() => handleNewUserRoleToggle(role)} 
+                      />
+                      <span className="capitalize">{role}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button type="button" className="btn btn-outline w-full" onClick={() => setIsCreateOpen(false)}>
+                  Cancelar
+                </button>
+                <button type="submit" className="btn btn-primary w-full" disabled={saving}>
+                  <Save size={16} /> {saving ? 'Creando...' : 'Crear Usuario'}
                 </button>
               </div>
             </form>

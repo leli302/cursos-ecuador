@@ -5,10 +5,19 @@ const { auth } = require('../middleware/auth');
 const { isAdmin } = require('../middleware/roles');
 const upload = require('../config/multer');
 const {
-  getUsers, getUserById, updateUser, changePassword, updateAvatar, updateUserRoles
+  getUsers, getUserById, updateUser, changePassword, updateAvatar, updateUserRoles, createUser
 } = require('../controllers/users.controller');
 
 const router = Router();
+
+// Admin: crear usuario
+router.post('/', auth, isAdmin, [
+  body('nombre').trim().notEmpty().withMessage('El nombre es requerido'),
+  body('apellido').trim().notEmpty().withMessage('El apellido es requerido'),
+  body('email').isEmail().withMessage('Email inválido'),
+  body('password').isLength({ min: 6 }).withMessage('Contraseña mínimo 6 caracteres'),
+  validate
+], createUser);
 
 // Admin: listar todos los usuarios
 router.get('/', auth, isAdmin, getUsers);
