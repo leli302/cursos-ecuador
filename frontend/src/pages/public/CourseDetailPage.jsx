@@ -291,7 +291,7 @@ export default function CourseDetailPage() {
               {/* Includes */}
               <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 'var(--space-4)' }}>
                 <p className="text-sm font-semibold mb-3">Este curso incluye:</p>
-                [
+                {[
                   { icon: <Clock size={14} style={{ color: 'var(--accent-teal)' }} />, text: `${course.duracion_horas} horas de contenido` },
                   { icon: <PlayCircle size={14} style={{ color: 'var(--accent-teal)' }} />, text: `${totalLessons} lecciones en video` },
                   { icon: <FileText size={14} style={{ color: 'var(--accent-teal)' }} />, text: 'Recursos descargables' },
