@@ -21,10 +21,10 @@ export default function DashboardPage() {
   }, []);
 
   const stats = [
-    { icon: <BookOpen size={22} />, value: library.totalCourses, label: 'Cursos Activos', color: 'var(--accent-teal)', bg: 'rgba(78,205,196,0.1)' },
-    { icon: <Award size={22} />, value: library.completedCourses, label: 'Completados', color: 'var(--accent-green)', bg: 'rgba(16,185,129,0.1)' },
-    { icon: <TrendingUp size={22} />, value: library.certificates.length, label: 'Certificados', color: 'var(--accent-purple)', bg: 'rgba(168,85,247,0.1)' },
-    { icon: <Crown size={22} />, value: isPremium() ? 'Activo' : 'No', label: 'Premium', color: 'var(--accent-gold)', bg: 'rgba(245,166,35,0.1)' }
+    { icon: <BookOpen size={22} />, value: library.totalCourses, label: 'Cursos Activos', color: 'var(--accent-teal)', bg: 'rgba(78,205,196,0.1)', path: '/mi-biblioteca' },
+    { icon: <Award size={22} />, value: library.completedCourses, label: 'Completados', color: 'var(--accent-green)', bg: 'rgba(16,185,129,0.1)', path: '/mi-biblioteca' },
+    { icon: <TrendingUp size={22} />, value: library.certificates.length, label: 'Certificados', color: 'var(--accent-purple)', bg: 'rgba(168,85,247,0.1)', path: '/mis-certificados' },
+    { icon: <Crown size={22} />, value: isPremium() ? 'Activo' : 'No', label: 'Premium', color: 'var(--accent-gold)', bg: 'rgba(245,166,35,0.1)', path: isPremium() ? '/mi-perfil' : '/premium' }
   ];
 
   return (
@@ -38,11 +38,11 @@ export default function DashboardPage() {
         {/* Stats */}
         <div className="grid grid-4 mb-8 stagger-children">
           {stats.map((s, i) => (
-            <div key={i} className="stat-card">
+            <Link key={i} to={s.path} className="stat-card" style={{ textDecoration: 'none', cursor: 'pointer' }}>
               <div className="stat-icon" style={{ background: s.bg, color: s.color }}>{s.icon}</div>
               <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
               <div className="stat-label">{s.label}</div>
-            </div>
+            </Link>
           ))}
         </div>
 

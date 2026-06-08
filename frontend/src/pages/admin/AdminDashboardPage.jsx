@@ -21,10 +21,10 @@ export default function AdminDashboardPage() {
   if (loading) return <div className="page container"><div className="grid grid-4">{[1,2,3,4].map(i => <div key={i} className="skeleton" style={{ height: 120, borderRadius: 'var(--radius-lg)' }} />)}</div></div>;
 
   const stats = [
-    { icon: <Users size={22} />, value: data?.stats.totalUsers, label: 'Usuarios', color: 'var(--accent-teal)', bg: 'rgba(78,205,196,0.1)' },
-    { icon: <BookOpen size={22} />, value: data?.stats.totalCourses, label: 'Cursos', color: 'var(--accent-blue)', bg: 'rgba(59,130,246,0.1)' },
-    { icon: <ShoppingCart size={22} />, value: data?.stats.totalOrders, label: 'Ventas', color: 'var(--accent-purple)', bg: 'rgba(168,85,247,0.1)' },
-    { icon: <DollarSign size={22} />, value: `$${data?.stats.totalRevenue.toFixed(2)}`, label: 'Ingresos', color: 'var(--accent-green)', bg: 'rgba(16,185,129,0.1)' }
+    { icon: <Users size={22} />, value: data?.stats.totalUsers, label: 'Usuarios', color: 'var(--accent-teal)', bg: 'rgba(78,205,196,0.1)', path: '/admin/usuarios' },
+    { icon: <BookOpen size={22} />, value: data?.stats.totalCourses, label: 'Cursos', color: 'var(--accent-blue)', bg: 'rgba(59,130,246,0.1)', path: '/admin/cursos' },
+    { icon: <ShoppingCart size={22} />, value: data?.stats.totalOrders, label: 'Ventas', color: 'var(--accent-purple)', bg: 'rgba(168,85,247,0.1)', path: '/admin/ordenes' },
+    { icon: <DollarSign size={22} />, value: `$${data?.stats.totalRevenue.toFixed(2)}`, label: 'Ingresos', color: 'var(--accent-green)', bg: 'rgba(16,185,129,0.1)', path: '/admin/ordenes' }
   ];
 
   return (
@@ -33,11 +33,11 @@ export default function AdminDashboardPage() {
 
       <div className="grid grid-4 mb-8 stagger-children">
         {stats.map((s, i) => (
-          <div key={i} className="stat-card">
+          <Link key={i} to={s.path} className="stat-card" style={{ textDecoration: 'none', cursor: 'pointer' }}>
             <div className="stat-icon" style={{ background: s.bg, color: s.color }}>{s.icon}</div>
             <div className="stat-value" style={{ color: s.color }}>{s.value}</div>
             <div className="stat-label">{s.label}</div>
-          </div>
+          </Link>
         ))}
       </div>
 

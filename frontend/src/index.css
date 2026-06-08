@@ -679,6 +679,13 @@ textarea.form-input {
   padding: var(--space-6);
   position: relative;
   overflow: hidden;
+  transition: all var(--transition-base);
+}
+
+.stat-card:hover {
+  border-color: var(--border-active);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
 }
 
 .stat-card::before {
