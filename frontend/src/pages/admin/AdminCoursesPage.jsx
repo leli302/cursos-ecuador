@@ -144,7 +144,7 @@ export default function AdminCoursesPage() {
         <div className="skeleton" style={{ height: 300, borderRadius: 'var(--radius-lg)' }} />
       ) : (
         <div className="table-container"><table>
-          <thead><tr><th>Código</th><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Estado</th><th>Ventas</th><th>Acciones</th></tr></thead>
+          <thead><tr><th>Código</th><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Estado</th><th>Ventas</th><th>Valoración</th><th>Acciones</th></tr></thead>
           <tbody>{courses.map(c => (
             <tr key={c.id}>
               <td><code className="text-xs">{c.codigo}</code></td>
@@ -153,6 +153,7 @@ export default function AdminCoursesPage() {
               <td className="font-semibold">${parseFloat(c.precio).toFixed(2)}</td>
               <td><span className={`badge ${statusColors[c.estado] || 'badge-blue'}`}>{c.estado}</span></td>
               <td className="text-sm">{c.total_ventas}</td>
+              <td><span className="badge badge-gold" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>{c.valoracion ? parseFloat(c.valoracion).toFixed(1) : '0.0'} ⭐</span></td>
               <td>
                 <div className="flex gap-1">
                   <button className="btn-icon" title="Editar" onClick={() => {
