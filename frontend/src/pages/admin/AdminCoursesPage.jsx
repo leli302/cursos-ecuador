@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import { useToast } from '../../context/ToastContext';
-import { Plus, Edit, Trash2, Search, X, Save } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, X, Save, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function AdminCoursesPage() {
   const [courses, setCourses] = useState([]);
   const [pagination, setPagination] = useState({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const toast = useToast();
 
   // Modal & Form State
@@ -32,6 +33,7 @@ export default function AdminCoursesPage() {
 
   const fetchCourses = async (page = 1) => {
     setLoading(true);
+    setCurrentPage(page);
     try {
       const params = new URLSearchParams({ page, limit: 10 });
       if (search) params.set('search', search);
@@ -178,8 +180,28 @@ export default function AdminCoursesPage() {
                 </div>
               </td>
             </tr>
-          ))}</tbody>
-        </table></div>
+        </table>
+        
+        {/* Pagination */}
+        {pagination.totalPages > 1 && (
+          <div className="pagination" style={{ marginTop: 'var(--space-6)' }}>
+            <button disabled={!pagination.hasPrev} onClick={() => fetchCourses(currentPage - 1)}>
+              <ChevronLeft size={16} />
+            </button>
+            {[...Array(pagination.totalPages)].map((_, i) => {
+              const page = i + 1;
+              return (
+                <button key={page} className={page === currentPage ? 'active' : ''} onClick={() => fetchCourses(page)}>
+                  {page}
+                </button>
+              );
+            })}
+            <button disabled={!pagination.hasNext} onClick={() => fetchCourses(currentPage + 1)}>
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        )}
+        </div>
       )}
 
       {/* Create / Edit Modal */}

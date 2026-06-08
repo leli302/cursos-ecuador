@@ -39,11 +39,18 @@ const getCourses = async (req, res, next) => {
       paramIndex++;
     }
     if (status) {
-      where.push(`c.estado = $${paramIndex}`);
-      params.push(status);
-      paramIndex++;
+      if (status !== 'all') {
+        where.push(`c.estado = $${paramIndex}`);
+        params.push(status);
+        paramIndex++;
+      }
     } else {
-      where.push(`c.estado != 'no_disponible'`);
+      // Si el usuario es administrador o instructor, le permitimos ver todo (incluyendo inactivos)
+      const userRoles = req.user?.roles || [];
+      const isPrivileged = userRoles.includes('administrador') || userRoles.includes('instructor');
+      if (!isPrivileged) {
+        where.push(`c.estado != 'no_disponible'`);
+      }
     }
     if (search) {
       where.push(`(c.nombre ILIKE $${paramIndex} OR c.descripcion ILIKE $${paramIndex})`);
