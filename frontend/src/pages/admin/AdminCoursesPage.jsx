@@ -145,7 +145,8 @@ export default function AdminCoursesPage() {
       {loading ? (
         <div className="skeleton" style={{ height: 300, borderRadius: 'var(--radius-lg)' }} />
       ) : (
-        <div className="table-container"><table>
+        <>
+          <div className="table-container"><table>
           <thead><tr><th>Código</th><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Estado</th><th>Ventas</th><th>Valoración</th><th>Acciones</th></tr></thead>
           <tbody>{courses.map(c => (
             <tr key={c.id}>
@@ -202,7 +203,7 @@ export default function AdminCoursesPage() {
             </button>
           </div>
         )}
-        </div>
+        </>
       )}
 
       {/* Create / Edit Modal */}
