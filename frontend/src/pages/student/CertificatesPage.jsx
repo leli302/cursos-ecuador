@@ -1,8 +1,18 @@
 import { useState, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import api from '../../api/axios';
+import { useAuth } from '../../context/AuthContext';
 import { Award } from 'lucide-react';
 
 export default function CertificatesPage() {
+  const { isAdmin, isInstructor } = useAuth();
+
+  if (isAdmin()) {
+    return <Navigate to="/admin" replace />;
+  }
+  if (isInstructor()) {
+    return <Navigate to="/admin/cursos" replace />;
+  }
   const [certs, setCerts] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => { api.get('/certificates').then(({ data }) => { setCerts(data.data); setLoading(false); }).catch(() => setLoading(false)); }, []);

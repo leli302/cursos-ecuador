@@ -1,9 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import api from '../../api/axios';
+import { useAuth } from '../../context/AuthContext';
 import { BookOpen, PlayCircle, FileText, Download, Lock } from 'lucide-react';
 
 export default function LibraryPage() {
+  const { isAdmin, isInstructor } = useAuth();
+
+  if (isAdmin()) {
+    return <Navigate to="/admin" replace />;
+  }
+  if (isInstructor()) {
+    return <Navigate to="/admin/cursos" replace />;
+  }
   const [library, setLibrary] = useState({ courses: [], certificates: [] });
   const [loading, setLoading] = useState(true);
 

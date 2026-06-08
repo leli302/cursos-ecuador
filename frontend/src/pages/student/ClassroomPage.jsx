@@ -1,10 +1,19 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
 import api from '../../api/axios';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { ArrowLeft, BookOpen, PlayCircle, CheckCircle, FileText, Download, Check } from 'lucide-react';
 
 export default function ClassroomPage() {
+  const { isAdmin, isInstructor } = useAuth();
+
+  if (isAdmin()) {
+    return <Navigate to="/admin" replace />;
+  }
+  if (isInstructor()) {
+    return <Navigate to="/admin/cursos" replace />;
+  }
   const { id } = useParams();
   const navigate = useNavigate();
   const toast = useToast();

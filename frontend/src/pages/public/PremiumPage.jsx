@@ -6,7 +6,7 @@ import { useToast } from '../../context/ToastContext';
 import { Crown, Check, BookOpen, Award, Shield, Clock, Zap, Star } from 'lucide-react';
 
 export default function PremiumPage() {
-  const { isAuthenticated, isPremium } = useAuth();
+  const { isAuthenticated, isPremium, isAdmin, isInstructor } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
   const [memberships, setMemberships] = useState([]);
@@ -18,6 +18,9 @@ export default function PremiumPage() {
 
   const handleSubscribe = async (membershipId, tipo) => {
     if (!isAuthenticated) return navigate('/login');
+    if (isAdmin() || isInstructor()) {
+      return toast.warning('Las cuentas de administrador o instructor no pueden adquirir membresías.');
+    }
     if (isPremium()) return toast.info('Ya eres premium.');
     setLoading(true);
     try {

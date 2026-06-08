@@ -63,7 +63,7 @@ function AppContent() {
           <Route path="/mi-perfil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
 
           {/* Admin */}
-          <Route path="/admin" element={<ProtectedRoute roles={['administrador']}><AdminDashboardPage /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute roles={['administrador', 'instructor']}><AdminDashboardPage /></ProtectedRoute>} />
           <Route path="/admin/cursos" element={<ProtectedRoute roles={['administrador','instructor']}><AdminCoursesPage /></ProtectedRoute>} />
           <Route path="/admin/usuarios" element={<ProtectedRoute roles={['administrador']}><AdminUsersPage /></ProtectedRoute>} />
           <Route path="/admin/categorias" element={<ProtectedRoute roles={['administrador']}><AdminCategoriesPage /></ProtectedRoute>} />

@@ -87,13 +87,15 @@ export default function Navbar() {
             <Link to="/catalogo" className="btn btn-ghost" style={{ fontSize: 'var(--text-sm)' }}>
               Catálogo
             </Link>
-            <Link to="/premium" className="btn btn-ghost" style={{ fontSize: 'var(--text-sm)', color: 'var(--accent-gold)' }}>
-              <Crown size={16} /> Premium
-            </Link>
+            {!isAdmin() && !isInstructor() && (
+              <Link to="/premium" className="btn btn-ghost" style={{ fontSize: 'var(--text-sm)', color: 'var(--accent-gold)' }}>
+                <Crown size={16} /> Premium
+              </Link>
+            )}
           </div>
 
           {/* Cart */}
-          {isAuthenticated && (
+          {isAuthenticated && !isAdmin() && !isInstructor() && (
             <Link to="/carrito" className="btn-icon" style={{ position: 'relative' }}>
               <ShoppingCart size={22} />
               {cart.itemCount > 0 && (
@@ -145,27 +147,30 @@ export default function Navbar() {
                       <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{user?.email}</p>
                     </div>
 
-                    <Link to="/mi-panel" onClick={() => setUserMenu(false)} className="flex items-center gap-3" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', transition: 'all 0.15s' }}>
-                      <LayoutDashboard size={16} /> Mi Panel
-                    </Link>
-                    <Link to="/mi-biblioteca" onClick={() => setUserMenu(false)} className="flex items-center gap-3" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', transition: 'all 0.15s' }}>
-                      <BookOpen size={16} /> Mi Biblioteca
-                    </Link>
-                    <Link to="/mis-compras" onClick={() => setUserMenu(false)} className="flex items-center gap-3" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', transition: 'all 0.15s' }}>
-                      <ShoppingCart size={16} /> Mis Compras
-                    </Link>
-                    <Link to="/mi-perfil" onClick={() => setUserMenu(false)} className="flex items-center gap-3" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', transition: 'all 0.15s' }}>
-                      <Settings size={16} /> Mi Perfil
-                    </Link>
-
-                    {(isAdmin() || isInstructor()) && (
+                    {isAdmin() ? (
+                      <Link to="/admin" onClick={() => setUserMenu(false)} className="flex items-center gap-3" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--accent-teal)', fontSize: 'var(--text-sm)', transition: 'all 0.15s' }}>
+                        <LayoutDashboard size={16} /> Panel Admin
+                      </Link>
+                    ) : isInstructor() ? (
+                      <Link to="/admin/cursos" onClick={() => setUserMenu(false)} className="flex items-center gap-3" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--accent-teal)', fontSize: 'var(--text-sm)', transition: 'all 0.15s' }}>
+                        <LayoutDashboard size={16} /> Panel Instructor
+                      </Link>
+                    ) : (
                       <>
-                        <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '4px 0' }} />
-                        <Link to="/admin" onClick={() => setUserMenu(false)} className="flex items-center gap-3" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--accent-teal)', fontSize: 'var(--text-sm)', transition: 'all 0.15s' }}>
-                          <LayoutDashboard size={16} /> Panel Admin
+                        <Link to="/mi-panel" onClick={() => setUserMenu(false)} className="flex items-center gap-3" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', transition: 'all 0.15s' }}>
+                          <LayoutDashboard size={16} /> Mi Panel
+                        </Link>
+                        <Link to="/mi-biblioteca" onClick={() => setUserMenu(false)} className="flex items-center gap-3" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', transition: 'all 0.15s' }}>
+                          <BookOpen size={16} /> Mi Biblioteca
+                        </Link>
+                        <Link to="/mis-compras" onClick={() => setUserMenu(false)} className="flex items-center gap-3" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', transition: 'all 0.15s' }}>
+                          <ShoppingCart size={16} /> Mis Compras
                         </Link>
                       </>
                     )}
+                    <Link to="/mi-perfil" onClick={() => setUserMenu(false)} className="flex items-center gap-3" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', transition: 'all 0.15s' }}>
+                      <Settings size={16} /> Mi Perfil
+                    </Link>
 
                     <div style={{ borderTop: '1px solid var(--border-subtle)', margin: '4px 0' }} />
                     <button onClick={handleLogout} className="flex items-center gap-3 w-full" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--accent-red)', fontSize: 'var(--text-sm)', background: 'transparent', textAlign: 'left' }}>
@@ -202,7 +207,15 @@ export default function Navbar() {
               onChange={(e) => setSearchQuery(e.target.value)} className="form-input w-full" />
           </form>
           <Link to="/catalogo" onClick={() => setMobileMenu(false)} className="flex items-center gap-3" style={{ padding: '12px 0', color: 'var(--text-secondary)' }}>Catálogo</Link>
-          <Link to="/premium" onClick={() => setMobileMenu(false)} className="flex items-center gap-3" style={{ padding: '12px 0', color: 'var(--accent-gold)' }}><Crown size={16} /> Premium</Link>
+          {!isAdmin() && !isInstructor() && (
+            <Link to="/premium" onClick={() => setMobileMenu(false)} className="flex items-center gap-3" style={{ padding: '12px 0', color: 'var(--accent-gold)' }}><Crown size={16} /> Premium</Link>
+          )}
+          {isAdmin() && (
+            <Link to="/admin" onClick={() => setMobileMenu(false)} className="flex items-center gap-3" style={{ padding: '12px 0', color: 'var(--accent-teal)' }}><LayoutDashboard size={16} /> Panel Admin</Link>
+          )}
+          {isInstructor() && (
+            <Link to="/admin/cursos" onClick={() => setMobileMenu(false)} className="flex items-center gap-3" style={{ padding: '12px 0', color: 'var(--accent-teal)' }}><LayoutDashboard size={16} /> Panel Instructor</Link>
+          )}
         </div>
       )}
     </nav>

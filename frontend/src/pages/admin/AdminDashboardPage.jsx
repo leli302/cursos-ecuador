@@ -1,9 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import api from '../../api/axios';
+import { useAuth } from '../../context/AuthContext';
 import { Users, BookOpen, ShoppingCart, DollarSign, TrendingUp, BarChart3 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
+  const { isInstructor } = useAuth();
+
+  if (isInstructor()) {
+    return <Navigate to="/admin/cursos" replace />;
+  }
+
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 

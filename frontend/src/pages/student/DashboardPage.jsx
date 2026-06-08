@@ -1,11 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import { BookOpen, Award, ShoppingCart, Crown, TrendingUp, Clock } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { user, isPremium } = useAuth();
+  const { user, isPremium, isAdmin, isInstructor } = useAuth();
+
+  if (isAdmin()) {
+    return <Navigate to="/admin" replace />;
+  }
+  if (isInstructor()) {
+    return <Navigate to="/admin/cursos" replace />;
+  }
   const [library, setLibrary] = useState({ courses: [], certificates: [], totalCourses: 0, completedCourses: 0 });
   const [loading, setLoading] = useState(true);
 

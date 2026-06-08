@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -8,7 +8,14 @@ import { ShoppingCart, Trash2, ArrowRight, CreditCard, Crown, Shield } from 'luc
 
 export default function CartPage() {
   const { cart, removeFromCart, clearCart, fetchCart } = useCart();
-  const { isPremium } = useAuth();
+  const { isPremium, isAdmin, isInstructor } = useAuth();
+
+  if (isAdmin()) {
+    return <Navigate to="/admin" replace />;
+  }
+  if (isInstructor()) {
+    return <Navigate to="/admin/cursos" replace />;
+  }
   const toast = useToast();
   const navigate = useNavigate();
   const [processing, setProcessing] = useState(false);

@@ -1,8 +1,18 @@
 import { useState, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import api from '../../api/axios';
+import { useAuth } from '../../context/AuthContext';
 import { ShoppingCart } from 'lucide-react';
 
 export default function PurchaseHistoryPage() {
+  const { isAdmin, isInstructor } = useAuth();
+
+  if (isAdmin()) {
+    return <Navigate to="/admin" replace />;
+  }
+  if (isInstructor()) {
+    return <Navigate to="/admin/cursos" replace />;
+  }
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => { api.get('/orders').then(({ data }) => { setOrders(data.data); setLoading(false); }).catch(() => setLoading(false)); }, []);

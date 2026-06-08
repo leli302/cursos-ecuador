@@ -20,6 +20,7 @@ export default function LoginPage() {
       const data = await login(email, password);
       toast.success(`¡Bienvenido, ${data.user.nombre}!`);
       if (data.user.roles.includes('administrador')) navigate('/admin');
+      else if (data.user.roles.includes('instructor')) navigate('/admin/cursos');
       else navigate('/mi-panel');
     } catch (error) {
       toast.error(error.response?.data?.error || 'Error al iniciar sesión');
