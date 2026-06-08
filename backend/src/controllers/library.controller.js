@@ -8,6 +8,7 @@ const getLibrary = async (req, res, next) => {
               u.nombre as instructor_nombre, u.apellido as instructor_apellido,
               i.fecha_inscripcion, i.estado as inscripcion_estado,
               cv.numero_version,
+              a.fecha_inicio as aula_fecha_inicio, a.nombre as aula_nombre,
               (SELECT fecha_estimada FROM disponibilidad_curso WHERE curso_id = c.id ORDER BY creado_en DESC LIMIT 1) as fecha_disponible,
               COALESCE(
                 (SELECT ROUND(AVG(CASE WHEN pu.completado THEN 100 ELSE pu.porcentaje END))
@@ -19,6 +20,7 @@ const getLibrary = async (req, res, next) => {
        LEFT JOIN categorias cat ON c.categoria_id = cat.id
        LEFT JOIN usuarios u ON c.instructor_id = u.id
        LEFT JOIN curso_versiones cv ON i.version_id = cv.id
+       LEFT JOIN aulas a ON i.aula_id = a.id
        WHERE i.usuario_id = $1 AND i.estado = 'activa'
        ORDER BY i.fecha_inscripcion DESC`,
       [req.user.id]
@@ -46,13 +48,26 @@ const getLibrary = async (req, res, next) => {
 // GET /api/library/course/:courseId
 const getLibraryCourse = async (req, res, next) => {
   try {
-    // Verificar inscripción
+    // Verificar inscripción y obtener datos del aula
     const enrolled = await query(
-      "SELECT id FROM inscripciones WHERE usuario_id = $1 AND curso_id = $2 AND estado = 'activa'",
+      `SELECT i.id, a.fecha_inicio as aula_fecha_inicio, a.nombre as aula_nombre
+       FROM inscripciones i
+       LEFT JOIN aulas a ON i.aula_id = a.id
+       WHERE i.usuario_id = $1 AND i.curso_id = $2 AND i.estado = 'activa'`,
       [req.user.id, req.params.courseId]
     );
     if (enrolled.rows.length === 0) {
       return res.status(403).json({ error: 'No estás inscrito en este curso.' });
+    }
+
+    const registration = enrolled.rows[0];
+    if (registration.aula_fecha_inicio && new Date(registration.aula_fecha_inicio) > new Date()) {
+      const fechaFormateada = new Date(registration.aula_fecha_inicio).toLocaleDateString('es-EC', { 
+        year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' 
+      });
+      return res.status(403).json({ 
+        error: `Acceso denegado: Tu cohorte (${registration.aula_nombre}) inicia el ${fechaFormateada}.` 
+      });
     }
 
     // Obtener curso con módulos, lecciones y recursos

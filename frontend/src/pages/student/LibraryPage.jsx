@@ -47,6 +47,10 @@ export default function LibraryPage() {
                       <button className="btn btn-secondary btn-sm" style={{ flex: 1, cursor: 'not-allowed', opacity: 0.8 }} disabled>
                         <Lock size={14} /> Disponible: {course.fecha_disponible ? new Date(course.fecha_disponible).toLocaleDateString('es-EC', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }) : 'Próximamente'}
                       </button>
+                    ) : course.aula_fecha_inicio && new Date(course.aula_fecha_inicio) > new Date() ? (
+                      <button className="btn btn-secondary btn-sm" style={{ flex: 1, cursor: 'not-allowed', opacity: 0.8 }} title={`Inicia el ${new Date(course.aula_fecha_inicio).toLocaleDateString('es-EC', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })}`} disabled>
+                        <Lock size={14} /> Inicia: {new Date(course.aula_fecha_inicio).toLocaleDateString('es-EC', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })}
+                      </button>
                     ) : (
                       <Link to={`/aula/${course.id}`} className="btn btn-primary btn-sm" style={{ flex: 1 }}><PlayCircle size={14} /> Continuar</Link>
                     )}

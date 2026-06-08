@@ -243,14 +243,28 @@ export default function CourseDetailPage() {
               {classrooms?.length > 0 && (
                 <div className="mb-4">
                   <p className="text-xs text-muted mb-2">Aulas disponibles:</p>
-                  {classrooms.slice(0, 2).map(cls => (
-                    <div key={cls.id} className="flex items-center justify-between text-xs mb-1" style={{ padding: '6px 0' }}>
-                      <span>{cls.nombre}</span>
-                      <span style={{ color: cls.cupo_maximo - cls.cupo_ocupado > 10 ? 'var(--accent-green)' : 'var(--accent-orange)' }}>
-                        {cls.cupo_maximo - cls.cupo_ocupado} cupos
-                      </span>
-                    </div>
-                  ))}
+                  {classrooms.slice(0, 2).map(cls => {
+                    const startsInFuture = new Date(cls.fecha_inicio) > new Date();
+                    return (
+                      <div key={cls.id} className="flex flex-col mb-1" style={{ padding: '4px 0' }}>
+                        <div className="flex items-center justify-between text-xs">
+                          <span>{cls.nombre}</span>
+                          <span style={{ color: cls.cupo_maximo - cls.cupo_ocupado > 10 ? 'var(--accent-green)' : 'var(--accent-orange)', fontWeight: 600 }}>
+                            {cls.cupo_maximo - cls.cupo_ocupado} cupos
+                          </span>
+                        </div>
+                        <div className="text-xs text-muted" style={{ fontSize: '0.7rem', marginTop: '2px' }}>
+                          {startsInFuture ? (
+                            <span style={{ color: 'var(--accent-gold)' }}>
+                              Inicia el: {new Date(cls.fecha_inicio).toLocaleDateString('es-EC', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })}
+                            </span>
+                          ) : (
+                            <span>Iniciado el: {new Date(cls.fecha_inicio).toLocaleDateString('es-EC', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })}</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
