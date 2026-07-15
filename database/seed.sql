@@ -2,21 +2,21 @@
 -- DATOS DE DEMOSTRACIÓN
 -- =============================================
 
--- Admin (password: Admin123!)
+-- Admin (password: Admin1234)
 INSERT INTO usuarios (nombre, apellido, email, password_hash, telefono, estado, email_verificado) VALUES
-('Carlos', 'Administrador', 'admin@cursosecuador.com', '$2b$12$LJ3m4yPnVfWzLjH2GzWJXeKZq3YqY5vN8mR7kP6tQ9sX1wA2bC3dE', '0991234567', true, true)
+('Carlos', 'Administrador', 'admin@cursosecuador.com', '$2b$12$/zahGtexuumz47rdEfdhJOyJGLj7e.tCVCp2mWibqXEElmLRrG9b6', '0991234567', true, true)
 ON CONFLICT (email) DO NOTHING;
 
--- Instructores (password: Instructor123!)
+-- Instructores (password: Admin1234)
 INSERT INTO usuarios (nombre, apellido, email, password_hash, telefono, estado, email_verificado) VALUES
-('María', 'López', 'maria.lopez@cursosecuador.com', '$2b$12$LJ3m4yPnVfWzLjH2GzWJXeKZq3YqY5vN8mR7kP6tQ9sX1wA2bC3dE', '0987654321', true, true),
-('Juan', 'Pérez', 'juan.perez@cursosecuador.com', '$2b$12$LJ3m4yPnVfWzLjH2GzWJXeKZq3YqY5vN8mR7kP6tQ9sX1wA2bC3dE', '0976543210', true, true),
-('Ana', 'García', 'ana.garcia@cursosecuador.com', '$2b$12$LJ3m4yPnVfWzLjH2GzWJXeKZq3YqY5vN8mR7kP6tQ9sX1wA2bC3dE', '0965432109', true, true)
+('María', 'López', 'maria.lopez@cursosecuador.com', '$2b$12$/zahGtexuumz47rdEfdhJOyJGLj7e.tCVCp2mWibqXEElmLRrG9b6', '0987654321', true, true),
+('Juan', 'Pérez', 'juan.perez@cursosecuador.com', '$2b$12$/zahGtexuumz47rdEfdhJOyJGLj7e.tCVCp2mWibqXEElmLRrG9b6', '0976543210', true, true),
+('Ana', 'García', 'ana.garcia@cursosecuador.com', '$2b$12$/zahGtexuumz47rdEfdhJOyJGLj7e.tCVCp2mWibqXEElmLRrG9b6', '0965432109', true, true)
 ON CONFLICT (email) DO NOTHING;
 
--- Estudiante demo (password: Estudiante123!)
+-- Estudiante demo (password: Admin1234)
 INSERT INTO usuarios (nombre, apellido, email, password_hash, telefono, estado, email_verificado) VALUES
-('Pedro', 'Estudiante', 'estudiante@cursosecuador.com', '$2b$12$LJ3m4yPnVfWzLjH2GzWJXeKZq3YqY5vN8mR7kP6tQ9sX1wA2bC3dE', '0954321098', true, true)
+('Pedro', 'Estudiante', 'estudiante@cursosecuador.com', '$2b$12$/zahGtexuumz47rdEfdhJOyJGLj7e.tCVCp2mWibqXEElmLRrG9b6', '0954321098', true, true)
 ON CONFLICT (email) DO NOTHING;
 
 -- Asignar roles
