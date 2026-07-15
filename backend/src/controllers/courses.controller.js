@@ -423,7 +423,32 @@ const deleteCourse = async (req, res, next) => {
   }
 };
 
+// GET /api/courses/my-courses
+const getMyCourses = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const isAdmin = req.user.roles.includes('administrador');
+    
+    // Si es administrador, ve todos los cursos. Si es instructor, solo los suyos.
+    const result = await query(
+      `SELECT c.*, cat.nombre as categoria_nombre,
+              (SELECT COUNT(*) FROM inscripciones WHERE curso_id = c.id) as total_estudiantes,
+              (SELECT COALESCE(AVG(calificacion), 0) FROM resenas WHERE curso_id = c.id) as promedio_calificacion,
+              (SELECT COUNT(*) FROM resenas WHERE curso_id = c.id) as total_resenas
+       FROM cursos c
+       LEFT JOIN categorias cat ON c.categoria_id = cat.id
+       WHERE ${isAdmin ? '1=1' : 'c.instructor_id = $1'}
+       ORDER BY c.creado_en DESC`,
+      isAdmin ? [] : [userId]
+    );
+    res.json({ data: result.rows });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getCourses, getBestsellers, getRecommended, getPremiumCourses,
-  getCourseById, createCourse, updateCourse, deleteCourse
+  getCourseById, createCourse, updateCourse, deleteCourse, getMyCourses
 };
+

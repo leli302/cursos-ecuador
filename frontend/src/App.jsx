@@ -25,6 +25,9 @@ import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
 import AdminOrdersPage from './pages/admin/AdminOrdersPage';
 
+import InstructorCoursesPage from './pages/instructor/InstructorCoursesPage';
+import CourseContentPage from './pages/instructor/CourseContentPage';
+
 // Protected Route component
 const ProtectedRoute = ({ children, roles = [] }) => {
   const { isAuthenticated, user, loading } = useAuth();
@@ -61,6 +64,10 @@ function AppContent() {
           <Route path="/mis-certificados" element={<ProtectedRoute><CertificatesPage /></ProtectedRoute>} />
           <Route path="/mis-compras" element={<ProtectedRoute><PurchaseHistoryPage /></ProtectedRoute>} />
           <Route path="/mi-perfil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+
+          {/* Instructor */}
+          <Route path="/instructor/cursos" element={<ProtectedRoute roles={['administrador', 'instructor']}><InstructorCoursesPage /></ProtectedRoute>} />
+          <Route path="/instructor/curso/:id/contenido" element={<ProtectedRoute roles={['administrador', 'instructor']}><CourseContentPage /></ProtectedRoute>} />
 
           {/* Admin */}
           <Route path="/admin" element={<ProtectedRoute roles={['administrador', 'instructor']}><AdminDashboardPage /></ProtectedRoute>} />

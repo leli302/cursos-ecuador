@@ -152,7 +152,7 @@ export default function Navbar() {
                         <LayoutDashboard size={16} /> Panel Admin
                       </Link>
                     ) : isInstructor() ? (
-                      <Link to="/admin/cursos" onClick={() => setUserMenu(false)} className="flex items-center gap-3" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--accent-teal)', fontSize: 'var(--text-sm)', transition: 'all 0.15s' }}>
+                      <Link to="/instructor/cursos" onClick={() => setUserMenu(false)} className="flex items-center gap-3" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--accent-teal)', fontSize: 'var(--text-sm)', transition: 'all 0.15s' }}>
                         <LayoutDashboard size={16} /> Panel Instructor
                       </Link>
                     ) : (
@@ -214,7 +214,7 @@ export default function Navbar() {
             <Link to="/admin" onClick={() => setMobileMenu(false)} className="flex items-center gap-3" style={{ padding: '12px 0', color: 'var(--accent-teal)' }}><LayoutDashboard size={16} /> Panel Admin</Link>
           )}
           {isInstructor() && (
-            <Link to="/admin/cursos" onClick={() => setMobileMenu(false)} className="flex items-center gap-3" style={{ padding: '12px 0', color: 'var(--accent-teal)' }}><LayoutDashboard size={16} /> Panel Instructor</Link>
+            <Link to="/instructor/cursos" onClick={() => setMobileMenu(false)} className="flex items-center gap-3" style={{ padding: '12px 0', color: 'var(--accent-teal)' }}><LayoutDashboard size={16} /> Panel Instructor</Link>
           )}
         </div>
       )}

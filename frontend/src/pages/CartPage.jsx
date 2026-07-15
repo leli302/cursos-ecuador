@@ -20,15 +20,60 @@ export default function CartPage() {
   const navigate = useNavigate();
   const [processing, setProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('tarjeta_simulada');
+  
+  // Payment input states
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCvc, setCardCvc] = useState('');
+  const [transferRef, setTransferRef] = useState('');
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    const tempErrors = {};
+    if (paymentMethod === 'tarjeta_simulada') {
+      const cleanNum = cardNumber.replace(/\s/g, '');
+      if (!cleanNum) {
+        tempErrors.cardNumber = 'El número de tarjeta es requerido';
+      } else if (!/^\d{16}$/.test(cleanNum)) {
+        tempErrors.cardNumber = 'El número de tarjeta debe tener 16 dígitos';
+      }
+
+      if (!cardExpiry) {
+        tempErrors.cardExpiry = 'La fecha de vencimiento es requerida';
+      } else if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(cardExpiry)) {
+        tempErrors.cardExpiry = 'Formato MM/AA inválido';
+      }
+
+      if (!cardCvc) {
+        tempErrors.cardCvc = 'El código CVC es requerido';
+      } else if (!/^\d{3,4}$/.test(cardCvc)) {
+        tempErrors.cardCvc = 'Debe ser de 3 o 4 dígitos';
+      }
+    } else if (paymentMethod === 'transferencia_simulada') {
+      if (!transferRef.trim()) {
+        tempErrors.transferRef = 'El número de comprobante es requerido';
+      }
+    }
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
 
   const handleCheckout = async () => {
     if (cart.items.length === 0) return;
+    if (!validate()) {
+      toast.error('Por favor, ingresa los datos de pago requeridos');
+      return;
+    }
     setProcessing(true);
     try {
       // 1. Create order
       const { data: orderData } = await api.post('/orders');
       // 2. Process payment
-      await api.post('/payments', { orden_id: orderData.order.id, metodo: paymentMethod });
+      await api.post('/payments', { 
+        orden_id: orderData.order.id, 
+        metodo: paymentMethod,
+        referencia: paymentMethod === 'transferencia_simulada' ? transferRef : undefined
+      });
       toast.success('¡Compra exitosa! Ya tienes acceso a tus cursos.');
       await fetchCart();
       navigate('/mi-biblioteca');
@@ -96,7 +141,7 @@ export default function CartPage() {
             {/* Payment Method */}
             <div className="mt-4 mb-4">
               <label className="form-label">Método de Pago</label>
-              <select className="form-input form-select" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} id="payment-method">
+              <select className="form-input form-select" value={paymentMethod} onChange={(e) => { setPaymentMethod(e.target.value); setErrors({}); }} id="payment-method">
                 <option value="tarjeta_simulada">💳 Tarjeta (Simulado)</option>
                 <option value="transferencia_simulada">🏦 Transferencia (Simulado)</option>
               </select>
@@ -104,12 +149,68 @@ export default function CartPage() {
 
             {paymentMethod === 'tarjeta_simulada' && (
               <div className="mb-4" style={{ padding: 'var(--space-4)', background: 'var(--bg-card)', borderRadius: 'var(--radius-md)' }}>
-                <input type="text" className="form-input mb-2" placeholder="4242 4242 4242 4242" style={{ fontSize: 'var(--text-sm)' }} />
+                <div style={{ marginBottom: '10px' }}>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    placeholder="Número de Tarjeta (16 dígitos)" 
+                    value={cardNumber}
+                    onChange={(e) => setCardNumber(e.target.value.replace(/[^\d]/g, '').substring(0, 16))}
+                    style={{ fontSize: 'var(--text-sm)', borderColor: errors.cardNumber ? 'var(--accent-red)' : '' }} 
+                  />
+                  {errors.cardNumber && <span style={{ color: 'var(--accent-red)', fontSize: '11px', marginTop: '2px', display: 'block' }}>{errors.cardNumber}</span>}
+                </div>
+                
                 <div className="flex gap-2">
-                  <input type="text" className="form-input" placeholder="MM/AA" style={{ fontSize: 'var(--text-sm)' }} />
-                  <input type="text" className="form-input" placeholder="CVC" style={{ fontSize: 'var(--text-sm)' }} />
+                  <div style={{ flex: 1 }}>
+                    <input 
+                      type="text" 
+                      className="form-input" 
+                      placeholder="MM/AA" 
+                      value={cardExpiry}
+                      onChange={(e) => {
+                        let v = e.target.value.replace(/[^\d]/g, '');
+                        if (v.length > 2) {
+                          v = v.substring(0, 2) + '/' + v.substring(2, 4);
+                        }
+                        setCardExpiry(v);
+                      }}
+                      style={{ fontSize: 'var(--text-sm)', borderColor: errors.cardExpiry ? 'var(--accent-red)' : '' }} 
+                    />
+                    {errors.cardExpiry && <span style={{ color: 'var(--accent-red)', fontSize: '11px', marginTop: '2px', display: 'block' }}>{errors.cardExpiry}</span>}
+                  </div>
+                  
+                  <div style={{ flex: 1 }}>
+                    <input 
+                      type="text" 
+                      className="form-input" 
+                      placeholder="CVC" 
+                      value={cardCvc}
+                      onChange={(e) => setCardCvc(e.target.value.replace(/[^\d]/g, '').substring(0, 4))}
+                      style={{ fontSize: 'var(--text-sm)', borderColor: errors.cardCvc ? 'var(--accent-red)' : '' }} 
+                    />
+                    {errors.cardCvc && <span style={{ color: 'var(--accent-red)', fontSize: '11px', marginTop: '2px', display: 'block' }}>{errors.cardCvc}</span>}
+                  </div>
                 </div>
                 <p className="text-xs text-muted mt-2"><Shield size={10} style={{ display: 'inline' }} /> Pago simulado - no se cobra</p>
+              </div>
+            )}
+
+            {paymentMethod === 'transferencia_simulada' && (
+              <div className="mb-4" style={{ padding: 'var(--space-4)', background: 'var(--bg-card)', borderRadius: 'var(--radius-md)' }}>
+                <div style={{ marginBottom: '10px' }}>
+                  <label className="form-label" style={{ fontSize: '12px' }}>Número de Comprobante / Referencia</label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    placeholder="Ej: 998822" 
+                    value={transferRef}
+                    onChange={(e) => setTransferRef(e.target.value)}
+                    style={{ fontSize: 'var(--text-sm)', borderColor: errors.transferRef ? 'var(--accent-red)' : '' }} 
+                  />
+                  {errors.transferRef && <span style={{ color: 'var(--accent-red)', fontSize: '11px', marginTop: '2px', display: 'block' }}>{errors.transferRef}</span>}
+                </div>
+                <p className="text-xs text-muted"><Shield size={10} style={{ display: 'inline' }} /> Pago simulado vía transferencia bancaria</p>
               </div>
             )}
 
