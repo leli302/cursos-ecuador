@@ -14,7 +14,7 @@ export default function CartPage() {
     return <Navigate to="/admin" replace />;
   }
   if (isInstructor()) {
-    return <Navigate to="/admin/cursos" replace />;
+    return <Navigate to="/instructor/cursos" replace />;
   }
   const toast = useToast();
   const navigate = useNavigate();

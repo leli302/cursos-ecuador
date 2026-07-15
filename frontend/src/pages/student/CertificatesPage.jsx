@@ -11,7 +11,7 @@ export default function CertificatesPage() {
     return <Navigate to="/admin" replace />;
   }
   if (isInstructor()) {
-    return <Navigate to="/admin/cursos" replace />;
+    return <Navigate to="/instructor/cursos" replace />;
   }
   const [certs, setCerts] = useState([]);
   const [loading, setLoading] = useState(true);

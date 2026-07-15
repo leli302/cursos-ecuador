@@ -8,7 +8,7 @@ export default function AdminDashboardPage() {
   const { isInstructor } = useAuth();
 
   if (isInstructor()) {
-    return <Navigate to="/admin/cursos" replace />;
+    return <Navigate to="/instructor/cursos" replace />;
   }
 
   const [data, setData] = useState(null);

@@ -11,7 +11,7 @@ export default function DashboardPage() {
     return <Navigate to="/admin" replace />;
   }
   if (isInstructor()) {
-    return <Navigate to="/admin/cursos" replace />;
+    return <Navigate to="/instructor/cursos" replace />;
   }
   const [library, setLibrary] = useState({ courses: [], certificates: [], totalCourses: 0, completedCourses: 0 });
   const [loading, setLoading] = useState(true);

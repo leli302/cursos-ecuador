@@ -72,8 +72,8 @@ function AppContent() {
           <Route path="/instructor/curso/:id/alumnos" element={<ProtectedRoute roles={['administrador', 'instructor']}><InstructorStudentsPage /></ProtectedRoute>} />
 
           {/* Admin */}
-          <Route path="/admin" element={<ProtectedRoute roles={['administrador', 'instructor']}><AdminDashboardPage /></ProtectedRoute>} />
-          <Route path="/admin/cursos" element={<ProtectedRoute roles={['administrador','instructor']}><AdminCoursesPage /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute roles={['administrador']}><AdminDashboardPage /></ProtectedRoute>} />
+          <Route path="/admin/cursos" element={<ProtectedRoute roles={['administrador']}><AdminCoursesPage /></ProtectedRoute>} />
           <Route path="/admin/usuarios" element={<ProtectedRoute roles={['administrador']}><AdminUsersPage /></ProtectedRoute>} />
           <Route path="/admin/categorias" element={<ProtectedRoute roles={['administrador']}><AdminCategoriesPage /></ProtectedRoute>} />
           <Route path="/admin/ordenes" element={<ProtectedRoute roles={['administrador']}><AdminOrdersPage /></ProtectedRoute>} />

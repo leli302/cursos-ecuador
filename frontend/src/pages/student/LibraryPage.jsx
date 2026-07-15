@@ -11,7 +11,7 @@ export default function LibraryPage() {
     return <Navigate to="/admin" replace />;
   }
   if (isInstructor()) {
-    return <Navigate to="/admin/cursos" replace />;
+    return <Navigate to="/instructor/cursos" replace />;
   }
   const [library, setLibrary] = useState({ courses: [], certificates: [] });
   const [loading, setLoading] = useState(true);
