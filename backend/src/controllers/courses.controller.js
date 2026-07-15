@@ -300,6 +300,7 @@ const createCourse = async (req, res, next) => {
     } = req.body;
 
     const imagen = req.file ? `/storage/cursos/imagenes/${req.file.filename}` : null;
+    const esPremiumBool = es_premium === 'true' || es_premium === true;
 
     const result = await query(
       `INSERT INTO cursos (codigo, nombre, descripcion, categoria_id, instructor_id,
@@ -307,10 +308,23 @@ const createCourse = async (req, res, next) => {
         fecha_disponible, version_actual, es_premium)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
        RETURNING *`,
-      [codigo, nombre, descripcion, categoria_id, req.user.id,
-       precio || 0, precio_premium || 0, imagen, nivel || 'todos',
-       duracion_horas || 0, estado || 'disponible', cupo_maximo || 100,
-       fecha_disponible, version_actual || '1.0', es_premium || false]
+      [
+        codigo, 
+        nombre, 
+        descripcion || null, 
+        categoria_id ? parseInt(categoria_id) : null, 
+        req.user.id,
+        precio && precio !== "" ? parseFloat(precio) : 0, 
+        precio_premium && precio_premium !== "" ? parseFloat(precio_premium) : 0, 
+        imagen, 
+        nivel || 'todos',
+        duracion_horas && duracion_horas !== "" ? parseInt(duracion_horas) : 0, 
+        estado || 'disponible', 
+        cupo_maximo && cupo_maximo !== "" ? parseInt(cupo_maximo) : 100,
+        fecha_disponible || null, 
+        version_actual || '1.0', 
+        esPremiumBool
+      ]
     );
 
     const course = result.rows[0];
@@ -326,7 +340,7 @@ const createCourse = async (req, res, next) => {
     await query(
       `INSERT INTO aulas (curso_id, nombre, cupo_maximo, fecha_inicio, estado)
        VALUES ($1, 'Aula 1', $2, $3, 'activa')`,
-      [course.id, cupo_maximo || 100, fecha_disponible || new Date()]
+      [course.id, course.cupo_maximo || 100, course.fecha_disponible || new Date()]
     );
 
     // Crear disponibilidad
@@ -368,6 +382,8 @@ const updateCourse = async (req, res, next) => {
       }
     }
 
+    const esPremiumBool = es_premium !== undefined ? (es_premium === 'true' || es_premium === true) : undefined;
+
     const result = await query(
       `UPDATE cursos SET
         nombre = COALESCE($1, nombre),
@@ -385,9 +401,21 @@ const updateCourse = async (req, res, next) => {
         actualizado_en = NOW()
        WHERE id = $13
        RETURNING *`,
-      [nombre, descripcion, categoria_id, precio, precio_premium,
-       imagen, nivel, duracion_horas, estado, cupo_maximo,
-       fecha_disponible, es_premium, courseId]
+      [
+        nombre || null, 
+        descripcion || null, 
+        categoria_id ? parseInt(categoria_id) : null, 
+        precio !== undefined && precio !== "" ? parseFloat(precio) : null, 
+        precio_premium !== undefined && precio_premium !== "" ? parseFloat(precio_premium) : null,
+        imagen !== undefined ? imagen : null, 
+        nivel || null, 
+        duracion_horas !== undefined && duracion_horas !== "" ? parseInt(duracion_horas) : null, 
+        estado || null, 
+        cupo_maximo !== undefined && cupo_maximo !== "" ? parseInt(cupo_maximo) : null, 
+        fecha_disponible || null, 
+        esPremiumBool !== undefined ? esPremiumBool : null, 
+        courseId
+      ]
     );
 
     if (result.rows.length === 0) {
