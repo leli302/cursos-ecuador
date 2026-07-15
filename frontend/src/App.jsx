@@ -27,6 +27,7 @@ import AdminOrdersPage from './pages/admin/AdminOrdersPage';
 
 import InstructorCoursesPage from './pages/instructor/InstructorCoursesPage';
 import CourseContentPage from './pages/instructor/CourseContentPage';
+import InstructorStudentsPage from './pages/instructor/InstructorStudentsPage';
 
 // Protected Route component
 const ProtectedRoute = ({ children, roles = [] }) => {
@@ -68,6 +69,7 @@ function AppContent() {
           {/* Instructor */}
           <Route path="/instructor/cursos" element={<ProtectedRoute roles={['administrador', 'instructor']}><InstructorCoursesPage /></ProtectedRoute>} />
           <Route path="/instructor/curso/:id/contenido" element={<ProtectedRoute roles={['administrador', 'instructor']}><CourseContentPage /></ProtectedRoute>} />
+          <Route path="/instructor/curso/:id/alumnos" element={<ProtectedRoute roles={['administrador', 'instructor']}><InstructorStudentsPage /></ProtectedRoute>} />
 
           {/* Admin */}
           <Route path="/admin" element={<ProtectedRoute roles={['administrador', 'instructor']}><AdminDashboardPage /></ProtectedRoute>} />

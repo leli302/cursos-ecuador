@@ -6,7 +6,7 @@ const { isAdminOrInstructor } = require('../middleware/roles');
 const upload = require('../config/multer');
 const {
   getCourses, getBestsellers, getRecommended, getPremiumCourses,
-  getCourseById, createCourse, updateCourse, deleteCourse, getMyCourses
+  getCourseById, createCourse, updateCourse, deleteCourse, getMyCourses, getCourseStudents
 } = require('../controllers/courses.controller');
 
 const router = Router();
@@ -18,6 +18,7 @@ router.get('/bestsellers', getBestsellers);
 router.get('/recommended', optionalAuth, getRecommended);
 router.get('/premium', getPremiumCourses);
 router.get('/:id', optionalAuth, getCourseById);
+router.get('/:id/students', auth, isAdminOrInstructor, getCourseStudents);
 
 // Protegidas (admin o instructor)
 router.post('/', auth, isAdminOrInstructor, upload.single('course_image'), [

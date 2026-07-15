@@ -447,8 +447,49 @@ const getMyCourses = async (req, res, next) => {
   }
 };
 
-module.exports = {
-  getCourses, getBestsellers, getRecommended, getPremiumCourses,
-  getCourseById, createCourse, updateCourse, deleteCourse, getMyCourses
+// GET /api/courses/:id/students
+const getCourseStudents = async (req, res, next) => {
+  try {
+    const courseId = req.params.id;
+
+    // Verificar que el instructor es dueño del curso (o es admin)
+    if (!req.user.roles.includes('administrador')) {
+      const courseCheck = await query('SELECT instructor_id FROM cursos WHERE id = $1', [courseId]);
+      if (courseCheck.rows.length === 0) {
+        return res.status(404).json({ error: 'Curso no encontrado.' });
+      }
+      if (courseCheck.rows[0].instructor_id !== req.user.id) {
+        return res.status(403).json({ error: 'No tienes permisos para ver los estudiantes de este curso.' });
+      }
+    }
+
+    const result = await query(
+      `SELECT u.id, u.nombre, u.apellido, u.email, u.avatar, u.telefono,
+              i.fecha_inscripcion, i.estado as inscripcion_estado,
+              a.nombre as aula_nombre,
+              COALESCE(
+                (SELECT ROUND(AVG(CASE WHEN pu.completado THEN 100 ELSE pu.porcentaje END))
+                 FROM progreso_usuario pu
+                 WHERE pu.usuario_id = u.id AND pu.curso_id = $1), 0
+              ) as progreso
+       FROM inscripciones i
+       JOIN usuarios u ON i.usuario_id = u.id
+       LEFT JOIN aulas a ON i.aula_id = a.id
+       WHERE i.curso_id = $1
+       ORDER BY i.fecha_inscripcion DESC`,
+      [courseId]
+    );
+
+    res.json({ 
+      data: result.rows,
+      total: result.rows.length
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
+module.exports = {
+  getCourses, getBestsellers, getRecommended, getPremiumCourses,
+  getCourseById, createCourse, updateCourse, deleteCourse, getMyCourses, getCourseStudents
+};

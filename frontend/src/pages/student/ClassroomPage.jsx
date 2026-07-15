@@ -12,7 +12,7 @@ export default function ClassroomPage() {
     return <Navigate to="/admin" replace />;
   }
   if (isInstructor()) {
-    return <Navigate to="/admin/cursos" replace />;
+    return <Navigate to="/instructor/cursos" replace />;
   }
   const { id } = useParams();
   const navigate = useNavigate();

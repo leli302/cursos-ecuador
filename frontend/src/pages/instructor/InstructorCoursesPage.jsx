@@ -193,6 +193,12 @@ export default function InstructorCoursesPage() {
                   <div className="flex gap-2">
                     <button 
                       className="btn btn-outline w-full flex items-center justify-center gap-1"
+                      onClick={() => navigate(`/instructor/curso/${course.id}/alumnos`)}
+                    >
+                      <GraduationCap size={14} /> Alumnos
+                    </button>
+                    <button 
+                      className="btn btn-outline w-full flex items-center justify-center gap-1"
                       onClick={() => {
                         setEditingCourse(course);
                         setForm({
