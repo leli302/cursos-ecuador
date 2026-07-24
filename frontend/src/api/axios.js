@@ -7,11 +7,16 @@ const api = axios.create({
   },
 });
 
-// Interceptor para agregar token
+// Interceptor para agregar token y manejar FormData
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+  // Si el body es FormData, eliminar Content-Type para que el navegador
+  // establezca automáticamente multipart/form-data con el boundary correcto
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
   }
   return config;
 });
