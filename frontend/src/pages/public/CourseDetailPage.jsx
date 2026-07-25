@@ -224,22 +224,89 @@ export default function CourseDetailPage() {
                       </div>
                       {expandedModules[mod.id] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                     </button>
-                    {expandedModules[mod.id] && mod.lecciones && (
-                      <div style={{ borderTop: '1px solid var(--border-subtle)' }}>
-                        {mod.lecciones.map(lesson => (
+                    {expandedModules[mod.id] && (
+                      <div style={{ borderTop: '1px solid var(--border-subtle)', position: 'relative' }}>
+                        {/* Free preview lessons if any */}
+                        {mod.lecciones?.filter(l => l.es_gratis).map(lesson => (
                           <div key={lesson.id} className="flex items-center gap-3" style={{
-                            padding: 'var(--space-3) var(--space-5)', borderBottom: '1px solid var(--border-subtle)'
+                            padding: 'var(--space-3) var(--space-5)', borderBottom: '1px solid var(--border-subtle)',
+                            background: 'rgba(16, 185, 129, 0.05)'
                           }}>
-                            {lesson.es_gratis ? (
-                              <PlayCircle size={16} style={{ color: 'var(--accent-green)', flexShrink: 0 }} />
-                            ) : (
-                              <Lock size={16} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
-                            )}
-                            <span className="text-sm" style={{ flex: 1 }}>{lesson.titulo}</span>
-                            <span className="text-xs text-muted">{lesson.duracion_minutos} min</span>
-                            {lesson.es_gratis && <span className="badge badge-green" style={{ fontSize: '0.55rem' }}>GRATIS</span>}
+                            <PlayCircle size={16} style={{ color: 'var(--accent-green)', flexShrink: 0 }} />
+                            <span className="text-sm font-medium" style={{ flex: 1 }}>{lesson.titulo}</span>
+                            <span className="text-xs text-muted"><Clock size={12} style={{ display: 'inline', marginRight: 4 }} />{lesson.duracion_minutos} min</span>
+                            <span className="badge badge-green flex items-center gap-1" style={{ fontSize: '0.65rem' }}>
+                              <Eye size={12} /> Vista Previa Gratuita
+                            </span>
                           </div>
                         ))}
+
+                        {/* Blurred Locked Topics Container with CTA Card Overlay */}
+                        <div style={{ position: 'relative', minHeight: 200, padding: 'var(--space-6)', overflow: 'hidden' }}>
+                          {/* Blurred placeholder topic items */}
+                          <div style={{ filter: 'blur(7px)', opacity: 0.25, userSelect: 'none', pointerEvents: 'none' }} className="flex flex-col gap-3">
+                            <div className="flex items-center justify-between p-3 card" style={{ background: 'var(--bg-secondary)' }}>
+                              <div className="flex items-center gap-3">
+                                <Lock size={16} />
+                                <span className="text-sm font-semibold">Lección 1: Fundamentos y Conceptos Clave de la Unidad</span>
+                              </div>
+                              <span className="text-xs">15 min</span>
+                            </div>
+                            <div className="flex items-center justify-between p-3 card" style={{ background: 'var(--bg-secondary)' }}>
+                              <div className="flex items-center gap-3">
+                                <Lock size={16} />
+                                <span className="text-sm font-semibold">Lección 2: Aplicación Práctica y Ejercicios Guiados</span>
+                              </div>
+                              <span className="text-xs">25 min</span>
+                            </div>
+                            <div className="flex items-center justify-between p-3 card" style={{ background: 'var(--bg-secondary)' }}>
+                              <div className="flex items-center gap-3">
+                                <Lock size={16} />
+                                <span className="text-sm font-semibold">Lección 3: Evaluación Práctica y Material Descargable</span>
+                              </div>
+                              <span className="text-xs">20 min</span>
+                            </div>
+                          </div>
+
+                          {/* Glassmorphic Locked Overlay Card */}
+                          <div style={{
+                            position: 'absolute', inset: 12,
+                            background: 'rgba(10, 22, 40, 0.88)', backdropFilter: 'blur(12px)',
+                            borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)',
+                            display: 'flex', flexDirection: 'column', alignItems: 'center',
+                            justifyContent: 'center', padding: '24px', textAlign: 'center',
+                            boxShadow: 'var(--shadow-lg)'
+                          }} className="animate-fade-in">
+                            <div style={{
+                              padding: 12, borderRadius: '50%', background: 'rgba(78, 205, 196, 0.12)',
+                              color: 'var(--accent-teal)', marginBottom: 12
+                            }}>
+                              <Lock size={26} />
+                            </div>
+                            <h4 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: 6 }}>
+                              Contenido Bloqueado de la Unidad
+                            </h4>
+                            <p className="text-xs text-muted" style={{ maxWidth: 420, marginBottom: 18, lineHeight: 1.5 }}>
+                              Inscríbete o adquiere el curso para desbloquear los temas, videos HD, evaluaciones y material de esta unidad.
+                            </p>
+                            <div className="flex items-center gap-3 flex-wrap justify-center">
+                              <button 
+                                className="btn btn-primary btn-sm flex items-center gap-2"
+                                onClick={handleBuyNow}
+                                style={{ padding: '8px 18px' }}
+                              >
+                                <Zap size={15} /> Inscribirme al Curso
+                              </button>
+                              <button 
+                                className="btn btn-outline btn-sm flex items-center gap-2"
+                                onClick={handleAddToCart}
+                                style={{ padding: '8px 16px' }}
+                              >
+                                <ShoppingCart size={15} /> Agregar al Carrito
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
