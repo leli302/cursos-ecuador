@@ -37,7 +37,7 @@ export default function CourseDetailPage() {
   }, [isLightboxOpen]);
 
   const getModuleIcon = (title) => {
-    const t = title.toLowerCase();
+    const t = (title || '').toLowerCase();
     if (t.includes('introduc') || t.includes('bienvenida') || t.includes('conceptos') || t.includes('fundamento')) {
       return <BookOpen size={18} style={{ color: 'var(--accent-teal)' }} />;
     }
@@ -56,12 +56,17 @@ export default function CourseDetailPage() {
     return <BookOpen size={18} style={{ color: 'var(--accent-teal)' }} />;
   };
 
+  const getModuleLessons = (mod) => {
+    if (!mod || !Array.isArray(mod.lecciones)) return [];
+    return mod.lecciones.filter(l => l && typeof l === 'object' && l.id);
+  };
+
   useEffect(() => {
     const fetchCourse = async () => {
       try {
         const { data } = await api.get(`/courses/${id}`);
         setData(data);
-        // Expand first module
+        // Expand first module if present
         if (data.modules?.length > 0) setExpandedModules({ [data.modules[0].id]: true });
       } catch (error) {
         console.error(error);
@@ -111,7 +116,7 @@ export default function CourseDetailPage() {
   );
 
   const { course, modules, versions, classrooms, availability, related } = data;
-  const totalLessons = modules?.reduce((sum, m) => sum + (m.lecciones?.length || 0), 0) || 0;
+  const totalLessons = modules?.reduce((sum, m) => sum + getModuleLessons(m).length, 0) || 0;
 
   return (
     <div className="page">
@@ -212,34 +217,38 @@ export default function CourseDetailPage() {
               <h3 className="mb-4">Contenido del Curso</h3>
               <p className="text-sm text-muted mb-4">{modules?.length || 0} módulos · {totalLessons} lecciones</p>
               <div className="flex flex-col gap-2">
-                {modules?.map(mod => (
-                  <div key={mod.id} className="card" style={{ padding: 0, overflow: 'hidden' }}>
-                    <button onClick={() => toggleModule(mod.id)} className="flex items-center justify-between w-full" style={{
-                      padding: 'var(--space-4) var(--space-5)', background: 'transparent', color: 'var(--text-primary)', textAlign: 'left'
-                    }}>
-                      <div className="flex items-center gap-3">
-                        {getModuleIcon(mod.titulo)}
-                        <span style={{ fontWeight: 600 }}>{mod.titulo}</span>
-                        <span className="badge badge-blue" style={{ fontSize: '0.6rem' }}>{mod.lecciones?.length || 0} lecciones</span>
-                      </div>
-                      {expandedModules[mod.id] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                    </button>
-                    {expandedModules[mod.id] && (
-                      <div style={{ borderTop: '1px solid var(--border-subtle)', position: 'relative' }}>
-                        {/* Free preview lessons if any */}
-                        {mod.lecciones?.filter(l => l.es_gratis).map(lesson => (
-                          <div key={lesson.id} className="flex items-center gap-3" style={{
-                            padding: 'var(--space-3) var(--space-5)', borderBottom: '1px solid var(--border-subtle)',
-                            background: 'rgba(16, 185, 129, 0.05)'
-                          }}>
-                            <PlayCircle size={16} style={{ color: 'var(--accent-green)', flexShrink: 0 }} />
-                            <span className="text-sm font-medium" style={{ flex: 1 }}>{lesson.titulo}</span>
-                            <span className="text-xs text-muted"><Clock size={12} style={{ display: 'inline', marginRight: 4 }} />{lesson.duracion_minutos} min</span>
-                            <span className="badge badge-green flex items-center gap-1" style={{ fontSize: '0.65rem' }}>
-                              <Eye size={12} /> Vista Previa Gratuita
-                            </span>
-                          </div>
-                        ))}
+                {modules?.map(mod => {
+                  const validLessons = getModuleLessons(mod);
+                  const freeLessons = validLessons.filter(l => l.es_gratis);
+                  return (
+                    <div key={mod.id} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                      <button onClick={() => toggleModule(mod.id)} className="flex items-center justify-between w-full" style={{
+                        padding: 'var(--space-4) var(--space-5)', background: 'transparent', color: 'var(--text-primary)', textAlign: 'left'
+                      }}>
+                        <div className="flex items-center gap-3">
+                          {getModuleIcon(mod.titulo)}
+                          <span style={{ fontWeight: 600 }}>{mod.titulo}</span>
+                          <span className="badge badge-blue" style={{ fontSize: '0.65rem' }}>{validLessons.length} lecciones</span>
+                        </div>
+                        {expandedModules[mod.id] ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                      </button>
+
+                      {expandedModules[mod.id] && (
+                        <div style={{ borderTop: '1px solid var(--border-subtle)', position: 'relative' }}>
+                          {/* Free preview lessons if any */}
+                          {freeLessons.map(lesson => (
+                            <div key={lesson.id} className="flex items-center gap-3" style={{
+                              padding: 'var(--space-3) var(--space-5)', borderBottom: '1px solid var(--border-subtle)',
+                              background: 'rgba(16, 185, 129, 0.05)'
+                            }}>
+                              <PlayCircle size={16} style={{ color: 'var(--accent-green)', flexShrink: 0 }} />
+                              <span className="text-sm font-medium" style={{ flex: 1 }}>{lesson.titulo}</span>
+                              <span className="text-xs text-muted"><Clock size={12} style={{ display: 'inline', marginRight: 4 }} />{lesson.duracion_minutos} min</span>
+                              <span className="badge badge-green flex items-center gap-1" style={{ fontSize: '0.65rem' }}>
+                                <Eye size={12} /> Vista Previa Gratuita
+                              </span>
+                            </div>
+                          ))}
 
                         {/* Blurred Locked Topics Container with CTA Card Overlay */}
                         <div style={{ position: 'relative', minHeight: 200, padding: 'var(--space-6)', overflow: 'hidden' }}>
@@ -310,7 +319,8 @@ export default function CourseDetailPage() {
                       </div>
                     )}
                   </div>
-                ))}
+                );
+              })}
               </div>
             </div>
 
