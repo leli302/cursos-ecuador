@@ -5,7 +5,7 @@ import CourseCard from '../../components/common/CourseCard';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
-import { Star, Clock, Users, BookOpen, ShoppingCart, Zap, Crown, ChevronDown, ChevronUp, PlayCircle, FileText, Lock, Check, Award, Infinity, Palette, Code, TrendingUp, ZoomIn, ZoomOut, RotateCcw, X, Maximize2 } from 'lucide-react';
+import { Star, Clock, Users, BookOpen, ShoppingCart, Zap, Crown, ChevronDown, ChevronUp, PlayCircle, FileText, Lock, Check, Award, Infinity, Palette, Code, TrendingUp, ZoomIn, ZoomOut, RotateCcw, X, Maximize2, Eye } from 'lucide-react';
 
 export default function CourseDetailPage() {
   const { id } = useParams();
