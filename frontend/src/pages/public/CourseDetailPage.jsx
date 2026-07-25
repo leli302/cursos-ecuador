@@ -5,7 +5,7 @@ import CourseCard from '../../components/common/CourseCard';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
-import { Star, Clock, Users, BookOpen, ShoppingCart, Zap, Crown, ChevronDown, ChevronUp, PlayCircle, FileText, Lock, Check, Award, Infinity, Palette, Code, TrendingUp } from 'lucide-react';
+import { Star, Clock, Users, BookOpen, ShoppingCart, Zap, Crown, ChevronDown, ChevronUp, PlayCircle, FileText, Lock, Check, Award, Infinity, Palette, Code, TrendingUp, ZoomIn, ZoomOut, RotateCcw, X, Maximize2 } from 'lucide-react';
 
 export default function CourseDetailPage() {
   const { id } = useParams();
@@ -16,6 +16,25 @@ export default function CourseDetailPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [expandedModules, setExpandedModules] = useState({});
+
+  // Lightbox Zoom State
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [zoomScale, setZoomScale] = useState(1);
+
+  const handleZoomIn = () => setZoomScale(prev => Math.min(prev + 0.3, 3));
+  const handleZoomOut = () => setZoomScale(prev => Math.max(prev - 0.3, 0.5));
+  const handleResetZoom = () => setZoomScale(1);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isLightboxOpen) {
+        setIsLightboxOpen(false);
+        setZoomScale(1);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isLightboxOpen]);
 
   const getModuleIcon = (title) => {
     const t = title.toLowerCase();
@@ -107,14 +126,45 @@ export default function CourseDetailPage() {
               <span>{course.categoria_nombre}</span>
             </div>
 
-            {/* Image */}
-            <div style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden', marginBottom: 'var(--space-6)', position: 'relative' }}>
+            {/* Image with Zoom Trigger */}
+            <div 
+              style={{ 
+                borderRadius: 'var(--radius-xl)', 
+                overflow: 'hidden', 
+                marginBottom: 'var(--space-6)', 
+                position: 'relative',
+                cursor: 'pointer',
+                border: '1px solid var(--border-subtle)',
+                boxShadow: 'var(--shadow-md)',
+                group: 'image-container'
+              }}
+              onClick={() => { setIsLightboxOpen(true); setZoomScale(1); }}
+              title="Haz clic para ver e inspeccionar la imagen en pantalla completa"
+            >
               <img
                 src={course.imagen || `https://placehold.co/800x400/142241/4ECDC4?text=${encodeURIComponent(course.nombre)}&font=roboto`}
                 alt={course.nombre}
-                style={{ width: '100%', aspectRatio: '16/9', objectFit: 'cover' }}
+                style={{ 
+                  width: '100%', 
+                  aspectRatio: '16/9', 
+                  objectFit: 'cover',
+                  transition: 'transform 0.3s ease'
+                }}
                 onError={(e) => { e.target.src = `https://placehold.co/800x400/142241/4ECDC4?text=${encodeURIComponent(course.nombre)}&font=roboto`; }}
               />
+
+              {/* Hover Badge */}
+              <div style={{
+                position: 'absolute', bottom: 12, right: 12,
+                background: 'rgba(10, 22, 40, 0.85)', color: 'white',
+                padding: '6px 12px', borderRadius: 'var(--radius-full)',
+                fontSize: '0.75rem', fontWeight: 600, backdropFilter: 'blur(8px)',
+                display: 'flex', alignItems: 'center', gap: 6,
+                border: '1px solid var(--border-subtle)', pointerEvents: 'none'
+              }}>
+                <Maximize2 size={13} /> Ampliar Imagen
+              </div>
+
               {course.es_premium && (
                 <span className="badge badge-gold" style={{ position: 'absolute', top: 16, right: 16, padding: '6px 12px', fontSize: 'var(--text-xs)' }}>
                   <Crown size={12} /> PREMIUM
@@ -318,6 +368,113 @@ export default function CourseDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Interactive Lightbox Zoom Modal */}
+      {isLightboxOpen && (
+        <div 
+          style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(5, 12, 24, 0.95)', backdropFilter: 'blur(16px)',
+            zIndex: 2000, display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center', padding: '20px'
+          }}
+          className="animate-fade-in"
+          onClick={() => { setIsLightboxOpen(false); setZoomScale(1); }}
+        >
+          {/* Floating Controls Toolbar */}
+          <div 
+            style={{
+              position: 'fixed', top: 20, zIndex: 2010,
+              background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)',
+              padding: '8px 16px', borderRadius: 'var(--radius-full)',
+              border: '1px solid rgba(255,255,255,0.15)', display: 'flex',
+              alignItems: 'center', gap: 12, boxShadow: '0 10px 25px -5px rgba(0,0,0,0.5)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--accent-teal)', marginRight: 4 }}>
+              {Math.round(zoomScale * 100)}%
+            </span>
+
+            <button 
+              type="button" 
+              className="btn-icon" 
+              onClick={handleZoomIn}
+              title="Acercar (+)"
+              style={{ color: 'white', background: 'rgba(255,255,255,0.1)' }}
+            >
+              <ZoomIn size={18} />
+            </button>
+
+            <button 
+              type="button" 
+              className="btn-icon" 
+              onClick={handleZoomOut}
+              title="Alejar (-)"
+              style={{ color: 'white', background: 'rgba(255,255,255,0.1)' }}
+            >
+              <ZoomOut size={18} />
+            </button>
+
+            <button 
+              type="button" 
+              className="btn-icon" 
+              onClick={handleResetZoom}
+              title="Restablecer tamaño (100%)"
+              style={{ color: 'white', background: 'rgba(255,255,255,0.1)' }}
+            >
+              <RotateCcw size={16} />
+            </button>
+
+            <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.2)' }} />
+
+            <button 
+              type="button" 
+              className="btn-icon text-red-400 hover:text-red-300" 
+              onClick={() => { setIsLightboxOpen(false); setZoomScale(1); }}
+              title="Cerrar (Esc)"
+              style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#EF4444' }}
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* Zoomable Image Container */}
+          <div 
+            style={{
+              maxHeight: '82vh', maxWidth: '90vw', overflow: 'auto',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: zoomScale > 1 ? 'grab' : 'zoom-in', transition: 'transform 0.25s cubic-bezier(0.2, 0, 0, 1)'
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (zoomScale === 1) handleZoomIn();
+              else handleResetZoom();
+            }}
+            onWheel={(e) => {
+              e.stopPropagation();
+              if (e.deltaY < 0) handleZoomIn();
+              else handleZoomOut();
+            }}
+          >
+            <img
+              src={course.imagen || `https://placehold.co/800x400/142241/4ECDC4?text=${encodeURIComponent(course.nombre)}&font=roboto`}
+              alt={course.nombre}
+              style={{
+                maxHeight: '80vh', maxWidth: '85vw', objectFit: 'contain',
+                borderRadius: 'var(--radius-lg)', boxShadow: '0 20px 50px rgba(0,0,0,0.7)',
+                transform: `scale(${zoomScale})`,
+                transformOrigin: 'center center',
+                transition: 'transform 0.2s ease-out'
+              }}
+            />
+          </div>
+
+          <p className="text-xs text-muted mt-4" style={{ position: 'fixed', bottom: 16, pointerEvents: 'none' }}>
+            💡 Usa la rueda del mouse o los botones para hacer zoom. Presiona Esc para salir.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
