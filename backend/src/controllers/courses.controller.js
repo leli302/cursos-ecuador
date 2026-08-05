@@ -273,7 +273,7 @@ const getCourseById = async (req, res, next) => {
               cat.nombre as categoria_nombre
        FROM cursos c
        LEFT JOIN categorias cat ON c.categoria_id = cat.id
-       WHERE c.categoria_id = $1 AND c.id != $2 AND c.estado = 'disponible'
+       WHERE c.categoria_id = $1 AND c.id != $2 AND (c.estado IS NULL OR c.estado != 'no_disponible')
        ORDER BY c.valoracion DESC
        LIMIT 4`,
       [course.categoria_id, course.id]

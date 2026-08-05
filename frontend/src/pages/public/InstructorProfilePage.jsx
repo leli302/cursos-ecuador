@@ -87,9 +87,50 @@ export default function InstructorProfilePage() {
 
   if (loading) {
     return (
-      <div className="page container text-center" style={{ paddingTop: '100px' }}>
-        <div className="spinner" style={{ margin: '0 auto 16px' }}></div>
-        <p className="text-muted">Cargando perfil profesional del docente...</p>
+      <div className="page">
+        <div className="container">
+          <div className="skeleton" style={{ height: 16, width: 180, marginBottom: 24 }} />
+          {/* Hero skeleton */}
+          <div className="card mb-8" style={{ padding: '32px' }}>
+            <div className="flex gap-6 items-start flex-wrap">
+              <div className="skeleton" style={{ width: 110, height: 110, borderRadius: '50%', flexShrink: 0 }} />
+              <div style={{ flex: 1 }}>
+                <div className="skeleton" style={{ height: 28, width: '40%', marginBottom: 10 }} />
+                <div className="skeleton" style={{ height: 16, width: '55%', marginBottom: 10 }} />
+                <div className="skeleton" style={{ height: 14, width: '80%', marginBottom: 8 }} />
+                <div className="skeleton" style={{ height: 14, width: '65%', marginBottom: 16 }} />
+                <div className="flex items-center gap-3">
+                  <div className="skeleton" style={{ height: 32, width: 100, borderRadius: 'var(--radius-full)' }} />
+                  <div className="skeleton" style={{ height: 32, width: 100, borderRadius: 'var(--radius-full)' }} />
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Stats bar skeleton */}
+          <div className="card mb-8" style={{ padding: '16px' }}>
+            <div className="flex justify-around">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="text-center">
+                  <div className="skeleton" style={{ height: 28, width: 40, margin: '0 auto 6px' }} />
+                  <div className="skeleton" style={{ height: 12, width: 70, margin: '0 auto' }} />
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Courses skeleton */}
+          <div className="skeleton" style={{ height: 22, width: 200, marginBottom: 16 }} />
+          <div className="grid grid-3">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                <div className="skeleton" style={{ height: 150, borderRadius: 0 }} />
+                <div style={{ padding: 16 }}>
+                  <div className="skeleton" style={{ height: 16, width: '80%', marginBottom: 10 }} />
+                  <div className="skeleton" style={{ height: 14, width: '50%' }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

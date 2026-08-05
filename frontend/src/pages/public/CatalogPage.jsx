@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import api from '../../api/axios';
 import CourseCard from '../../components/common/CourseCard';
-import { Filter, X, Search, ChevronLeft, ChevronRight, Crown, CheckCircle2, Award, Sparkles, Layers, SlidersHorizontal } from 'lucide-react';
+import { X, Search, ChevronLeft, ChevronRight, Crown, Award, Sparkles, SlidersHorizontal, LayoutGrid, Star, BookOpen } from 'lucide-react';
 
 export default function CatalogPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -10,7 +10,6 @@ export default function CatalogPage() {
   const [categories, setCategories] = useState([]);
   const [pagination, setPagination] = useState({});
   const [loading, setLoading] = useState(true);
-  const [showFilters, setShowFilters] = useState(true);
 
   const [filters, setFilters] = useState({
     search: searchParams.get('search') || '',
@@ -67,13 +66,40 @@ export default function CatalogPage() {
     updateFilter(key, '');
   };
 
-  const levels = ['principiante', 'intermedio', 'avanzado', 'todos'];
+  const levels = ['principiante', 'intermedio', 'avanzado'];
   const hasActiveFilters = filters.category || filters.level || filters.minRating || filters.premium || filters.search;
 
-  // Conteo aproximado de distribución por categoría
-  const getCategoryCount = (catId) => {
-    return courses.filter(c => String(c.categoria_id) === String(catId)).length || 5;
-  };
+  // Skeleton Card Component
+  const SkeletonCard = () => (
+    <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="skeleton" style={{ height: 165, borderRadius: 0 }} />
+      <div style={{ padding: '16px' }}>
+        <div className="flex items-center justify-between mb-3">
+          <div className="skeleton" style={{ height: 14, width: 70, borderRadius: 'var(--radius-full)' }} />
+          <div className="skeleton" style={{ height: 14, width: 55, borderRadius: 'var(--radius-full)' }} />
+        </div>
+        <div className="skeleton" style={{ height: 20, width: '90%', marginBottom: 10 }} />
+        <div className="skeleton" style={{ height: 16, width: '60%', marginBottom: 14 }} />
+        <div className="flex items-center gap-2 mb-3">
+          <div className="skeleton" style={{ width: 28, height: 28, borderRadius: '50%' }} />
+          <div className="skeleton" style={{ height: 14, width: 100 }} />
+        </div>
+        <div className="flex items-center gap-2 mb-4">
+          <div className="skeleton" style={{ height: 13, width: 80 }} />
+          <div className="skeleton" style={{ height: 13, width: 90 }} />
+        </div>
+        <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 10 }}>
+          <div className="flex items-center gap-3">
+            <div className="skeleton" style={{ height: 13, width: 75 }} />
+            <div className="skeleton" style={{ height: 13, width: 70 }} />
+          </div>
+        </div>
+      </div>
+      <div style={{ padding: '0 16px 16px' }}>
+        <div className="skeleton" style={{ height: 38, borderRadius: 'var(--radius-md)' }} />
+      </div>
+    </div>
+  );
 
   return (
     <div className="page animate-fade-in">
@@ -84,7 +110,7 @@ export default function CatalogPage() {
           border: '1px solid rgba(13,148,136,0.2)',
           borderRadius: 'var(--radius-xl)',
           padding: '24px 32px',
-          marginBottom: 'var(--space-8)',
+          marginBottom: 'var(--space-6)',
           position: 'relative',
           overflow: 'hidden'
         }}>
@@ -103,17 +129,16 @@ export default function CatalogPage() {
             </div>
             <div className="flex items-center gap-3">
               <div className="card" style={{ padding: '12px 18px', textAlign: 'center', background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(8px)' }}>
-                <span style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--accent-teal)' }}>{pagination.total || 30}</span>
+                <span style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--accent-teal)' }}>{pagination.total || '...'}</span>
                 <p className="text-xs text-muted font-semibold" style={{ margin: 0 }}>Cursos Disponibles</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Buscador + Controles de Filtros y Ordenamiento */}
-        <div className="card mb-6" style={{ padding: '16px 20px', borderRadius: 'var(--radius-lg)' }}>
+        {/* Barra de Búsqueda */}
+        <div className="card mb-4" style={{ padding: '14px 20px', borderRadius: 'var(--radius-lg)' }}>
           <div className="flex items-center gap-4 flex-wrap">
-            {/* Input Buscador Inteligente */}
             <div style={{ flex: '1 1 350px', position: 'relative' }}>
               <Search size={18} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-teal)' }} />
               <input
@@ -127,17 +152,7 @@ export default function CatalogPage() {
               />
             </div>
 
-            {/* Toggle Panel Filtros */}
-            <button 
-              onClick={() => setShowFilters(!showFilters)} 
-              className={`btn ${showFilters ? 'btn-primary' : 'btn-outline'}`}
-              style={{ fontSize: '0.85rem' }}
-            >
-              <SlidersHorizontal size={16} /> {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
-              {hasActiveFilters && <span className="badge badge-teal" style={{ marginLeft: 4 }}>!</span>}
-            </button>
-
-            {/* Selector de Ordenamiento (SIN PRECIOS) */}
+            {/* Selector de Ordenamiento */}
             <div className="flex items-center gap-2" style={{ marginLeft: 'auto' }}>
               <label className="text-xs font-semibold text-muted" style={{ whiteSpace: 'nowrap' }}>Ordenar por:</label>
               <select 
@@ -156,43 +171,124 @@ export default function CatalogPage() {
           </div>
         </div>
 
+        {/* Filtros Horizontales */}
+        <div className="mb-4" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {/* Fila 1: Categorías horizontales */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '8px', overflowX: 'auto',
+            padding: '4px 0', scrollbarWidth: 'none', msOverflowStyle: 'none'
+          }}>
+            <span className="text-xs font-semibold text-muted" style={{ whiteSpace: 'nowrap', minWidth: 'fit-content' }}>
+              <LayoutGrid size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+              Categoría:
+            </span>
+            <button
+              onClick={() => updateFilter('category', '')}
+              className={`btn btn-sm ${!filters.category ? 'btn-primary' : 'btn-ghost'}`}
+              style={{ whiteSpace: 'nowrap', fontSize: '0.78rem', padding: '5px 12px', borderRadius: 'var(--radius-full)' }}
+            >
+              Todas ({pagination.total || '...'})
+            </button>
+            {categories.map(cat => {
+              const isSelected = String(filters.category) === String(cat.id);
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => updateFilter('category', isSelected ? '' : cat.id)}
+                  className={`btn btn-sm ${isSelected ? 'btn-primary' : 'btn-ghost'}`}
+                  style={{ whiteSpace: 'nowrap', fontSize: '0.78rem', padding: '5px 12px', borderRadius: 'var(--radius-full)' }}
+                >
+                  {cat.nombre} ({cat.total_cursos || 0})
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Fila 2: Nivel + Rating + Premium */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span className="text-xs font-semibold text-muted" style={{ whiteSpace: 'nowrap' }}>
+              <SlidersHorizontal size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+              Nivel:
+            </span>
+            {levels.map(level => {
+              const isSelected = filters.level === level;
+              return (
+                <button
+                  key={level}
+                  onClick={() => updateFilter('level', isSelected ? '' : level)}
+                  className={`btn btn-sm ${isSelected ? 'btn-primary' : 'btn-ghost'}`}
+                  style={{ whiteSpace: 'nowrap', textTransform: 'capitalize', fontSize: '0.78rem', padding: '5px 12px', borderRadius: 'var(--radius-full)' }}
+                >
+                  {level}
+                </button>
+              );
+            })}
+
+            <div style={{ width: 1, height: 20, background: 'var(--border-subtle)', margin: '0 4px' }} />
+
+            <span className="text-xs font-semibold text-muted" style={{ whiteSpace: 'nowrap' }}>
+              <Star size={13} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+              Calificación:
+            </span>
+            {[
+              { val: '4.5', label: '4.5+' },
+              { val: '4', label: '4.0+' },
+              { val: '3.5', label: '3.5+' }
+            ].map(r => (
+              <button
+                key={r.val}
+                onClick={() => updateFilter('minRating', filters.minRating === r.val ? '' : r.val)}
+                className={`btn btn-sm ${filters.minRating === r.val ? 'btn-primary' : 'btn-ghost'}`}
+                style={{ whiteSpace: 'nowrap', fontSize: '0.78rem', padding: '5px 12px', borderRadius: 'var(--radius-full)' }}
+              >
+                {r.label} <Star size={11} fill="var(--accent-gold)" color="var(--accent-gold)" style={{ marginLeft: 2 }} />
+              </button>
+            ))}
+
+            <div style={{ width: 1, height: 20, background: 'var(--border-subtle)', margin: '0 4px' }} />
+
+            <button
+              onClick={() => updateFilter('premium', filters.premium ? '' : 'true')}
+              className={`btn btn-sm ${filters.premium ? 'btn-primary' : 'btn-ghost'}`}
+              style={{ whiteSpace: 'nowrap', fontSize: '0.78rem', padding: '5px 12px', borderRadius: 'var(--radius-full)' }}
+            >
+              <Crown size={13} /> Premium
+            </button>
+          </div>
+        </div>
+
         {/* Etiquetas Removibles (Chips de Filtros Activos) */}
         {hasActiveFilters && (
-          <div className="flex items-center gap-2 mb-6 flex-wrap animate-fade-in" style={{ padding: '4px 0' }}>
+          <div className="flex items-center gap-2 mb-5 flex-wrap animate-fade-in" style={{ padding: '4px 0' }}>
             <span className="text-xs text-muted font-semibold">Filtros activos:</span>
 
             {filters.search && (
-              <span className="badge badge-teal" style={{ padding: '6px 12px', fontSize: '0.75rem', gap: 6 }}>
-                Búsqueda: "{filters.search}"
-                <X size={12} className="cursor-pointer" onClick={() => removeSingleFilter('search')} />
+              <span className="badge badge-teal" style={{ padding: '6px 12px', fontSize: '0.75rem', gap: 6, cursor: 'pointer' }} onClick={() => removeSingleFilter('search')}>
+                Buscar: "{filters.search}" <X size={12} />
               </span>
             )}
 
             {filters.category && (
-              <span className="badge badge-teal" style={{ padding: '6px 12px', fontSize: '0.75rem', gap: 6 }}>
-                Categoría: {categories.find(c => String(c.id) === String(filters.category))?.nombre || 'Seleccionada'}
-                <X size={12} className="cursor-pointer" onClick={() => removeSingleFilter('category')} />
+              <span className="badge badge-teal" style={{ padding: '6px 12px', fontSize: '0.75rem', gap: 6, cursor: 'pointer' }} onClick={() => removeSingleFilter('category')}>
+                Categoría: {categories.find(c => String(c.id) === String(filters.category))?.nombre || 'Seleccionada'} <X size={12} />
               </span>
             )}
 
             {filters.level && (
-              <span className="badge badge-teal" style={{ padding: '6px 12px', fontSize: '0.75rem', gap: 6, textTransform: 'capitalize' }}>
-                Nivel: {filters.level}
-                <X size={12} className="cursor-pointer" onClick={() => removeSingleFilter('level')} />
+              <span className="badge badge-teal" style={{ padding: '6px 12px', fontSize: '0.75rem', gap: 6, textTransform: 'capitalize', cursor: 'pointer' }} onClick={() => removeSingleFilter('level')}>
+                Nivel: {filters.level} <X size={12} />
               </span>
             )}
 
             {filters.minRating && (
-              <span className="badge badge-teal" style={{ padding: '6px 12px', fontSize: '0.75rem', gap: 6 }}>
-                Calificación: {filters.minRating}+ ⭐
-                <X size={12} className="cursor-pointer" onClick={() => removeSingleFilter('minRating')} />
+              <span className="badge badge-teal" style={{ padding: '6px 12px', fontSize: '0.75rem', gap: 6, cursor: 'pointer' }} onClick={() => removeSingleFilter('minRating')}>
+                Calificación: {filters.minRating}+ <X size={12} />
               </span>
             )}
 
             {filters.premium && (
-              <span className="badge badge-gold" style={{ padding: '6px 12px', fontSize: '0.75rem', gap: 6 }}>
-                Solo Premium
-                <X size={12} className="cursor-pointer" onClick={() => removeSingleFilter('premium')} />
+              <span className="badge badge-gold" style={{ padding: '6px 12px', fontSize: '0.75rem', gap: 6, cursor: 'pointer' }} onClick={() => removeSingleFilter('premium')}>
+                Solo Premium <X size={12} />
               </span>
             )}
 
@@ -202,202 +298,67 @@ export default function CatalogPage() {
           </div>
         )}
 
-        {/* Layout Grid: Panel Izquierdo de Filtros + Lista de Cursos */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: showFilters ? '280px 1fr' : '1fr', 
-          gap: 'var(--space-6)', 
-          alignItems: 'start',
-          transition: 'all 0.3s ease' 
-        }}>
-          {/* Panel Lateral Izquierdo de Filtros Avanzados */}
-          {showFilters && (
-            <aside className="animate-slide-left">
-              <div className="card" style={{ position: 'sticky', top: 90, padding: '20px' }}>
-                <div className="flex items-center justify-between mb-4 pb-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                  <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Filter size={16} style={{ color: 'var(--accent-teal)' }} /> Filtros de Búsqueda
-                  </h3>
-                  {hasActiveFilters && (
-                    <button onClick={clearFilters} className="text-xs text-muted" style={{ cursor: 'pointer', background: 'none', border: 'none' }}>
-                      Limpiar
-                    </button>
-                  )}
-                </div>
+        {/* Header del Total de Resultados */}
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-sm text-muted font-semibold" style={{ margin: 0 }}>
+            {loading ? 'Buscando cursos...' : `${courses.length} ${courses.length === 1 ? 'curso encontrado' : 'cursos encontrados'}`}
+          </p>
+          <div className="flex items-center gap-2">
+            <span className="badge badge-teal" style={{ fontSize: '0.7rem' }}>
+              <Award size={12} /> Certificación Disponible en Todos los Cursos
+            </span>
+          </div>
+        </div>
 
-                {/* Categorías con Contadores Numéricos */}
-                <div className="mb-6">
-                  <label className="form-label" style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Categorías
-                  </label>
-                  <div className="flex flex-col gap-1">
-                    <button
-                      onClick={() => updateFilter('category', '')}
-                      className={`btn btn-sm ${!filters.category ? 'btn-primary' : 'btn-ghost'}`}
-                      style={{ justifyFlex: 'start', justifyContent: 'space-between', fontSize: '0.8rem', padding: '6px 10px' }}
-                    >
-                      <span>Todas las categorías</span>
-                      <span className="badge" style={{ fontSize: '0.65rem' }}>{pagination.total || 30}</span>
-                    </button>
-                    {categories.map(cat => {
-                      const isSelected = String(filters.category) === String(cat.id);
-                      return (
-                        <button
-                          key={cat.id}
-                          onClick={() => updateFilter('category', isSelected ? '' : cat.id)}
-                          className={`btn btn-sm ${isSelected ? 'btn-primary' : 'btn-ghost'}`}
-                          style={{ justifyFlex: 'start', justifyContent: 'space-between', fontSize: '0.8rem', padding: '6px 10px' }}
-                        >
-                          <span>{cat.nombre}</span>
-                          <span className="badge" style={{ fontSize: '0.65rem', opacity: isSelected ? 1 : 0.7 }}>
-                            ({getCategoryCount(cat.id)})
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Niveles */}
-                <div className="mb-6">
-                  <label className="form-label" style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Nivel de Dificultad
-                  </label>
-                  <div className="flex flex-col gap-1">
-                    {levels.map(level => {
-                      const isSelected = filters.level === level;
-                      return (
-                        <button 
-                          key={level} 
-                          onClick={() => updateFilter('level', isSelected ? '' : level)}
-                          className={`btn btn-sm ${isSelected ? 'btn-primary' : 'btn-ghost'}`}
-                          style={{ justifyContent: 'space-between', textTransform: 'capitalize', fontSize: '0.8rem', padding: '6px 10px' }}
-                        >
-                          <span>{level}</span>
-                          <span className="badge" style={{ fontSize: '0.65rem' }}>✓</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Calificación Mínima */}
-                <div className="mb-6">
-                  <label className="form-label" style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Calificación Mínima
-                  </label>
-                  <select 
-                    className="form-input form-select" 
-                    value={filters.minRating} 
-                    onChange={(e) => updateFilter('minRating', e.target.value)} 
-                    id="filter-rating"
-                    style={{ fontSize: '0.85rem' }}
-                  >
-                    <option value="">Cualquier calificación</option>
-                    <option value="4.5">4.5+ o superior ⭐⭐⭐⭐⭐</option>
-                    <option value="4">4.0+ o superior ⭐⭐⭐⭐</option>
-                    <option value="3.5">3.5+ o superior ⭐⭐⭐</option>
-                  </select>
-                </div>
-
-                {/* Tipo de Contenido / Premium */}
-                <div className="mb-6">
-                  <label className="form-label" style={{ fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    Distinción
-                  </label>
-                  <button 
-                    onClick={() => updateFilter('premium', filters.premium ? '' : 'true')}
-                    className={`btn w-full ${filters.premium ? 'btn-gold' : 'btn-outline'}`}
-                    style={{ fontSize: '0.8rem', padding: '8px 12px' }}
-                  >
-                    <Crown size={14} /> {filters.premium ? 'Mostrando solo Premium' : 'Filtrar por Cursos Premium'}
-                  </button>
-                </div>
-
-                {/* Botones Aplicar / Limpiar */}
-                <div className="flex flex-col gap-2 pt-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
-                  <button onClick={() => fetchCourses()} className="btn btn-primary btn-sm w-full">
-                    Aplicar Filtros
-                  </button>
-                  <button onClick={clearFilters} className="btn btn-ghost btn-sm w-full text-muted">
-                    Limpiar Filtros
-                  </button>
-                </div>
-              </div>
-            </aside>
-          )}
-
-          {/* Grid Principal de Tarjetas de Curso */}
-          <div>
-            {/* Header del Total de Resultados */}
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-muted font-semibold" style={{ margin: 0 }}>
-                {loading ? 'Buscando cursos...' : `${courses.length} ${courses.length === 1 ? 'curso encontrado' : 'cursos encontrados'}`}
-              </p>
-              <div className="flex items-center gap-2">
-                <span className="badge badge-teal" style={{ fontSize: '0.7rem' }}>
-                  <Award size={12} /> Certificación Disponible en Todos los Cursos
-                </span>
-              </div>
+        {/* Grid Principal */}
+        {loading ? (
+          <div className="grid grid-4 stagger-children">
+            {[...Array(8)].map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        ) : courses.length > 0 ? (
+          <>
+            <div className="grid grid-4 stagger-children">
+              {courses.map(course => <CourseCard key={course.id} course={course} />)}
             </div>
 
-            {loading ? (
-              <div className={`grid ${showFilters ? 'grid-3' : 'grid-4'}`}>
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="card" style={{ padding: 0, overflow: 'hidden' }}>
-                    <div className="skeleton" style={{ height: 165 }} />
-                    <div style={{ padding: 'var(--space-5)' }}>
-                      <div className="skeleton" style={{ height: 12, width: 80, marginBottom: 8 }} />
-                      <div className="skeleton" style={{ height: 20, marginBottom: 8 }} />
-                      <div className="skeleton" style={{ height: 14, width: '60%' }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : courses.length > 0 ? (
-              <>
-                <div className={`grid ${showFilters ? 'grid-3' : 'grid-4'} stagger-children`}>
-                  {courses.map(course => <CourseCard key={course.id} course={course} />)}
-                </div>
-
-                {/* Paginación */}
-                {pagination.totalPages > 1 && (
-                  <div className="pagination mt-8 flex justify-center items-center gap-2">
-                    <button disabled={!pagination.hasPrev} onClick={() => updateFilter('page', filters.page - 1)} className="btn btn-outline btn-sm">
-                      <ChevronLeft size={16} /> Anterior
+            {/* Paginación */}
+            {pagination.totalPages > 1 && (
+              <div className="pagination mt-8 flex justify-center items-center gap-2">
+                <button disabled={!pagination.hasPrev} onClick={() => updateFilter('page', filters.page - 1)} className="btn btn-outline btn-sm">
+                  <ChevronLeft size={16} /> Anterior
+                </button>
+                {[...Array(Math.min(pagination.totalPages, 5))].map((_, i) => {
+                  const page = i + 1;
+                  return (
+                    <button 
+                      key={page} 
+                      className={`btn btn-sm ${page === filters.page ? 'btn-primary' : 'btn-ghost'}`} 
+                      onClick={() => updateFilter('page', page)}
+                    >
+                      {page}
                     </button>
-                    {[...Array(Math.min(pagination.totalPages, 5))].map((_, i) => {
-                      const page = i + 1;
-                      return (
-                        <button 
-                          key={page} 
-                          className={`btn btn-sm ${page === filters.page ? 'btn-primary' : 'btn-ghost'}`} 
-                          onClick={() => updateFilter('page', page)}
-                        >
-                          {page}
-                        </button>
-                      );
-                    })}
-                    <button disabled={!pagination.hasNext} onClick={() => updateFilter('page', filters.page + 1)} className="btn btn-outline btn-sm">
-                      Siguiente <ChevronRight size={16} />
-                    </button>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="card text-center" style={{ padding: 'var(--space-16)' }}>
-                <Search size={48} style={{ color: 'var(--accent-teal)', margin: '0 auto var(--space-4)' }} />
-                <h3 style={{ marginBottom: 'var(--space-2)', fontWeight: 700 }}>No se encontraron cursos</h3>
-                <p className="text-muted" style={{ maxWidth: 400, margin: '0 auto var(--space-6)' }}>
-                  No hallamos coincidencias con los filtros aplicados. Intenta ampliar tus criterios de búsqueda.
-                </p>
-                <button onClick={clearFilters} className="btn btn-primary">
-                  Ver Todos los Cursos
+                  );
+                })}
+                <button disabled={!pagination.hasNext} onClick={() => updateFilter('page', filters.page + 1)} className="btn btn-outline btn-sm">
+                  Siguiente <ChevronRight size={16} />
                 </button>
               </div>
             )}
+          </>
+        ) : (
+          <div className="card text-center" style={{ padding: 'var(--space-16)' }}>
+            <BookOpen size={48} style={{ color: 'var(--accent-teal)', margin: '0 auto var(--space-4)' }} />
+            <h3 style={{ marginBottom: 'var(--space-2)', fontWeight: 700 }}>No se encontraron cursos</h3>
+            <p className="text-muted" style={{ maxWidth: 400, margin: '0 auto var(--space-6)' }}>
+              No hallamos coincidencias con los filtros aplicados. Intenta ampliar tus criterios de búsqueda.
+            </p>
+            <button onClick={clearFilters} className="btn btn-primary">
+              Ver Todos los Cursos
+            </button>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

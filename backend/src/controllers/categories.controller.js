@@ -6,7 +6,7 @@ const getCategories = async (req, res, next) => {
   try {
     const result = await query(
       `SELECT c.*, 
-              (SELECT COUNT(*) FROM cursos WHERE categoria_id = c.id AND estado = 'disponible') as total_cursos
+              (SELECT COUNT(*) FROM cursos WHERE categoria_id = c.id AND (estado IS NULL OR estado != 'no_disponible')) as total_cursos
        FROM categorias c
        WHERE c.estado = true
        ORDER BY c.nombre`

@@ -120,15 +120,82 @@ export default function CourseDetailPage() {
   };
 
   if (loading) return (
-    <div className="page container">
-      <div className="skeleton" style={{ height: 400, borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-8)' }} />
+    <div className="page">
+      <div className="container">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 'var(--space-8)', alignItems: 'start' }}>
+          {/* Left skeleton */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="skeleton" style={{ height: 14, width: 50 }} />
+              <div className="skeleton" style={{ height: 14, width: 80 }} />
+            </div>
+            <div className="skeleton" style={{ height: 340, borderRadius: 'var(--radius-xl)', marginBottom: 'var(--space-6)' }} />
+            <div className="skeleton" style={{ height: 32, width: '75%', marginBottom: 'var(--space-4)' }} />
+            <div className="flex items-center gap-3 mb-4">
+              <div className="skeleton" style={{ height: 18, width: 100 }} />
+              <div className="skeleton" style={{ height: 18, width: 120 }} />
+            </div>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="skeleton" style={{ height: 16, width: 160 }} />
+            </div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="skeleton" style={{ height: 24, width: 80, borderRadius: 'var(--radius-full)' }} />
+              <div className="skeleton" style={{ height: 16, width: 70 }} />
+              <div className="skeleton" style={{ height: 16, width: 90 }} />
+            </div>
+            <div className="card mb-8" style={{ borderLeft: '3px solid var(--border-subtle)' }}>
+              <div className="skeleton" style={{ height: 20, width: 180, marginBottom: 12 }} />
+              <div className="skeleton" style={{ height: 14, width: '100%', marginBottom: 8 }} />
+              <div className="skeleton" style={{ height: 14, width: '90%', marginBottom: 8 }} />
+              <div className="skeleton" style={{ height: 14, width: '70%' }} />
+            </div>
+            <div className="card mb-8">
+              <div className="skeleton" style={{ height: 20, width: 220, marginBottom: 16 }} />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className="skeleton" style={{ width: 16, height: 16, borderRadius: '50%', flexShrink: 0 }} />
+                    <div className="skeleton" style={{ height: 14, width: '80%' }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* Right skeleton (sidebar) */}
+          <div className="card" style={{ overflow: 'hidden' }}>
+            <div className="skeleton" style={{ height: 70, margin: '-20px -20px 20px -20px' }} />
+            <div className="skeleton" style={{ height: 48, borderRadius: 'var(--radius-md)', marginBottom: 16 }} />
+            <div className="skeleton" style={{ height: 14, width: '60%', marginBottom: 12 }} />
+            <div className="skeleton" style={{ height: 14, width: '80%', marginBottom: 12 }} />
+            <div className="skeleton" style={{ height: 14, width: '50%', marginBottom: 20 }} />
+            <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 16 }}>
+              <div className="skeleton" style={{ height: 16, width: 140, marginBottom: 12 }} />
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center gap-2 mb-2">
+                  <div className="skeleton" style={{ width: 14, height: 14, borderRadius: '50%', flexShrink: 0 }} />
+                  <div className="skeleton" style={{ height: 14, width: `${60 + Math.random() * 30}%` }} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 
   if (!data?.course) return (
-    <div className="page container text-center">
-      <h2>Curso no encontrado</h2>
-      <Link to="/catalogo" className="btn btn-primary mt-4">Volver al catálogo</Link>
+    <div className="page container text-center" style={{ paddingTop: 80 }}>
+      <div style={{
+        width: 80, height: 80, borderRadius: '50%', margin: '0 auto 20px',
+        background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center'
+      }}>
+        <BookOpen size={36} style={{ color: 'var(--accent-red)' }} />
+      </div>
+      <h2 style={{ fontWeight: 800, fontSize: '1.5rem', marginBottom: 8 }}>Curso no encontrado</h2>
+      <p className="text-muted text-sm" style={{ maxWidth: 400, margin: '0 auto 24px' }}>
+        El curso solicitado no existe, fue eliminado o no está disponible en este momento.
+      </p>
+      <Link to="/catalogo" className="btn btn-primary">Explorar el Catálogo</Link>
     </div>
   );
 
