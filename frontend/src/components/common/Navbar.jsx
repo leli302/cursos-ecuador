@@ -29,7 +29,7 @@ export default function Navbar() {
   return (
     <nav style={{
       position: 'sticky', top: 0, zIndex: 'var(--z-sticky)',
-      background: 'rgba(10, 22, 40, 0.85)', backdropFilter: 'blur(20px)',
+      background: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(20px)',
       borderBottom: '1px solid var(--border-subtle)', height: '72px'
     }}>
       <div className="container flex items-center justify-between" style={{ height: '100%' }}>

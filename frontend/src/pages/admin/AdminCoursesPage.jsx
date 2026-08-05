@@ -413,7 +413,7 @@ export default function AdminCoursesPage() {
       {editingCourse && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(10, 22, 40, 0.85)', backdropFilter: 'blur(10px)',
+          background: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(10px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px'
         }} className="animate-fade-in">
           <div className="card-glass animate-scale" style={{ 
@@ -663,7 +663,7 @@ export default function AdminCoursesPage() {
                         <img src={imagePreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         <label style={{
                           position: 'absolute', bottom: 12, right: 12,
-                          background: 'rgba(10, 22, 40, 0.85)', padding: '6px 12px',
+                          background: 'rgba(255, 255, 255, 0.85)', padding: '6px 12px',
                           borderRadius: 'var(--radius-md)', cursor: 'pointer',
                           fontSize: '0.8rem', color: 'white', backdropFilter: 'blur(4px)',
                           display: 'flex', alignItems: 'center', gap: 6, border: '1px solid var(--border-subtle)'

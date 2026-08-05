@@ -10,56 +10,56 @@
 }
 
 :root {
-  /* Colores principales */
-  --bg-primary: #0A1628;
-  --bg-secondary: #0F1F3D;
-  --bg-card: #142241;
-  --bg-card-hover: #1A2D55;
-  --bg-surface: #1E3461;
-  --bg-input: #162544;
+  /* Colores principales — TEMA CLARO */
+  --bg-primary: #FAFBFD;
+  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F1F5F9;
+  --bg-surface: #F1F5F9;
+  --bg-input: #F8FAFC;
 
   /* Acentos */
-  --accent-gold: #F5A623;
-  --accent-gold-hover: #FFB84D;
-  --accent-teal: #4ECDC4;
-  --accent-teal-hover: #6EDED6;
-  --accent-purple: #A855F7;
-  --accent-pink: #EC4899;
-  --accent-blue: #3B82F6;
-  --accent-green: #10B981;
-  --accent-red: #EF4444;
-  --accent-orange: #F97316;
+  --accent-gold: #E6960A;
+  --accent-gold-hover: #D48A08;
+  --accent-teal: #0D9488;
+  --accent-teal-hover: #0F766E;
+  --accent-purple: #9333EA;
+  --accent-pink: #DB2777;
+  --accent-blue: #2563EB;
+  --accent-green: #059669;
+  --accent-red: #DC2626;
+  --accent-orange: #EA580C;
 
   /* Gradientes */
-  --gradient-primary: linear-gradient(135deg, #4ECDC4 0%, #3B82F6 50%, #A855F7 100%);
-  --gradient-gold: linear-gradient(135deg, #F5A623 0%, #F97316 100%);
-  --gradient-hero: linear-gradient(135deg, #0A1628 0%, #142241 40%, #1A2D55 100%);
-  --gradient-card: linear-gradient(145deg, rgba(20,34,65,0.8) 0%, rgba(30,52,97,0.4) 100%);
-  --gradient-premium: linear-gradient(135deg, #F5A623 0%, #EC4899 50%, #A855F7 100%);
+  --gradient-primary: linear-gradient(135deg, #0D9488 0%, #2563EB 50%, #9333EA 100%);
+  --gradient-gold: linear-gradient(135deg, #E6960A 0%, #EA580C 100%);
+  --gradient-hero: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 40%, #F0FDFA 100%);
+  --gradient-card: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(241,245,249,0.6) 100%);
+  --gradient-premium: linear-gradient(135deg, #E6960A 0%, #DB2777 50%, #9333EA 100%);
 
   /* Texto */
-  --text-primary: #F1F5F9;
-  --text-secondary: #94A3B8;
-  --text-muted: #64748B;
-  --text-accent: #4ECDC4;
-  --text-gold: #F5A623;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --text-accent: #0D9488;
+  --text-gold: #B45309;
 
   /* Bordes */
-  --border-color: rgba(78, 205, 196, 0.15);
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-active: rgba(78, 205, 196, 0.4);
+  --border-color: rgba(15, 23, 42, 0.08);
+  --border-subtle: rgba(15, 23, 42, 0.06);
+  --border-active: rgba(13, 148, 136, 0.4);
 
   /* Sombras */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
-  --shadow-xl: 0 16px 48px rgba(0,0,0,0.6);
-  --shadow-glow-teal: 0 0 20px rgba(78,205,196,0.3);
-  --shadow-glow-gold: 0 0 20px rgba(245,166,35,0.3);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 2px 4px rgba(0,0,0,0.03), 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-lg: 0 4px 6px rgba(0,0,0,0.02), 0 10px 30px rgba(0,0,0,0.08);
+  --shadow-xl: 0 8px 16px rgba(0,0,0,0.04), 0 20px 48px rgba(0,0,0,0.1);
+  --shadow-glow-teal: 0 0 20px rgba(13,148,136,0.15);
+  --shadow-glow-gold: 0 0 20px rgba(230,150,10,0.15);
 
   /* Glassmorphism */
-  --glass-bg: rgba(20, 34, 65, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(15, 23, 42, 0.06);
   --glass-blur: blur(16px);
 
   /* Tipografía */

@@ -161,7 +161,7 @@ export default function CourseDetailPage() {
               {/* Hover Badge */}
               <div style={{
                 position: 'absolute', bottom: 12, right: 12,
-                background: 'rgba(10, 22, 40, 0.85)', color: 'white',
+                background: 'rgba(0, 0, 0, 0.65)', color: 'white',
                 padding: '6px 12px', borderRadius: 'var(--radius-full)',
                 fontSize: '0.75rem', fontWeight: 600, backdropFilter: 'blur(8px)',
                 display: 'flex', alignItems: 'center', gap: 6,
@@ -280,7 +280,7 @@ export default function CourseDetailPage() {
                           {/* Glassmorphic Locked Overlay Card */}
                           <div style={{
                             position: 'absolute', inset: 12,
-                            background: 'rgba(10, 22, 40, 0.88)', backdropFilter: 'blur(12px)',
+                            background: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(12px)',
                             borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)',
                             display: 'flex', flexDirection: 'column', alignItems: 'center',
                             justifyContent: 'center', padding: '24px', textAlign: 'center',
