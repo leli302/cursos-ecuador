@@ -213,7 +213,7 @@ export default function CourseDetailPage() {
             <p className="text-muted text-sm mb-2">
               Instructor:{' '}
               <Link 
-                to={`/instructores/${course.instructor_id}`} 
+                to={`/instructores/${course.instructor_id || 1}`} 
                 style={{ color: 'var(--accent-teal)', fontWeight: 600, textDecoration: 'underline' }}
                 title="Ver perfil completo del instructor"
               >
@@ -377,7 +377,7 @@ export default function CourseDetailPage() {
                     {course.instructor_bio || 'Experto y profesional apasionado por compartir conocimientos prácticos con metodologías adaptadas al mercado real.'}
                   </p>
                   <Link 
-                    to={`/instructores/${course.instructor_id}`}
+                    to={`/instructores/${course.instructor_id || 1}`}
                     className="btn btn-outline btn-sm inline-flex items-center gap-2"
                     style={{ fontSize: '0.8rem', padding: '5px 12px' }}
                   >

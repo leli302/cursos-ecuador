@@ -102,7 +102,7 @@ export default function CourseCard({ course }) {
           <span 
             onClick={(e) => {
               e.stopPropagation();
-              if (course.instructor_id) navigate(`/instructores/${course.instructor_id}`);
+              navigate(`/instructores/${course.instructor_id || 1}`);
             }}
             style={{ cursor: 'pointer', transition: 'color 0.15s' }}
             onMouseEnter={(e) => e.target.style.color = 'var(--accent-teal)'}

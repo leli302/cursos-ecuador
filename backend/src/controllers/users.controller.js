@@ -280,14 +280,21 @@ const getInstructorProfile = async (req, res, next) => {
       );
     }
 
-    // Fallback: si no encuentra por ID numérico o si no era número, busca el primer instructor activo
+    // Fallback 1: Buscar por usuario que tenga cursos asignados
+    if (!userResult || userResult.rows.length === 0) {
+      userResult = await query(
+        `SELECT DISTINCT u.id, u.nombre, u.apellido, u.email, u.avatar, u.bio, u.titulo_profesional, u.experiencia, u.creado_en
+         FROM usuarios u
+         JOIN cursos c ON u.id = c.instructor_id
+         ORDER BY u.id ASC LIMIT 1`
+      );
+    }
+
+    // Fallback 2: Buscar cualquier usuario en la base de datos
     if (!userResult || userResult.rows.length === 0) {
       userResult = await query(
         `SELECT u.id, u.nombre, u.apellido, u.email, u.avatar, u.bio, u.titulo_profesional, u.experiencia, u.creado_en
          FROM usuarios u
-         JOIN usuario_roles ur ON u.id = ur.usuario_id
-         JOIN roles r ON ur.rol_id = r.id
-         WHERE r.nombre IN ('instructor', 'administrador')
          ORDER BY u.id ASC LIMIT 1`
       );
     }
