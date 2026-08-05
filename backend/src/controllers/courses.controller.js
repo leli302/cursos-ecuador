@@ -534,8 +534,8 @@ const freeEnroll = async (req, res, next) => {
       return res.status(400).json({ error: 'ID de curso inválido.' });
     }
 
-    // Verificar si el curso existe
-    const courseRes = await query('SELECT id, nombre, cupo_maximo FROM cursos WHERE id = $1', [courseId]);
+    // Verificar si el curso existe (solo columnas seguras)
+    const courseRes = await query('SELECT id, nombre FROM cursos WHERE id = $1', [courseId]);
     if (courseRes.rows.length === 0) {
       return res.status(404).json({ error: 'El curso no existe.' });
     }
@@ -550,35 +550,72 @@ const freeEnroll = async (req, res, next) => {
       return res.json({ message: 'Ya estás matriculado en este curso.', enrolled: true, alreadyEnrolled: true });
     }
 
-    // Obtener versión publicada (puede ser null)
+    // Detectar qué columnas tiene la tabla inscripciones
+    let hasVersionId = false;
+    let hasAulaId = false;
+    try {
+      const colCheck = await query(
+        `SELECT column_name FROM information_schema.columns 
+         WHERE table_name = 'inscripciones' AND column_name IN ('version_id', 'aula_id')`
+      );
+      const cols = colCheck.rows.map(r => r.column_name);
+      hasVersionId = cols.includes('version_id');
+      hasAulaId = cols.includes('aula_id');
+    } catch (e) {
+      // Si falla la detección, intentar sin esas columnas
+    }
+
+    // Obtener versión y aula solo si las columnas existen
     let versionId = null;
-    try {
-      const versionRes = await query(
-        "SELECT id FROM curso_versiones WHERE curso_id = $1 ORDER BY creado_en DESC LIMIT 1",
-        [courseId]
-      );
-      versionId = versionRes.rows[0]?.id || null;
-    } catch (e) { /* versión opcional */ }
-
-    // Obtener aula activa (puede ser null) — buscar 'activa' O 'abierta'
     let aulaId = null;
-    try {
-      const aulaRes = await query(
-        "SELECT id FROM aulas WHERE curso_id = $1 AND (estado = 'activa' OR estado = 'abierta') ORDER BY creado_en ASC LIMIT 1",
-        [courseId]
-      );
-      aulaId = aulaRes.rows[0]?.id || null;
-    } catch (e) { /* aula opcional */ }
 
-    // Inscribir al estudiante de forma gratuita
+    if (hasVersionId) {
+      try {
+        const versionRes = await query(
+          "SELECT id FROM curso_versiones WHERE curso_id = $1 ORDER BY creado_en DESC LIMIT 1",
+          [courseId]
+        );
+        versionId = versionRes.rows[0]?.id || null;
+      } catch (e) { /* versión opcional */ }
+    }
+
+    if (hasAulaId) {
+      try {
+        const aulaRes = await query(
+          "SELECT id FROM aulas WHERE curso_id = $1 AND (estado = 'activa' OR estado = 'abierta') ORDER BY creado_en ASC LIMIT 1",
+          [courseId]
+        );
+        aulaId = aulaRes.rows[0]?.id || null;
+      } catch (e) { /* aula opcional */ }
+    }
+
+    // Construir INSERT dinámico según columnas disponibles
+    let insertCols = ['usuario_id', 'curso_id', 'estado'];
+    let insertVals = [userId, courseId, 'activa'];
+    let insertPlaceholders = ['$1', '$2', '$3'];
+    let paramIndex = 4;
+
+    if (hasAulaId) {
+      insertCols.push('aula_id');
+      insertVals.push(aulaId);
+      insertPlaceholders.push(`$${paramIndex++}`);
+    }
+
+    if (hasVersionId) {
+      insertCols.push('version_id');
+      insertVals.push(versionId);
+      insertPlaceholders.push(`$${paramIndex++}`);
+    }
+
     await query(
-      `INSERT INTO inscripciones (usuario_id, curso_id, aula_id, version_id, estado)
-       VALUES ($1, $2, $3, $4, 'activa')`,
-      [userId, courseId, aulaId, versionId]
+      `INSERT INTO inscripciones (${insertCols.join(', ')}) VALUES (${insertPlaceholders.join(', ')})`,
+      insertVals
     );
 
     // Incrementar contador de inscritos
-    await query('UPDATE cursos SET total_ventas = total_ventas + 1 WHERE id = $1', [courseId]);
+    try {
+      await query('UPDATE cursos SET total_ventas = total_ventas + 1 WHERE id = $1', [courseId]);
+    } catch (e) { /* no crítico */ }
 
     // Log de la acción
     try {
@@ -594,7 +631,7 @@ const freeEnroll = async (req, res, next) => {
     if (error.code === '23505') {
       return res.json({ message: 'Ya estás matriculado en este curso.', enrolled: true, alreadyEnrolled: true });
     }
-    console.error('Error en freeEnroll:', error);
+    console.error('Error en freeEnroll:', error.message, error.stack);
     next(error);
   }
 };

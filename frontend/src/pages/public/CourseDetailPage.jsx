@@ -97,16 +97,30 @@ export default function CourseDetailPage() {
   }, [id]);
 
   const [enrolling, setEnrolling] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated && id) {
+      api.get('/library')
+        .then(res => {
+          const myCourses = res.data.courses || [];
+          const enrolled = myCourses.some(c => c.id === parseInt(id, 10));
+          setIsEnrolled(enrolled);
+        })
+        .catch(() => setIsEnrolled(false));
+    }
+  }, [isAuthenticated, id]);
 
   const handleFreeEnroll = async () => {
     if (!isAuthenticated) return navigate('/login');
     setEnrolling(true);
     try {
       const res = await api.post(`/courses/${id}/enroll`);
+      setIsEnrolled(true);
       toast.success(res.data.message || '¡Matriculación gratuita exitosa!');
-      navigate('/mi-panel');
+      setTimeout(() => navigate('/mi-panel'), 800);
     } catch (err) {
-      console.error(err);
+      console.error('Error en matriculación:', err);
       toast.error(err.response?.data?.error || 'Error al realizar la matriculación.');
     } finally {
       setEnrolling(false);
@@ -575,15 +589,25 @@ export default function CourseDetailPage() {
 
               {/* Enrollment Button */}
               <div className="flex flex-col gap-3 mb-6">
-                <button 
-                  onClick={handleFreeEnroll} 
-                  disabled={enrolling}
-                  className="btn btn-primary btn-lg w-full" 
-                  id="free-enroll-btn"
-                  style={{ fontSize: '0.95rem', padding: '14px 20px', fontWeight: 700 }}
-                >
-                  <Zap size={18} /> {enrolling ? 'Procesando...' : 'Matricularme Gratis'}
-                </button>
+                {isEnrolled ? (
+                  <Link 
+                    to="/mi-panel" 
+                    className="btn btn-success btn-lg w-full inline-flex items-center justify-center gap-2" 
+                    style={{ fontSize: '0.95rem', padding: '14px 20px', fontWeight: 700, background: 'var(--accent-green)', color: 'white' }}
+                  >
+                    <CheckCircle2 size={18} /> Ir a mi Panel (Ya Matriculado)
+                  </Link>
+                ) : (
+                  <button 
+                    onClick={handleFreeEnroll} 
+                    disabled={enrolling}
+                    className="btn btn-primary btn-lg w-full" 
+                    id="free-enroll-btn"
+                    style={{ fontSize: '0.95rem', padding: '14px 20px', fontWeight: 700 }}
+                  >
+                    <Zap size={18} /> {enrolling ? 'Procesando...' : 'Matricularme Gratis'}
+                  </button>
+                )}
               </div>
 
               {/* Certification Section (Sin precios antes del 100%) */}
