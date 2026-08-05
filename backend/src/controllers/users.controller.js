@@ -263,4 +263,60 @@ const createUser = async (req, res, next) => {
   }
 };
 
-module.exports = { getUsers, getUserById, updateUser, changePassword, updateAvatar, updateUserRoles, createUser };
+// GET /api/users/instructor/:id (Público)
+const getInstructorProfile = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Consultar datos del instructor
+    const userResult = await query(
+      `SELECT u.id, u.nombre, u.apellido, u.avatar, u.bio, u.titulo_profesional, u.experiencia, u.creado_en
+       FROM usuarios u
+       JOIN usuario_roles ur ON u.id = ur.usuario_id
+       JOIN roles r ON ur.rol_id = r.id
+       WHERE u.id = $1 AND (r.nombre = 'instructor' OR r.nombre = 'administrador')`,
+      [id]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Instructor no encontrado.' });
+    }
+
+    const instructor = userResult.rows[0];
+
+    // Cursos publicados por el instructor
+    const coursesResult = await query(
+      `SELECT c.*, cat.nombre as categoria_nombre,
+              u.nombre as instructor_nombre, u.apellido as instructor_apellido
+       FROM cursos c
+       LEFT JOIN categorias cat ON c.categoria_id = cat.id
+       LEFT JOIN usuarios u ON c.instructor_id = u.id
+       WHERE c.instructor_id = $1 AND c.estado = 'disponible'
+       ORDER BY c.total_ventas DESC, c.creado_en DESC`,
+      [id]
+    );
+
+    // Métricas del instructor
+    const statsResult = await query(
+      `SELECT 
+        COUNT(c.id) as total_cursos,
+        COALESCE(SUM(c.total_ventas), 0) as total_estudiantes,
+        COALESCE(ROUND(AVG(NULLIF(c.valoracion, 0))::numeric, 2), 4.8) as promedio_calificacion
+       FROM cursos c
+       WHERE c.instructor_id = $1 AND c.estado = 'disponible'`,
+      [id]
+    );
+
+    res.json({
+      data: {
+        instructor,
+        courses: coursesResult.rows,
+        stats: statsResult.rows[0]
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { getUsers, getUserById, updateUser, changePassword, updateAvatar, updateUserRoles, createUser, getInstructorProfile };

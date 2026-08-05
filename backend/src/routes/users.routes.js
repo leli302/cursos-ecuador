@@ -5,10 +5,13 @@ const { auth } = require('../middleware/auth');
 const { isAdmin } = require('../middleware/roles');
 const upload = require('../config/multer');
 const {
-  getUsers, getUserById, updateUser, changePassword, updateAvatar, updateUserRoles, createUser
+  getUsers, getUserById, updateUser, changePassword, updateAvatar, updateUserRoles, createUser, getInstructorProfile
 } = require('../controllers/users.controller');
 
 const router = Router();
+
+// Perfil público de instructor
+router.get('/instructor/:id', getInstructorProfile);
 
 // Admin: crear usuario
 router.post('/', auth, isAdmin, [

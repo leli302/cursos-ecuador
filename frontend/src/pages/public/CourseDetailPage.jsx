@@ -194,9 +194,14 @@ export default function CourseDetailPage() {
             </div>
 
             <p className="text-muted text-sm mb-2">
-              Instructor: <span style={{ color: 'var(--accent-teal)', fontWeight: 500 }}>
+              Instructor:{' '}
+              <Link 
+                to={`/instructores/${course.instructor_id}`} 
+                style={{ color: 'var(--accent-teal)', fontWeight: 600, textDecoration: 'underline' }}
+                title="Ver perfil completo del instructor"
+              >
                 {course.instructor_nombre} {course.instructor_apellido}
-              </span>
+              </Link>
             </p>
 
             <div className="flex items-center gap-4 mb-6 flex-wrap">
@@ -351,9 +356,16 @@ export default function CourseDetailPage() {
                   <p className="text-xs" style={{ color: 'var(--accent-teal)', fontWeight: 600, marginBottom: 8 }}>
                     {course.instructor_titulo || 'Instructor Certificado'} {course.instructor_experiencia ? `• ${course.instructor_experiencia}` : ''}
                   </p>
-                  <p className="text-sm text-secondary" style={{ lineHeight: 1.6 }}>
+                  <p className="text-sm text-secondary" style={{ lineHeight: 1.6, marginBottom: 12 }}>
                     {course.instructor_bio || 'Experto y profesional apasionado por compartir conocimientos prácticos con metodologías adaptadas al mercado real.'}
                   </p>
+                  <Link 
+                    to={`/instructores/${course.instructor_id}`}
+                    className="btn btn-outline btn-sm inline-flex items-center gap-2"
+                    style={{ fontSize: '0.8rem', padding: '5px 12px' }}
+                  >
+                    <Users size={14} /> Ver Perfil y Cursos del Instructor
+                  </Link>
                 </div>
               </div>
             </div>

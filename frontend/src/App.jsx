@@ -12,6 +12,7 @@ import CourseDetailPage from './pages/public/CourseDetailPage';
 import LoginPage from './pages/public/LoginPage';
 import RegisterPage from './pages/public/RegisterPage';
 import PremiumPage from './pages/public/PremiumPage';
+import InstructorProfilePage from './pages/public/InstructorProfilePage';
 import CartPage from './pages/CartPage';
 import StudentDashboard from './pages/student/DashboardPage';
 import LibraryPage from './pages/student/LibraryPage';
@@ -53,6 +54,7 @@ function AppContent() {
           <Route path="/" element={<HomePage />} />
           <Route path="/catalogo" element={<CatalogPage />} />
           <Route path="/curso/:id" element={<CourseDetailPage />} />
+          <Route path="/instructores/:id" element={<InstructorProfilePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/registro" element={<RegisterPage />} />
           <Route path="/premium" element={<PremiumPage />} />

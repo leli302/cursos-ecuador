@@ -99,7 +99,18 @@ export default function CourseCard({ course }) {
         <span className="course-category">{course.categoria_nombre || 'General'}</span>
         <h3 className="course-title">{course.nombre}</h3>
         <p className="course-instructor">
-          {course.instructor_nombre} {course.instructor_apellido}
+          <span 
+            onClick={(e) => {
+              e.stopPropagation();
+              if (course.instructor_id) navigate(`/instructores/${course.instructor_id}`);
+            }}
+            style={{ cursor: 'pointer', transition: 'color 0.15s' }}
+            onMouseEnter={(e) => e.target.style.color = 'var(--accent-teal)'}
+            onMouseLeave={(e) => e.target.style.color = 'var(--text-muted)'}
+            title="Ver perfil del instructor"
+          >
+            {course.instructor_nombre} {course.instructor_apellido}
+          </span>
         </p>
         <div className="flex items-center gap-2 mb-2">
           <div className="stars flex items-center gap-1">
