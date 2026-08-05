@@ -521,11 +521,15 @@ const getCourseStudents = async (req, res, next) => {
 // POST /api/courses/:id/enroll (Matriculación Gratuita)
 const freeEnroll = async (req, res, next) => {
   try {
-    const courseId = req.params.id;
+    const courseId = parseInt(req.params.id, 10);
     const userId = req.user.id;
 
+    if (isNaN(courseId)) {
+      return res.status(400).json({ error: 'ID de curso inválido.' });
+    }
+
     // Verificar si el curso existe
-    const courseRes = await query('SELECT id, nombre FROM cursos WHERE id = $1', [courseId]);
+    const courseRes = await query('SELECT id, nombre, cupo_maximo FROM cursos WHERE id = $1', [courseId]);
     if (courseRes.rows.length === 0) {
       return res.status(404).json({ error: 'El curso no existe.' });
     }
@@ -537,39 +541,54 @@ const freeEnroll = async (req, res, next) => {
     );
 
     if (checkRes.rows.length > 0) {
-      return res.json({ message: 'Ya estás matriculado en este curso.', enrolled: true });
+      return res.json({ message: 'Ya estás matriculado en este curso.', enrolled: true, alreadyEnrolled: true });
     }
 
-    // Obtener versión y aula por defecto
-    const versionRes = await query(
-      "SELECT id FROM curso_versiones WHERE curso_id = $1 AND estado = 'publicado' ORDER BY creado_en DESC LIMIT 1",
-      [courseId]
-    );
-    const aulaRes = await query(
-      "SELECT id FROM aulas WHERE curso_id = $1 AND estado = 'abierta' ORDER BY creado_en ASC LIMIT 1",
-      [courseId]
-    );
+    // Obtener versión publicada (puede ser null)
+    let versionId = null;
+    try {
+      const versionRes = await query(
+        "SELECT id FROM curso_versiones WHERE curso_id = $1 ORDER BY creado_en DESC LIMIT 1",
+        [courseId]
+      );
+      versionId = versionRes.rows[0]?.id || null;
+    } catch (e) { /* versión opcional */ }
 
-    const versionId = versionRes.rows[0]?.id || null;
-    const aulaId = aulaRes.rows[0]?.id || null;
+    // Obtener aula activa (puede ser null) — buscar 'activa' O 'abierta'
+    let aulaId = null;
+    try {
+      const aulaRes = await query(
+        "SELECT id FROM aulas WHERE curso_id = $1 AND (estado = 'activa' OR estado = 'abierta') ORDER BY creado_en ASC LIMIT 1",
+        [courseId]
+      );
+      aulaId = aulaRes.rows[0]?.id || null;
+    } catch (e) { /* aula opcional */ }
 
-    // Inscribir de forma gratuita
+    // Inscribir al estudiante de forma gratuita
     await query(
       `INSERT INTO inscripciones (usuario_id, curso_id, aula_id, version_id, estado)
        VALUES ($1, $2, $3, $4, 'activa')`,
       [userId, courseId, aulaId, versionId]
     );
 
-    // Incrementar contador de ventas/inscritos
+    // Incrementar contador de inscritos
     await query('UPDATE cursos SET total_ventas = total_ventas + 1 WHERE id = $1', [courseId]);
 
-    await logAction(userId, 'FREE_ENROLLMENT', `Inscripción gratuita al curso: ${courseRes.rows[0].nombre}`, req.ip);
+    // Log de la acción
+    try {
+      await logAction(userId, 'FREE_ENROLLMENT', `Inscripción gratuita: ${courseRes.rows[0].nombre}`, req.ip);
+    } catch (e) { /* log opcional */ }
 
     res.status(201).json({
-      message: '¡Matriculación gratuita exitosa! Ya tienes acceso a las lecciones del curso.',
+      message: '¡Te has matriculado exitosamente! Ya tienes acceso al curso.',
       enrolled: true
     });
   } catch (error) {
+    // Si es error de unicidad (ya inscrito), manejarlo elegantemente
+    if (error.code === '23505') {
+      return res.json({ message: 'Ya estás matriculado en este curso.', enrolled: true, alreadyEnrolled: true });
+    }
+    console.error('Error en freeEnroll:', error);
     next(error);
   }
 };

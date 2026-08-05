@@ -407,44 +407,71 @@ export default function CourseDetailPage() {
           {/* Right: Sticky Purchase & Enrollment Card */}
           <div className="animate-slide-right" style={{ position: 'sticky', top: 90 }}>
             <div className="card" style={{
-              border: '1px solid var(--accent-teal)',
-              boxShadow: 'var(--shadow-md)'
+              border: '1px solid var(--border-subtle)',
+              boxShadow: 'var(--shadow-lg)',
+              overflow: 'hidden'
             }}>
-              {/* Badge de Modelo de Acceso */}
-              <div className="flex items-center gap-2 mb-4 p-2" style={{ background: 'rgba(13,148,136,0.08)', borderRadius: 'var(--radius-md)', color: 'var(--accent-teal)' }}>
-                <Check size={16} />
-                <span className="text-xs font-bold">ACCESO A CLASES 100% GRATIS</span>
-              </div>
-
-              {/* Price of Certificate */}
-              <div className="mb-6">
-                <p className="text-xs text-muted font-semibold">Certificación Oficial:</p>
-                <div style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-3xl)', fontWeight: 800 }}>
-                  ${parseFloat(course.precio).toFixed(2)}
+              {/* Header: Modelo de acceso */}
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(13,148,136,0.12) 0%, rgba(13,148,136,0.04) 100%)',
+                padding: '16px 20px',
+                margin: '-20px -20px 20px -20px',
+                borderBottom: '1px solid rgba(13,148,136,0.15)'
+              }}>
+                <div className="flex items-center gap-2" style={{ marginBottom: 6 }}>
+                  <div style={{
+                    width: 28, height: 28, borderRadius: '50%',
+                    background: 'rgba(13,148,136,0.15)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}>
+                    <Check size={14} style={{ color: 'var(--accent-teal)' }} />
+                  </div>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--accent-teal)' }}>
+                    Acceso Gratuito
+                  </span>
                 </div>
-                {course.precio_premium > 0 && (
-                  <p className="text-sm text-muted mt-1">
-                    <Crown size={14} style={{ color: 'var(--accent-gold)', display: 'inline', verticalAlign: 'middle' }} />
-                    {' '}Premium: <span style={{ color: 'var(--accent-gold)', fontWeight: 600 }}>${parseFloat(course.precio_premium).toFixed(2)}</span>
-                  </p>
-                )}
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>
+                  Matricúlate sin costo y accede a todas las lecciones. La certificación oficial es opcional y se adquiere por separado.
+                </p>
               </div>
 
-              {/* Buttons */}
+              {/* Enrollment Button */}
               <div className="flex flex-col gap-3 mb-6">
                 <button 
                   onClick={handleFreeEnroll} 
                   disabled={enrolling}
                   className="btn btn-primary btn-lg w-full" 
                   id="free-enroll-btn"
+                  style={{ fontSize: '0.95rem', padding: '14px 20px', fontWeight: 700 }}
                 >
-                  <Zap size={18} /> {enrolling ? 'Matriculando...' : 'Matricularme Gratis al Curso'}
+                  <Zap size={18} /> {enrolling ? 'Procesando...' : 'Matricularme Gratis'}
                 </button>
-                <button onClick={handleBuyNow} className="btn btn-outline btn-lg w-full" id="buy-cert-btn">
-                  <Award size={18} /> Comprar Certificado Oficial
-                </button>
-                <button onClick={handleAddToCart} className="btn btn-ghost btn-sm w-full" id="add-to-cart-btn" style={{ color: 'var(--text-muted)' }}>
-                  <ShoppingCart size={15} /> Agregar al Carrito
+              </div>
+
+              {/* Certification Section */}
+              <div style={{
+                borderTop: '1px solid var(--border-subtle)',
+                paddingTop: 'var(--space-4)',
+                marginBottom: 'var(--space-4)'
+              }}>
+                <p style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
+                  Certificación Oficial (Opcional)
+                </p>
+                <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
+                  <div>
+                    <span style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-2xl)', fontWeight: 800 }}>
+                      ${parseFloat(course.precio || 0).toFixed(2)}
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: 4 }}>USD</span>
+                  </div>
+                  {course.es_premium && (
+                    <span className="badge badge-gold" style={{ fontSize: '0.65rem', padding: '3px 8px' }}>
+                      <Crown size={10} /> PREMIUM
+                    </span>
+                  )}
+                </div>
+                <button onClick={handleBuyNow} className="btn btn-outline w-full" id="buy-cert-btn" style={{ fontSize: '0.85rem' }}>
+                  <Award size={16} /> Obtener Certificado
                 </button>
               </div>
 
@@ -493,7 +520,7 @@ export default function CourseDetailPage() {
                 </div>
               )}
 
-              {/* Includes */}
+              {/* Course Includes */}
               <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 'var(--space-4)' }}>
                 <p className="text-sm font-semibold mb-3">Este curso incluye:</p>
                 {[
@@ -501,7 +528,7 @@ export default function CourseDetailPage() {
                   { icon: <PlayCircle size={14} style={{ color: 'var(--accent-teal)' }} />, text: `${totalLessons} lecciones en video` },
                   { icon: <FileText size={14} style={{ color: 'var(--accent-teal)' }} />, text: 'Recursos descargables' },
                   { icon: <Infinity size={14} style={{ color: 'var(--accent-teal)' }} />, text: 'Acceso de por vida' },
-                  { icon: <Award size={14} style={{ color: 'var(--accent-teal)' }} />, text: 'Certificado de finalización' }
+                  { icon: <Award size={14} style={{ color: 'var(--accent-teal)' }} />, text: 'Certificado al completar (de pago)' }
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2 mb-2">
                     {item.icon}
