@@ -77,6 +77,23 @@ export default function CourseDetailPage() {
     fetchCourse();
   }, [id]);
 
+  const [enrolling, setEnrolling] = useState(false);
+
+  const handleFreeEnroll = async () => {
+    if (!isAuthenticated) return navigate('/login');
+    setEnrolling(true);
+    try {
+      const res = await api.post(`/courses/${id}/enroll`);
+      toast.success(res.data.message || '¡Matriculación gratuita exitosa!');
+      navigate('/mi-panel');
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.error || 'Error al realizar la matriculación.');
+    } finally {
+      setEnrolling(false);
+    }
+  };
+
   const handleAddToCart = async () => {
     if (!isAuthenticated) return navigate('/login');
     const result = await addToCart(parseInt(id));
@@ -387,15 +404,22 @@ export default function CourseDetailPage() {
             )}
           </div>
 
-          {/* Right: Sticky Purchase Card */}
+          {/* Right: Sticky Purchase & Enrollment Card */}
           <div className="animate-slide-right" style={{ position: 'sticky', top: 90 }}>
             <div className="card" style={{
-              border: '1px solid rgba(78,205,196,0.2)',
-              boxShadow: 'var(--shadow-lg)'
+              border: '1px solid var(--accent-teal)',
+              boxShadow: 'var(--shadow-md)'
             }}>
-              {/* Price */}
+              {/* Badge de Modelo de Acceso */}
+              <div className="flex items-center gap-2 mb-4 p-2" style={{ background: 'rgba(13,148,136,0.08)', borderRadius: 'var(--radius-md)', color: 'var(--accent-teal)' }}>
+                <Check size={16} />
+                <span className="text-xs font-bold">ACCESO A CLASES 100% GRATIS</span>
+              </div>
+
+              {/* Price of Certificate */}
               <div className="mb-6">
-                <div style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-4xl)', fontWeight: 800 }}>
+                <p className="text-xs text-muted font-semibold">Certificación Oficial:</p>
+                <div style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-3xl)', fontWeight: 800 }}>
                   ${parseFloat(course.precio).toFixed(2)}
                 </div>
                 {course.precio_premium > 0 && (
@@ -408,11 +432,19 @@ export default function CourseDetailPage() {
 
               {/* Buttons */}
               <div className="flex flex-col gap-3 mb-6">
-                <button onClick={handleBuyNow} className="btn btn-primary btn-lg w-full" id="buy-now-btn">
-                  <Zap size={18} /> Comprar Ahora
+                <button 
+                  onClick={handleFreeEnroll} 
+                  disabled={enrolling}
+                  className="btn btn-primary btn-lg w-full" 
+                  id="free-enroll-btn"
+                >
+                  <Zap size={18} /> {enrolling ? 'Matriculando...' : 'Matricularme Gratis al Curso'}
                 </button>
-                <button onClick={handleAddToCart} className="btn btn-outline btn-lg w-full" id="add-to-cart-btn">
-                  <ShoppingCart size={18} /> Agregar al Carrito
+                <button onClick={handleBuyNow} className="btn btn-outline btn-lg w-full" id="buy-cert-btn">
+                  <Award size={18} /> Comprar Certificado Oficial
+                </button>
+                <button onClick={handleAddToCart} className="btn btn-ghost btn-sm w-full" id="add-to-cart-btn" style={{ color: 'var(--text-muted)' }}>
+                  <ShoppingCart size={15} /> Agregar al Carrito
                 </button>
               </div>
 

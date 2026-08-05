@@ -518,7 +518,63 @@ const getCourseStudents = async (req, res, next) => {
   }
 };
 
+// POST /api/courses/:id/enroll (Matriculación Gratuita)
+const freeEnroll = async (req, res, next) => {
+  try {
+    const courseId = req.params.id;
+    const userId = req.user.id;
+
+    // Verificar si el curso existe
+    const courseRes = await query('SELECT id, nombre FROM cursos WHERE id = $1', [courseId]);
+    if (courseRes.rows.length === 0) {
+      return res.status(404).json({ error: 'El curso no existe.' });
+    }
+
+    // Verificar si ya está inscrito
+    const checkRes = await query(
+      'SELECT id FROM inscripciones WHERE usuario_id = $1 AND curso_id = $2',
+      [userId, courseId]
+    );
+
+    if (checkRes.rows.length > 0) {
+      return res.json({ message: 'Ya estás matriculado en este curso.', enrolled: true });
+    }
+
+    // Obtener versión y aula por defecto
+    const versionRes = await query(
+      "SELECT id FROM curso_versiones WHERE curso_id = $1 AND estado = 'publicado' ORDER BY creado_en DESC LIMIT 1",
+      [courseId]
+    );
+    const aulaRes = await query(
+      "SELECT id FROM aulas WHERE curso_id = $1 AND estado = 'abierta' ORDER BY creado_en ASC LIMIT 1",
+      [courseId]
+    );
+
+    const versionId = versionRes.rows[0]?.id || null;
+    const aulaId = aulaRes.rows[0]?.id || null;
+
+    // Inscribir de forma gratuita
+    await query(
+      `INSERT INTO inscripciones (usuario_id, curso_id, aula_id, version_id, estado)
+       VALUES ($1, $2, $3, $4, 'activa')`,
+      [userId, courseId, aulaId, versionId]
+    );
+
+    // Incrementar contador de ventas/inscritos
+    await query('UPDATE cursos SET total_ventas = total_ventas + 1 WHERE id = $1', [courseId]);
+
+    await logAction(userId, 'FREE_ENROLLMENT', `Inscripción gratuita al curso: ${courseRes.rows[0].nombre}`, req.ip);
+
+    res.status(201).json({
+      message: '¡Matriculación gratuita exitosa! Ya tienes acceso a las lecciones del curso.',
+      enrolled: true
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getCourses, getBestsellers, getRecommended, getPremiumCourses,
-  getCourseById, createCourse, updateCourse, deleteCourse, getMyCourses, getCourseStudents
+  getCourseById, createCourse, updateCourse, deleteCourse, getMyCourses, getCourseStudents, freeEnroll
 };

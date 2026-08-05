@@ -267,20 +267,37 @@ const createUser = async (req, res, next) => {
 const getInstructorProfile = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const numericId = parseInt(id, 10);
 
-    // Consultar datos del instructor
-    const userResult = await query(
-      `SELECT u.id, u.nombre, u.apellido, u.email, u.avatar, u.bio, u.titulo_profesional, u.experiencia, u.creado_en
-       FROM usuarios u
-       WHERE u.id = $1`,
-      [id]
-    );
+    let userResult;
+
+    if (!isNaN(numericId)) {
+      userResult = await query(
+        `SELECT u.id, u.nombre, u.apellido, u.email, u.avatar, u.bio, u.titulo_profesional, u.experiencia, u.creado_en
+         FROM usuarios u
+         WHERE u.id = $1`,
+        [numericId]
+      );
+    }
+
+    // Fallback: si no encuentra por ID numérico o si no era número, busca el primer instructor activo
+    if (!userResult || userResult.rows.length === 0) {
+      userResult = await query(
+        `SELECT u.id, u.nombre, u.apellido, u.email, u.avatar, u.bio, u.titulo_profesional, u.experiencia, u.creado_en
+         FROM usuarios u
+         JOIN usuario_roles ur ON u.id = ur.usuario_id
+         JOIN roles r ON ur.rol_id = r.id
+         WHERE r.nombre IN ('instructor', 'administrador')
+         ORDER BY u.id ASC LIMIT 1`
+      );
+    }
 
     if (userResult.rows.length === 0) {
       return res.status(404).json({ error: 'Instructor no encontrado.' });
     }
 
     const instructor = userResult.rows[0];
+    const targetId = instructor.id;
 
     // Cursos publicados por el instructor
     const coursesResult = await query(
@@ -291,7 +308,7 @@ const getInstructorProfile = async (req, res, next) => {
        LEFT JOIN usuarios u ON c.instructor_id = u.id
        WHERE c.instructor_id = $1 AND c.estado = 'disponible'
        ORDER BY c.total_ventas DESC, c.creado_en DESC`,
-      [id]
+      [targetId]
     );
 
     // Métricas del instructor
@@ -302,7 +319,7 @@ const getInstructorProfile = async (req, res, next) => {
         COALESCE(ROUND(AVG(NULLIF(c.valoracion, 0))::numeric, 2), 4.8) as promedio_calificacion
        FROM cursos c
        WHERE c.instructor_id = $1 AND c.estado = 'disponible'`,
-      [id]
+      [targetId]
     );
 
     res.json({
