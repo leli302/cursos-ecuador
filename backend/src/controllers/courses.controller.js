@@ -49,7 +49,7 @@ const getCourses = async (req, res, next) => {
       const userRoles = req.user?.roles || [];
       const isPrivileged = userRoles.includes('administrador') || userRoles.includes('instructor');
       if (!isPrivileged) {
-        where.push(`c.estado != 'no_disponible'`);
+        where.push(`(c.estado IS NULL OR c.estado != 'no_disponible')`);
       }
     }
     if (search) {
@@ -114,14 +114,15 @@ const getBestsellers = async (req, res, next) => {
        FROM cursos c
        LEFT JOIN categorias cat ON c.categoria_id = cat.id
        LEFT JOIN usuarios u ON c.instructor_id = u.id
-       WHERE c.estado = 'disponible'
+       WHERE c.estado IS NULL OR c.estado != 'no_disponible'
        ORDER BY c.total_ventas DESC
        LIMIT $1`,
       [limit]
     );
     res.json({ data: result.rows });
   } catch (error) {
-    next(error);
+    console.error('Error en getBestsellers:', error);
+    res.json({ data: [] });
   }
 };
 
@@ -130,7 +131,6 @@ const getRecommended = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 8;
 
-    // Si el usuario está autenticado, recomendar basado en sus compras
     let result;
     if (req.user) {
       result = await query(
@@ -139,7 +139,7 @@ const getRecommended = async (req, res, next) => {
          FROM cursos c
          LEFT JOIN categorias cat ON c.categoria_id = cat.id
          LEFT JOIN usuarios u ON c.instructor_id = u.id
-         WHERE c.estado = 'disponible'
+         WHERE (c.estado IS NULL OR c.estado != 'no_disponible')
            AND c.categoria_id IN (
              SELECT DISTINCT c2.categoria_id FROM inscripciones i
              JOIN cursos c2 ON i.curso_id = c2.id
@@ -153,7 +153,6 @@ const getRecommended = async (req, res, next) => {
         [req.user.id, limit]
       );
 
-      // Si no hay recomendaciones personalizadas, devolver mejor valorados
       if (result.rows.length === 0) {
         result = await query(
           `SELECT c.*, cat.nombre as categoria_nombre,
@@ -161,7 +160,7 @@ const getRecommended = async (req, res, next) => {
            FROM cursos c
            LEFT JOIN categorias cat ON c.categoria_id = cat.id
            LEFT JOIN usuarios u ON c.instructor_id = u.id
-           WHERE c.estado = 'disponible'
+           WHERE c.estado IS NULL OR c.estado != 'no_disponible'
            ORDER BY c.valoracion DESC, c.total_ventas DESC
            LIMIT $1`,
           [limit]
@@ -174,7 +173,7 @@ const getRecommended = async (req, res, next) => {
          FROM cursos c
          LEFT JOIN categorias cat ON c.categoria_id = cat.id
          LEFT JOIN usuarios u ON c.instructor_id = u.id
-         WHERE c.estado = 'disponible'
+         WHERE c.estado IS NULL OR c.estado != 'no_disponible'
          ORDER BY c.valoracion DESC, c.total_ventas DESC
          LIMIT $1`,
         [limit]
@@ -183,7 +182,8 @@ const getRecommended = async (req, res, next) => {
 
     res.json({ data: result.rows });
   } catch (error) {
-    next(error);
+    console.error('Error en getRecommended:', error);
+    res.json({ data: [] });
   }
 };
 
@@ -197,14 +197,15 @@ const getPremiumCourses = async (req, res, next) => {
        FROM cursos c
        LEFT JOIN categorias cat ON c.categoria_id = cat.id
        LEFT JOIN usuarios u ON c.instructor_id = u.id
-       WHERE c.es_premium = true AND c.estado = 'disponible'
+       WHERE c.es_premium = true AND (c.estado IS NULL OR c.estado != 'no_disponible')
        ORDER BY c.valoracion DESC
        LIMIT $1`,
       [limit]
     );
     res.json({ data: result.rows });
   } catch (error) {
-    next(error);
+    console.error('Error en getPremiumCourses:', error);
+    res.json({ data: [] });
   }
 };
 
