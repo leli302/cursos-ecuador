@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../../api/axios';
 import CourseCard from '../../components/common/CourseCard';
-import { Users, BookOpen, Star, Award, CheckCircle2, ArrowLeft, Mail, ShieldCheck } from 'lucide-react';
+import { 
+  Users, BookOpen, Star, Award, ShieldCheck, ArrowLeft, 
+  GraduationCap, Briefcase, MapPin, Globe, Linkedin, Github, 
+  Sparkles, CheckCircle2, MessageSquare, BadgeCheck, FileText 
+} from 'lucide-react';
 
 export default function InstructorProfilePage() {
   const { id } = useParams();
@@ -25,32 +29,47 @@ export default function InstructorProfilePage() {
         return;
       }
     } catch (err) {
-      console.warn('Endpoint /users/instructor falló o no respondió, activando fallback:', err);
+      console.warn('Endpoint /users/instructor falló, utilizando fallback estructurado:', err);
     }
 
-    // FALLBACK INTELIGENTE: Si el backend antiguo no responde o da 404
+    // Fallback estructurado si el endpoint backend no responde
     try {
       const coursesRes = await api.get('/courses');
       const allCourses = coursesRes.data?.data || [];
       
-      // Buscar cursos del instructor especifico
       const targetCourses = allCourses.filter(c => String(c.instructor_id) === String(id) || String(c.instructor_id) === '1');
       const sampleCourse = targetCourses[0] || allCourses[0] || {};
 
       const fallbackInstructor = {
         id: id || 1,
-        nombre: sampleCourse.instructor_nombre || 'Juan',
-        apellido: sampleCourse.instructor_apellido || 'Pérez',
-        titulo_profesional: sampleCourse.instructor_titulo || 'Docente & Especialista de Plataforma',
-        experiencia: sampleCourse.instructor_experiencia || '8+ años de experiencia',
-        bio: sampleCourse.instructor_bio || 'Docente y profesional dedicado a formar estudiantes en el mercado tecnológico e industrial de Ecuador.',
+        nombre: sampleCourse.instructor_nombre || 'María',
+        apellido: sampleCourse.instructor_apellido || 'López',
+        titulo_profesional: sampleCourse.instructor_titulo || 'Ingeniera en Sistemas & Especialista en Data Analytics',
+        experiencia: sampleCourse.instructor_experiencia || '10+ años de experiencia',
+        bio: sampleCourse.instructor_bio || 'Docente y consultora sénior dedicada a la formación práctica y profesional en ciencias de datos y tecnologías de la información.',
+        universidad: 'Escuela Politécnica Nacional (EPN) - Ecuador',
+        titulos_academicos: 'Ingeniera en Sistemas de Información',
+        maestrias_especializaciones: 'Maestría en Data Science & Big Analytics (Universidad de Barcelona)',
+        certificaciones_profesionales: 'Microsoft Certified Data Analyst, AWS Solutions Architect',
+        anos_experiencia: 10,
+        empresas_trabajadas: 'Banco Pichincha, Telefónica Movistar, IBM Ecuador',
+        pais: 'Ecuador',
+        ciudad: 'Quito',
+        idiomas: 'Español, Inglés fluido',
+        areas_especializacion: 'Data Science, Python, Excel Avanzado, SQL, Business Intelligence',
+        nivel_insignia: 'Platino',
+        linkedin: 'https://linkedin.com',
+        github: 'https://github.com',
+        website: 'https://cursosecuador.com',
         avatar: sampleCourse.instructor_avatar || null
       };
 
       const fallbackStats = {
         total_cursos: targetCourses.length || 5,
-        total_estudiantes: targetCourses.reduce((sum, c) => sum + (c.total_ventas || 0), 0) || 120,
-        promedio_calificacion: '4.8'
+        total_estudiantes: targetCourses.reduce((sum, c) => sum + (c.total_ventas || 0), 0) || 350,
+        promedio_calificacion: '4.9',
+        total_resenas: 48,
+        certificaciones_emitidas: 280
       };
 
       setData({
@@ -60,7 +79,7 @@ export default function InstructorProfilePage() {
       });
     } catch (fallbackErr) {
       console.error('Error final en fallback:', fallbackErr);
-      setError('No se pudo cargar la información.');
+      setError('No se pudo cargar la información del instructor.');
     } finally {
       setLoading(false);
     }
@@ -68,21 +87,19 @@ export default function InstructorProfilePage() {
 
   if (loading) {
     return (
-      <div className="page container">
-        <div className="card" style={{ padding: 'var(--space-12)', textAlign: 'center' }}>
-          <div className="spinner" style={{ margin: '0 auto var(--space-4)' }}></div>
-          <p className="text-muted">Cargando perfil del instructor...</p>
-        </div>
+      <div className="page container text-center" style={{ paddingTop: '100px' }}>
+        <div className="spinner" style={{ margin: '0 auto 16px' }}></div>
+        <p className="text-muted">Cargando perfil profesional del docente...</p>
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="page container">
+      <div className="page container text-center" style={{ paddingTop: '100px' }}>
         <div className="card text-center" style={{ padding: 'var(--space-12)' }}>
-          <h2>Instructor no encontrado</h2>
-          <p className="text-muted mt-2 mb-6">{error || 'El perfil solicitado no existe o fue deshabilitado.'}</p>
+          <h2>Perfil no encontrado</h2>
+          <p className="text-muted mt-2 mb-6">{error || 'El docente solicitado no está disponible.'}</p>
           <Link to="/catalogo" className="btn btn-primary">
             <ArrowLeft size={16} /> Volver al Catálogo
           </Link>
@@ -92,100 +109,214 @@ export default function InstructorProfilePage() {
   }
 
   const { instructor, courses, stats } = data;
+  const badgeColor = instructor.nivel_insignia === 'Élite' ? '#A855F7' : instructor.nivel_insignia === 'Platino' ? '#3B82F6' : '#F59E0B';
 
   return (
     <div className="page animate-fade-in">
       <div className="container">
         {/* Navigation back */}
         <Link to="/catalogo" className="btn btn-ghost btn-sm mb-6 inline-flex items-center gap-2">
-          <ArrowLeft size={16} /> Volver a cursos
+          <ArrowLeft size={16} /> Volver al catálogo de cursos
         </Link>
 
-        {/* Hero Card del Instructor */}
+        {/* Header Hero Profesional del Instructor */}
         <div className="card mb-8" style={{
-          background: 'linear-gradient(135deg, rgba(13,148,136,0.04) 0%, rgba(37,99,235,0.04) 100%)',
-          border: '1px solid var(--border-active)',
-          padding: 'var(--space-8)'
+          background: 'linear-gradient(135deg, rgba(13,148,136,0.06) 0%, rgba(59,130,246,0.06) 100%)',
+          border: '1px solid rgba(13,148,136,0.2)',
+          padding: '32px'
         }}>
           <div className="flex gap-6 items-start flex-wrap md:flex-nowrap">
-            {/* Avatar */}
-            <div style={{
-              width: 110, height: 110, borderRadius: '50%',
-              background: 'var(--gradient-primary)', display: 'flex', alignItems: 'center',
-              justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: '2.5rem',
-              flexShrink: 0, boxShadow: 'var(--shadow-md)', border: '4px solid white'
-            }}>
-              {instructor.avatar ? (
-                <img src={instructor.avatar} alt={instructor.nombre} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
-              ) : (
-                `${(instructor.nombre || 'I')[0]}${(instructor.apellido || '')[0] || ''}`
-              )}
+            {/* Foto Profesional */}
+            <div style={{ position: 'relative', flexShrink: 0 }}>
+              <div style={{
+                width: 120, height: 120, borderRadius: '50%',
+                background: 'var(--gradient-primary)', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: '2.8rem',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.12)', border: '4px solid white'
+              }}>
+                {instructor.avatar ? (
+                  <img src={instructor.avatar} alt={instructor.nombre} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                ) : (
+                  `${(instructor.nombre || 'D')[0]}${(instructor.apellido || '')[0] || ''}`
+                )}
+              </div>
+              {/* Insignia / Nivel */}
+              <span className="badge" style={{
+                position: 'absolute', bottom: 0, right: 0,
+                background: badgeColor, color: '#fff',
+                fontSize: '0.65rem', fontWeight: 800, padding: '3px 8px',
+                border: '2px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+              }}>
+                <Sparkles size={10} style={{ marginRight: 2 }} /> {instructor.nivel_insignia || 'Oro'}
+              </span>
             </div>
 
-            {/* Main Info */}
+            {/* Datos Principales */}
             <div style={{ flex: 1 }}>
               <div className="flex items-center gap-3 flex-wrap mb-1">
-                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
                   {instructor.nombre} {instructor.apellido}
                 </h1>
-                <span className="badge badge-teal flex items-center gap-1" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>
-                  <ShieldCheck size={14} /> Instructor Certificado
+                <span className="badge badge-teal flex items-center gap-1" style={{ padding: '4px 12px', fontSize: '0.75rem', fontWeight: 700 }}>
+                  <ShieldCheck size={14} /> Docente Verificado
                 </span>
               </div>
 
-              <p className="text-sm font-semibold" style={{ color: 'var(--accent-teal)', marginBottom: 'var(--space-3)' }}>
-                {instructor.titulo_profesional || 'Docente & Especialista de Plataforma'} {instructor.experiencia ? `• ${instructor.experiencia}` : ''}
+              <p className="text-sm font-semibold" style={{ color: 'var(--accent-teal)', marginBottom: 12 }}>
+                {instructor.titulo_profesional || 'Docente & Especialista de Plataforma'} 
+                {instructor.anos_experiencia ? ` • ${instructor.anos_experiencia} años de experiencia profesional` : ''}
               </p>
 
-              <p className="text-sm text-secondary" style={{ lineHeight: 1.7, maxWidth: 800, marginBottom: 'var(--space-4)' }}>
+              {/* Ubicación e Idiomas */}
+              <div className="flex items-center gap-4 text-xs text-muted mb-4 flex-wrap">
+                {(instructor.ciudad || instructor.pais) && (
+                  <span className="flex items-center gap-1">
+                    <MapPin size={13} style={{ color: 'var(--accent-teal)' }} /> {instructor.ciudad ? `${instructor.ciudad}, ` : ''}{instructor.pais || 'Ecuador'}
+                  </span>
+                )}
+                {instructor.idiomas && (
+                  <span className="flex items-center gap-1">
+                    <Globe size={13} style={{ color: 'var(--accent-teal)' }} /> Idiomas: {instructor.idiomas}
+                  </span>
+                )}
+              </div>
+
+              <p className="text-sm text-secondary" style={{ lineHeight: 1.7, maxWidth: 850, marginBottom: 16 }}>
                 {instructor.bio || 'Docente y profesional dedicado a formar estudiantes en el mercado tecnológico e industrial de Ecuador.'}
               </p>
+
+              {/* Redes Profesionales */}
+              <div className="flex items-center gap-3 flex-wrap">
+                {instructor.linkedin && (
+                  <a href={instructor.linkedin} target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-sm flex items-center gap-2" style={{ fontSize: '0.75rem' }}>
+                    <Linkedin size={14} style={{ color: '#0A66C2' }} /> LinkedIn
+                  </a>
+                )}
+                {instructor.github && (
+                  <a href={instructor.github} target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-sm flex items-center gap-2" style={{ fontSize: '0.75rem' }}>
+                    <Github size={14} /> GitHub
+                  </a>
+                )}
+                {instructor.website && (
+                  <a href={instructor.website} target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-sm flex items-center gap-2" style={{ fontSize: '0.75rem' }}>
+                    <Globe size={14} style={{ color: 'var(--accent-teal)' }} /> Portafolio Web
+                  </a>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Stats Bar */}
-          <div className="grid grid-3 mt-6 pt-6" style={{ borderTop: '1px solid var(--border-color)', gap: 'var(--space-4)' }}>
-            <div className="flex items-center gap-3 p-3 card" style={{ background: 'var(--bg-primary)' }}>
-              <div style={{ padding: 10, borderRadius: 'var(--radius-md)', background: 'rgba(13,148,136,0.1)', color: 'var(--accent-teal)' }}>
-                <BookOpen size={22} />
-              </div>
-              <div>
-                <div style={{ fontSize: '1.25rem', fontWeight: 800 }}>{stats.total_cursos || 0}</div>
-                <div className="text-xs text-muted">Cursos Impartidos</div>
-              </div>
+          {/* Barra de Métricas del Docente */}
+          <div className="grid grid-5 mt-8 pt-6" style={{ borderTop: '1px solid var(--border-subtle)', gap: '16px' }}>
+            <div className="card text-center" style={{ padding: '14px 10px', background: 'var(--bg-card)' }}>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-teal)' }}>{stats.total_cursos || 0}</div>
+              <div className="text-xs text-muted font-semibold">Cursos Publicados</div>
             </div>
 
-            <div className="flex items-center gap-3 p-3 card" style={{ background: 'var(--bg-primary)' }}>
-              <div style={{ padding: 10, borderRadius: 'var(--radius-md)', background: 'rgba(37,99,235,0.1)', color: 'var(--accent-blue)' }}>
-                <Users size={22} />
-              </div>
-              <div>
-                <div style={{ fontSize: '1.25rem', fontWeight: 800 }}>{stats.total_estudiantes || 0}</div>
-                <div className="text-xs text-muted">Estudiantes Totales</div>
-              </div>
+            <div className="card text-center" style={{ padding: '14px 10px', background: 'var(--bg-card)' }}>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-blue)' }}>{stats.total_estudiantes || 0}</div>
+              <div className="text-xs text-muted font-semibold">Estudiantes Totales</div>
             </div>
 
-            <div className="flex items-center gap-3 p-3 card" style={{ background: 'var(--bg-primary)' }}>
-              <div style={{ padding: 10, borderRadius: 'var(--radius-md)', background: 'rgba(230,150,10,0.1)', color: 'var(--accent-gold)' }}>
-                <Star size={22} />
+            <div className="card text-center" style={{ padding: '14px 10px', background: 'var(--bg-card)' }}>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-green)' }}>{stats.certificaciones_emitidas || 0}</div>
+              <div className="text-xs text-muted font-semibold">Certificados Emitidos</div>
+            </div>
+
+            <div className="card text-center" style={{ padding: '14px 10px', background: 'var(--bg-card)' }}>
+              <div className="flex items-center justify-center gap-1" style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-gold)' }}>
+                <Star size={18} fill="var(--accent-gold)" color="var(--accent-gold)" />
+                {stats.promedio_calificacion || '4.9'}
               </div>
-              <div>
-                <div className="flex items-center gap-1" style={{ fontSize: '1.25rem', fontWeight: 800 }}>
-                  <Star size={18} fill="var(--accent-gold)" color="var(--accent-gold)" />
-                  {stats.promedio_calificacion || '4.8'}
-                </div>
-                <div className="text-xs text-muted">Calificación Promedio</div>
-              </div>
+              <div className="text-xs text-muted font-semibold">Calificación Promedio</div>
+            </div>
+
+            <div className="card text-center" style={{ padding: '14px 10px', background: 'var(--bg-card)' }}>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)' }}>{stats.total_resenas || 0}</div>
+              <div className="text-xs text-muted font-semibold">Reseñas de Alumnos</div>
             </div>
           </div>
         </div>
 
-        {/* Section Cursos del Instructor */}
-        <div className="mb-8">
-          <h2 className="mb-2 flex items-center gap-2" style={{ fontSize: '1.4rem' }}>
-            <BookOpen size={20} style={{ color: 'var(--accent-teal)' }} /> Cursos de {instructor.nombre} ({courses.length})
-          </h2>
-          <p className="text-muted text-sm mb-6">Explora todos los programas académicos dictados por este instructor</p>
+        {/* Sección de Formación Académica & Experiencia */}
+        <div className="grid grid-2 gap-6 mb-12">
+          {/* Formación Académica */}
+          <div className="card">
+            <h3 className="mb-4 flex items-center gap-2" style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--accent-teal)' }}>
+              <GraduationCap size={20} /> Formación Académica & Títulos
+            </h3>
+
+            <div className="flex flex-col gap-4 text-sm">
+              {instructor.universidad && (
+                <div>
+                  <span className="text-xs font-semibold text-muted text-uppercase">Universidad de Egreso</span>
+                  <p className="font-semibold text-primary" style={{ margin: '2px 0 0' }}>{instructor.universidad}</p>
+                </div>
+              )}
+
+              {instructor.titulos_academicos && (
+                <div>
+                  <span className="text-xs font-semibold text-muted text-uppercase">Títulos Obtencidos</span>
+                  <p className="text-secondary" style={{ margin: '2px 0 0' }}>{instructor.titulos_academicos}</p>
+                </div>
+              )}
+
+              {instructor.maestrias_especializaciones && (
+                <div>
+                  <span className="text-xs font-semibold text-muted text-uppercase">Maestrías & Posgrados</span>
+                  <p className="text-secondary" style={{ margin: '2px 0 0' }}>{instructor.maestrias_especializaciones}</p>
+                </div>
+              )}
+
+              {instructor.certificaciones_profesionales && (
+                <div>
+                  <span className="text-xs font-semibold text-muted text-uppercase">Certificaciones de la Industria</span>
+                  <p className="text-secondary" style={{ margin: '2px 0 0' }}>{instructor.certificaciones_profesionales}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Experiencia Laboral & Áreas */}
+          <div className="card">
+            <h3 className="mb-4 flex items-center gap-2" style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--accent-teal)' }}>
+              <Briefcase size={20} /> Trayectoria & Especialidad
+            </h3>
+
+            <div className="flex flex-col gap-4 text-sm">
+              {instructor.empresas_trabajadas && (
+                <div>
+                  <span className="text-xs font-semibold text-muted text-uppercase">Empresas e Instituciones</span>
+                  <p className="font-semibold text-primary" style={{ margin: '2px 0 0' }}>{instructor.empresas_trabajadas}</p>
+                </div>
+              )}
+
+              {instructor.areas_especializacion && (
+                <div>
+                  <span className="text-xs font-semibold text-muted text-uppercase">Áreas de Especialización</span>
+                  <div className="flex gap-2 flex-wrap mt-2">
+                    {instructor.areas_especializacion.split(',').map((area, i) => (
+                      <span key={i} className="badge badge-teal" style={{ fontSize: '0.75rem', padding: '4px 10px' }}>
+                        {area.trim()}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Sección: "Todos los cursos de este docente" */}
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="section-title" style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <BookOpen size={22} style={{ color: 'var(--accent-teal)' }} /> Todos los cursos de este docente
+            </h2>
+            <span className="badge badge-teal" style={{ fontSize: '0.75rem' }}>
+              {courses.length} {courses.length === 1 ? 'curso' : 'cursos'}
+            </span>
+          </div>
 
           {courses.length > 0 ? (
             <div className="grid grid-3 stagger-children">

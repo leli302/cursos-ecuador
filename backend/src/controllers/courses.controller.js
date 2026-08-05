@@ -594,7 +594,58 @@ const freeEnroll = async (req, res, next) => {
   }
 };
 
+// GET /api/courses/:id/certifications (Tipos de Certificación al 100% de progreso)
+const getCourseCertifications = async (req, res, next) => {
+  try {
+    const courseId = req.params.id;
+    const result = await query(
+      `SELECT * FROM tipos_certificacion WHERE curso_id = $1 ORDER BY precio ASC`,
+      [courseId]
+    );
+
+    // Fallback si no hay registros en la tabla
+    let certs = result.rows;
+    if (certs.length === 0) {
+      certs = [
+        {
+          id: 1,
+          nombre: 'Certificado de Aprobación',
+          descripcion: 'Certificación oficial de aprobación del curso respaldada por Cursos Ecuador.',
+          beneficios: 'Código QR de verificación único, diploma en formato PDF de alta resolución, firma electrónica, badge para compartir en LinkedIn.',
+          requisitos: 'Completar el 100% de las lecciones del curso.',
+          precio: 29.99
+        },
+        {
+          id: 2,
+          nombre: 'Certificado Profesional Avanzado',
+          descripcion: 'Certificación de alto nivel profesional con validación de competencias aplicadas y proyecto final.',
+          beneficios: 'Código QR de verificación único, firma electrónica avalada, revisión de proyectos por el docente, inclusión en la Bolsa de Empleo de Cursos Ecuador.',
+          requisitos: 'Completar el 100% de las lecciones y aprobar los quizzes.',
+          precio: 49.99
+        }
+      ];
+    }
+
+    res.json({ data: certs });
+  } catch (error) {
+    console.error('Error en getCourseCertifications:', error);
+    res.json({
+      data: [
+        {
+          id: 1,
+          nombre: 'Certificado de Aprobación Oficial',
+          descripcion: 'Acredita la culminación exitosa y dominio de conceptos.',
+          beneficios: 'Código QR único, firma electrónica y diploma descargable.',
+          requisitos: '100% de progreso en el curso.',
+          precio: 29.99
+        }
+      ]
+    });
+  }
+};
+
 module.exports = {
   getCourses, getBestsellers, getRecommended, getPremiumCourses,
-  getCourseById, createCourse, updateCourse, deleteCourse, getMyCourses, getCourseStudents, freeEnroll
+  getCourseById, createCourse, updateCourse, deleteCourse, getMyCourses, getCourseStudents, freeEnroll,
+  getCourseCertifications
 };

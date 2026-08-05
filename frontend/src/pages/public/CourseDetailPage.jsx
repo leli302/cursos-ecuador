@@ -230,8 +230,60 @@ export default function CourseDetailPage() {
 
             {/* Description */}
             <div className="card mb-8" style={{ borderLeft: '3px solid var(--accent-teal)' }}>
-              <h3 style={{ marginBottom: 'var(--space-3)' }}>Descripción</h3>
+              <h3 style={{ marginBottom: 'var(--space-3)' }}>Descripción del Curso</h3>
               <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8 }}>{course.descripcion}</p>
+            </div>
+
+            {/* Lo que aprenderás */}
+            <div className="card mb-8" style={{ background: 'linear-gradient(135deg, rgba(13,148,136,0.04) 0%, rgba(59,130,246,0.04) 100%)', border: '1px solid rgba(13,148,136,0.15)' }}>
+              <h3 className="mb-4 flex items-center gap-2" style={{ fontSize: '1.2rem', color: 'var(--accent-teal)' }}>
+                <CheckCircle2 size={20} /> Lo que aprenderás en este curso
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px 20px' }}>
+                {(Array.isArray(course.lo_que_aprenderas) ? course.lo_que_aprenderas : [
+                  'Comprender los fundamentos teóricos y prácticos del área.',
+                  'Desarrollar proyectos reales aplicados a la industria ecuatoriana.',
+                  'Dominar las herramientas estándar utilizadas por empresas líderes.',
+                  'Implementar mejores prácticas y patrones profesionales de trabajo.',
+                  'Resolver casos de estudio del mundo real paso a paso.',
+                  'Prepararse eficazmente para evaluaciones y certificaciones de mercado.'
+                ]).map((item, idx) => (
+                  <div key={idx} className="flex items-start gap-2 text-sm" style={{ lineHeight: 1.5 }}>
+                    <CheckCircle2 size={16} style={{ color: '#10B981', flexShrink: 0, marginTop: 2 }} />
+                    <span style={{ color: 'var(--text-primary)' }}>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Dirigido a & Requisitos Grid */}
+            <div className="grid grid-2 gap-6 mb-8">
+              <div className="card">
+                <h4 className="mb-3 flex items-center gap-2" style={{ fontSize: '1rem', fontWeight: 700 }}>
+                  <Users size={18} style={{ color: 'var(--accent-teal)' }} /> Este curso está dirigido a:
+                </h4>
+                <ul className="flex flex-col gap-2 text-sm text-secondary" style={{ paddingLeft: 8 }}>
+                  {(Array.isArray(course.dirigido_a) ? course.dirigido_a : [
+                    'Estudiantes universitarios y técnicos.',
+                    'Profesionales que buscan actualizar sus conocimientos.',
+                    'Emprendedores y dueños de negocios.',
+                    'Personas que desean aprender desde cero.'
+                  ]).map((target, idx) => (
+                    <li key={idx} className="flex items-center gap-2">
+                      <span style={{ color: 'var(--accent-teal)', fontWeight: 800 }}>•</span> {target}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="card">
+                <h4 className="mb-3 flex items-center gap-2" style={{ fontSize: '1rem', fontWeight: 700 }}>
+                  <BookOpen size={18} style={{ color: 'var(--accent-teal)' }} /> Requisitos previos:
+                </h4>
+                <p className="text-sm text-secondary" style={{ lineHeight: 1.6 }}>
+                  {course.requisitos || 'No necesitas experiencia previa. Todo el contenido se enseña desde los fundamentos.'}
+                </p>
+              </div>
             </div>
 
             {/* Modules */}
@@ -448,31 +500,26 @@ export default function CourseDetailPage() {
                 </button>
               </div>
 
-              {/* Certification Section */}
+              {/* Certification Section (Sin precios antes del 100%) */}
               <div style={{
                 borderTop: '1px solid var(--border-subtle)',
                 paddingTop: 'var(--space-4)',
                 marginBottom: 'var(--space-4)'
               }}>
-                <p style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
-                  Certificación Oficial (Opcional)
-                </p>
-                <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
-                  <div>
-                    <span style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-2xl)', fontWeight: 800 }}>
-                      ${parseFloat(course.precio || 0).toFixed(2)}
-                    </span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginLeft: 4 }}>USD</span>
-                  </div>
-                  {course.es_premium && (
-                    <span className="badge badge-gold" style={{ fontSize: '0.65rem', padding: '3px 8px' }}>
-                      <Crown size={10} /> PREMIUM
-                    </span>
-                  )}
+                <div className="flex items-center gap-2 mb-2">
+                  <Award size={16} style={{ color: 'var(--accent-teal)' }} />
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                    Certificación Verificable
+                  </span>
                 </div>
-                <button onClick={handleBuyNow} className="btn btn-outline w-full" id="buy-cert-btn" style={{ fontSize: '0.85rem' }}>
-                  <Award size={16} /> Obtener Certificado
-                </button>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: 12 }}>
+                  Completa el 100% del curso para desbloquear tus opciones de certificación oficial y diploma digital con código QR.
+                </p>
+                <div style={{ padding: '8px 12px', background: 'var(--bg-body)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
+                  <span className="text-xs text-muted flex items-center gap-1 font-semibold">
+                    <CheckCircle2 size={12} style={{ color: '#10B981' }} /> Opción de Certificado disponible al finalizar
+                  </span>
+                </div>
               </div>
 
               {/* Availability */}

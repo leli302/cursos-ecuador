@@ -6,7 +6,8 @@ const { isAdminOrInstructor } = require('../middleware/roles');
 const upload = require('../config/multer');
 const {
   getCourses, getBestsellers, getRecommended, getPremiumCourses,
-  getCourseById, createCourse, updateCourse, deleteCourse, getMyCourses, getCourseStudents, freeEnroll
+  getCourseById, createCourse, updateCourse, deleteCourse, getMyCourses, getCourseStudents, freeEnroll,
+  getCourseCertifications
 } = require('../controllers/courses.controller');
 
 const router = Router();
@@ -18,6 +19,7 @@ router.get('/bestsellers', getBestsellers);
 router.get('/recommended', optionalAuth, getRecommended);
 router.get('/premium', getPremiumCourses);
 router.get('/:id', optionalAuth, getCourseById);
+router.get('/:id/certifications', optionalAuth, getCourseCertifications);
 router.get('/:id/students', auth, isAdminOrInstructor, getCourseStudents);
 router.post('/:id/enroll', auth, freeEnroll);
 

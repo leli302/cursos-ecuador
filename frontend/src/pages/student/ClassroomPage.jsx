@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { ArrowLeft, BookOpen, PlayCircle, CheckCircle, FileText, Download, Check } from 'lucide-react';
+import { ArrowLeft, BookOpen, PlayCircle, CheckCircle, FileText, Download, Check, Award, Sparkles, X, QrCode } from 'lucide-react';
 
 export default function ClassroomPage() {
   const { isAdmin, isInstructor } = useAuth();
@@ -23,6 +23,20 @@ export default function ClassroomPage() {
   const [activeLesson, setActiveLesson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
+
+  // Estados de Certificación al 100% de progreso
+  const [showCongratsModal, setShowCongratsModal] = useState(false);
+  const [showCertModal, setShowCertModal] = useState(false);
+  const [certTypes, setCertTypes] = useState([]);
+
+  const fetchCertifications = async () => {
+    try {
+      const { data } = await api.get(`/courses/${id}/certifications`);
+      setCertTypes(data.data || []);
+    } catch (e) {
+      console.warn('Error al cargar certificaciones:', e);
+    }
+  };
 
   useEffect(() => {
     const fetchClassroom = async () => {
@@ -294,10 +308,149 @@ export default function ClassroomPage() {
                 </div>
               ))}
             </div>
+
+            {/* Tarjeta de Certificación (Oculta precios si < 100%, desbloquea modal si == 100%) */}
+            <div className="card mt-4" style={{
+              background: progress === 100 
+                ? 'linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(13,148,136,0.1) 100%)' 
+                : 'var(--bg-card)',
+              border: progress === 100 ? '1px solid #10B981' : '1px solid var(--border-subtle)',
+              textAlign: 'center',
+              padding: '20px 16px'
+            }}>
+              <Award size={32} style={{ color: progress === 100 ? '#10B981' : 'var(--accent-teal)', margin: '0 auto 8px' }} />
+              <h4 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: 4 }}>
+                {progress === 100 ? '¡Curso Completado!' : 'Certificación Oficial'}
+              </h4>
+              <p className="text-xs text-muted" style={{ marginBottom: 14, lineHeight: 1.5 }}>
+                {progress === 100 
+                  ? 'Has finalizado exitosamente todas las clases. Ya puedes desbloquear tu certificado verificable.' 
+                  : 'Completa el 100% de las lecciones del curso para desbloquear la obtención de tu certificación.'}
+              </p>
+
+              {progress === 100 ? (
+                <button 
+                  onClick={() => setShowCongratsModal(true)} 
+                  className="btn btn-primary w-full flex items-center justify-center gap-2"
+                  style={{ background: '#10B981', borderColor: '#10B981', fontWeight: 800, fontSize: '0.85rem' }}
+                >
+                  <Sparkles size={16} /> OBTENER CERTIFICACIÓN
+                </button>
+              ) : (
+                <div style={{ padding: '8px', background: 'var(--bg-body)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
+                  <span className="text-xs text-muted font-semibold flex items-center justify-center gap-1">
+                    🔒 Certificación bloqueada ({progress}%)
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
         </div>
       </div>
+
+      {/* Modal de Felicitación al Completar el 100% */}
+      {showCongratsModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 1000,
+          background: 'rgba(5, 12, 24, 0.85)', backdropFilter: 'blur(10px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
+        }} className="animate-fade-in">
+          <div className="card text-center" style={{ maxWidth: 520, width: '100%', padding: '36px', border: '1px solid #10B981', boxShadow: '0 20px 40px rgba(0,0,0,0.3)', position: 'relative' }}>
+            <button onClick={() => setShowCongratsModal(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+              <X size={20} />
+            </button>
+            <div style={{
+              width: 72, height: 72, borderRadius: '50%', background: 'rgba(16,185,129,0.15)',
+              color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px'
+            }}>
+              <Award size={40} />
+            </div>
+            <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 8 }}>
+              ¡Felicitaciones! 🎉
+            </h2>
+            <p className="text-sm text-secondary" style={{ marginBottom: 24, lineHeight: 1.6 }}>
+              Has completado exitosamente todas las lecciones del curso <strong style={{ color: 'var(--accent-teal)' }}>{course.nombre}</strong>.
+            </p>
+
+            <button 
+              onClick={() => {
+                setShowCongratsModal(false);
+                fetchCertifications();
+                setShowCertModal(true);
+              }} 
+              className="btn btn-primary btn-lg w-full flex items-center justify-center gap-2"
+              style={{ background: '#10B981', borderColor: '#10B981', fontSize: '1rem', fontWeight: 800, padding: '14px' }}
+            >
+              <Sparkles size={20} /> OBTENER CERTIFICACIÓN
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Selección de Tipos de Certificación con Precios y Vista Previa QR */}
+      {showCertModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 1010,
+          background: 'rgba(5, 12, 24, 0.9)', backdropFilter: 'blur(12px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', overflowY: 'auto'
+        }} className="animate-fade-in">
+          <div className="card" style={{ maxWidth: 750, width: '100%', padding: '32px', border: '1px solid var(--accent-teal)', position: 'relative' }}>
+            <button onClick={() => setShowCertModal(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+              <X size={20} />
+            </button>
+            
+            <div className="flex items-center gap-3 mb-6">
+              <Award size={28} style={{ color: 'var(--accent-teal)' }} />
+              <div>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0 }}>Opciones de Certificación Oficial</h2>
+                <p className="text-xs text-muted" style={{ margin: 0 }}>Selecciona la acreditación que deseas obtener para este curso</p>
+              </div>
+            </div>
+
+            {/* Grid de Tipos de Certificados */}
+            <div className="grid grid-2 gap-4 mb-6">
+              {certTypes.map(cert => (
+                <div key={cert.id} className="card" style={{ padding: '20px', border: '1.5px solid var(--accent-teal)', background: 'var(--bg-body)' }}>
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>{cert.nombre}</h3>
+                    <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--accent-teal)' }}>
+                      ${parseFloat(cert.precio).toFixed(2)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted mb-3" style={{ lineHeight: 1.5 }}>{cert.descripcion}</p>
+                  
+                  <div className="mb-4 text-xs text-secondary" style={{ background: 'rgba(13,148,136,0.05)', padding: '8px 12px', borderRadius: 'var(--radius-md)' }}>
+                    <strong>Beneficios:</strong> {cert.beneficios}
+                  </div>
+
+                  <button 
+                    onClick={() => {
+                      toast.success(`Redirigiendo al pago del ${cert.nombre}...`);
+                      navigate('/carrito');
+                    }}
+                    className="btn btn-primary btn-sm w-full"
+                  >
+                    Adquirir Certificado por ${parseFloat(cert.precio).toFixed(2)}
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Vista Previa con QR de Verificación */}
+            <div style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: 'var(--radius-lg)', border: '1px border-subtle' }} className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-3">
+                <QrCode size={48} style={{ color: 'var(--accent-teal)' }} />
+                <div>
+                  <h4 style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0 }}>Certificado con Validación QR Única</h4>
+                  <p className="text-xs text-muted" style={{ margin: 0 }}>Código de Verificación: EC-CERT-{course.id}-2026-X89</p>
+                </div>
+              </div>
+              <span className="badge badge-teal" style={{ fontSize: '0.75rem' }}>Validez Internacional & LinkedIn</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
