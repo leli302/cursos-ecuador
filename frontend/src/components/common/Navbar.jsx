@@ -55,9 +55,8 @@ export default function Navbar() {
         </Link>
 
         {/* Search Bar (desktop) */}
-        <form onSubmit={handleSearch} className="flex items-center" style={{
-          flex: '0 1 480px', display: 'none', position: 'relative',
-          ...(window.innerWidth > 768 ? { display: 'flex' } : {})
+        <form onSubmit={handleSearch} className="navbar-search flex items-center" style={{
+          flex: '0 1 480px', position: 'relative'
         }}>
           <input
             type="text"
@@ -81,9 +80,7 @@ export default function Navbar() {
         {/* Right side */}
         <div className="flex items-center gap-2">
           {/* Nav Links (desktop) */}
-          <div className="flex items-center gap-1" style={{
-            display: window.innerWidth > 768 ? 'flex' : 'none'
-          }}>
+          <div className="navbar-desktop-links flex items-center gap-1">
             <Link to="/catalogo" className="btn btn-ghost" style={{ fontSize: 'var(--text-sm)' }}>
               Catálogo
             </Link>
@@ -193,8 +190,7 @@ export default function Navbar() {
           )}
 
           {/* Mobile menu toggle */}
-          <button className="btn-icon" onClick={() => setMobileMenu(!mobileMenu)}
-            style={{ display: window.innerWidth <= 768 ? 'flex' : 'none' }}>
+          <button className="btn-icon navbar-mobile-toggle" onClick={() => setMobileMenu(!mobileMenu)}>
             {mobileMenu ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>

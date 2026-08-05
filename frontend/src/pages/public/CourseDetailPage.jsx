@@ -5,7 +5,7 @@ import CourseCard from '../../components/common/CourseCard';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
-import { Star, Clock, Users, BookOpen, ShoppingCart, Zap, Crown, ChevronDown, ChevronUp, PlayCircle, FileText, Lock, Check, Award, Infinity, Palette, Code, TrendingUp, ZoomIn, ZoomOut, RotateCcw, X, Maximize2, Eye } from 'lucide-react';
+import { Star, Clock, Users, BookOpen, ShoppingCart, Zap, Crown, ChevronDown, ChevronUp, PlayCircle, FileText, Lock, Check, CheckCircle2, Award, Infinity, Palette, Code, TrendingUp, ZoomIn, ZoomOut, RotateCcw, X, Maximize2, Eye } from 'lucide-react';
 
 export default function CourseDetailPage() {
   const { id } = useParams();
@@ -141,7 +141,7 @@ export default function CourseDetailPage() {
   if (loading) return (
     <div className="page">
       <div className="container">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 'var(--space-8)', alignItems: 'start' }}>
+        <div className="course-detail-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 'var(--space-8)', alignItems: 'start' }}>
           {/* Left skeleton */}
           <div>
             <div className="flex items-center gap-2 mb-4">
@@ -181,7 +181,7 @@ export default function CourseDetailPage() {
             </div>
           </div>
           {/* Right skeleton (sidebar) */}
-          <div className="card" style={{ overflow: 'hidden' }}>
+          <div className="card course-detail-sidebar" style={{ overflow: 'hidden' }}>
             <div className="skeleton" style={{ height: 70, margin: '-20px -20px 20px -20px' }} />
             <div className="skeleton" style={{ height: 48, borderRadius: 'var(--radius-md)', marginBottom: 16 }} />
             <div className="skeleton" style={{ height: 14, width: '60%', marginBottom: 12 }} />
@@ -224,7 +224,7 @@ export default function CourseDetailPage() {
   return (
     <div className="page">
       <div className="container">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 'var(--space-8)', alignItems: 'start' }}>
+        <div className="course-detail-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 'var(--space-8)', alignItems: 'start' }}>
           {/* Left: Course Info */}
           <div className="animate-fade-in">
             {/* Breadcrumb */}
@@ -543,7 +543,7 @@ export default function CourseDetailPage() {
           </div>
 
           {/* Right: Sticky Purchase & Enrollment Card */}
-          <div className="animate-slide-right" style={{ position: 'sticky', top: 90 }}>
+          <div className="animate-slide-right course-detail-sidebar" style={{ position: 'sticky', top: 90 }}>
             <div className="card" style={{
               border: '1px solid var(--border-subtle)',
               boxShadow: 'var(--shadow-lg)',
