@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import api from '../../api/axios';
 import CourseCard from '../../components/common/CourseCard';
-import { Filter, X, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Filter, X, Search, ChevronLeft, ChevronRight, Crown } from 'lucide-react';
 
 export default function CatalogPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -144,10 +144,10 @@ export default function CatalogPage() {
                   <label className="form-label">Valoración mínima</label>
                   <select className="form-input form-select" value={filters.minRating} onChange={(e) => updateFilter('minRating', e.target.value)} id="filter-rating">
                     <option value="">Cualquiera</option>
-                    <option value="4.5">⭐ 4.5+</option>
-                    <option value="4">⭐ 4.0+</option>
-                    <option value="3.5">⭐ 3.5+</option>
-                    <option value="3">⭐ 3.0+</option>
+                    <option value="4.5">4.5+ o superior</option>
+                    <option value="4">4.0+ o superior</option>
+                    <option value="3.5">3.5+ o superior</option>
+                    <option value="3">3.0+ o superior</option>
                   </select>
                 </div>
 
@@ -155,7 +155,7 @@ export default function CatalogPage() {
                 <div className="mb-6">
                   <button onClick={() => updateFilter('premium', filters.premium ? '' : 'true')}
                     className={`btn w-full ${filters.premium ? 'btn-gold' : 'btn-outline'}`}>
-                    👑 Solo Premium
+                    <Crown size={16} /> Solo Premium
                   </button>
                 </div>
 

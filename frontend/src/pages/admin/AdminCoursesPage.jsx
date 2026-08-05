@@ -290,7 +290,7 @@ export default function AdminCoursesPage() {
                           </div>
                           <div>
                             <div className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{c.nombre}</div>
-                            <div className="text-xs text-muted font-mono">{c.codigo} {c.es_premium ? '• 👑 Premium' : ''}</div>
+                            <div className="text-xs text-muted font-mono">{c.codigo} {c.es_premium ? '• Premium' : ''}</div>
                           </div>
                         </div>
                       </td>
@@ -310,7 +310,7 @@ export default function AdminCoursesPage() {
                       <td className="text-sm">{c.total_ventas || 0}</td>
                       <td>
                         <span className="badge badge-gold" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                          {c.valoracion ? parseFloat(c.valoracion).toFixed(1) : '0.0'} ⭐
+                          <Star size={12} fill="currentColor" /> {c.valoracion ? parseFloat(c.valoracion).toFixed(1) : '0.0'}
                         </span>
                       </td>
                       <td>

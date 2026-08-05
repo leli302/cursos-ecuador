@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
-import { Users, BookOpen, ShoppingCart, DollarSign, TrendingUp, BarChart3 } from 'lucide-react';
+import { Users, BookOpen, ShoppingCart, DollarSign, TrendingUp, BarChart3, Star } from 'lucide-react';
 
 export default function AdminDashboardPage() {
   const { isInstructor } = useAuth();
@@ -68,7 +68,10 @@ export default function AdminDashboardPage() {
                 <span style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--gradient-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700, color: 'white', flexShrink: 0 }}>{i + 1}</span>
                 <span className="text-sm" style={{ flex: 1 }}>{c.nombre}</span>
                 <span className="text-sm text-muted">{c.total_ventas} ventas</span>
-                <span className="badge badge-gold">{parseFloat(c.valoracion).toFixed(1)}⭐</span>
+                <span className="badge badge-gold flex items-center gap-1">
+                  <Star size={12} fill="currentColor" />
+                  {parseFloat(c.valoracion).toFixed(1)}
+                </span>
               </div>
             ))}
           </div>

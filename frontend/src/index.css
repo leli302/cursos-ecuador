@@ -132,7 +132,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Background pattern — Light theme with subtle mesh gradient */
+/* Background pattern — Elevated Light Theme with subtle geometric mesh & gridlines */
 body::before {
   content: '';
   position: fixed;
@@ -141,21 +141,24 @@ body::before {
   right: 0;
   bottom: 0;
   background:
-    radial-gradient(ellipse at 15% 30%, rgba(13,148,136,0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 15%, rgba(37,99,235,0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 85%, rgba(147,51,234,0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 60%, rgba(230,150,10,0.03) 0%, transparent 40%);
+    radial-gradient(circle at 10% 20%, rgba(13,148,136,0.07) 0%, transparent 45%),
+    radial-gradient(circle at 90% 10%, rgba(37,99,235,0.06) 0%, transparent 45%),
+    radial-gradient(circle at 50% 90%, rgba(147,51,234,0.05) 0%, transparent 45%),
+    radial-gradient(circle at 80% 65%, rgba(230,150,10,0.04) 0%, transparent 40%);
   pointer-events: none;
   z-index: -1;
 }
 
-/* Subtle dot pattern overlay */
+/* Subtle modern gridlines + dot texture overlay */
 body::after {
   content: '';
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-image: radial-gradient(rgba(15,23,42,0.03) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(15, 23, 42, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.02) 1px, transparent 1px),
+    radial-gradient(rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px, 32px 32px, 16px 16px;
   pointer-events: none;
   z-index: -1;
 }
@@ -309,26 +312,27 @@ input, select, textarea {
 
 /* ---- Cards ---- */
 .card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
+  background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
   transition: all var(--transition-base);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 4px 12px rgba(15,23,42,0.03), inset 0 1px 0 rgba(255,255,255,1);
+  position: relative;
 }
 
 .card:hover {
-  border-color: var(--border-active);
+  border-color: rgba(13, 148, 136, 0.35);
   transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.04), 0 12px 24px rgba(13,148,136,0.06);
 }
 
 .card-glass {
-  background: var(--glass-bg);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
+  border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
 }
 
 /* ---- Forms ---- */

@@ -270,11 +270,9 @@ const getInstructorProfile = async (req, res, next) => {
 
     // Consultar datos del instructor
     const userResult = await query(
-      `SELECT u.id, u.nombre, u.apellido, u.avatar, u.bio, u.titulo_profesional, u.experiencia, u.creado_en
+      `SELECT u.id, u.nombre, u.apellido, u.email, u.avatar, u.bio, u.titulo_profesional, u.experiencia, u.creado_en
        FROM usuarios u
-       JOIN usuario_roles ur ON u.id = ur.usuario_id
-       JOIN roles r ON ur.rol_id = r.id
-       WHERE u.id = $1 AND (r.nombre = 'instructor' OR r.nombre = 'administrador')`,
+       WHERE u.id = $1`,
       [id]
     );
 

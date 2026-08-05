@@ -132,7 +132,10 @@ export default function InstructorProfilePage() {
                 <Star size={22} />
               </div>
               <div>
-                <div style={{ fontSize: '1.25rem', fontWeight: 800 }}>⭐ {stats.promedio_calificacion || '4.8'}</div>
+                <div className="flex items-center gap-1" style={{ fontSize: '1.25rem', fontWeight: 800 }}>
+                  <Star size={18} fill="var(--accent-gold)" color="var(--accent-gold)" />
+                  {stats.promedio_calificacion || '4.8'}
+                </div>
                 <div className="text-xs text-muted">Calificación Promedio</div>
               </div>
             </div>
