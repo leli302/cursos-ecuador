@@ -319,21 +319,33 @@ const getInstructorProfile = async (req, res, next) => {
     );
 
     // Métricas del instructor
-    const statsResult = await query(
-      `SELECT 
-        COUNT(c.id) as total_cursos,
-        COALESCE(SUM(c.total_ventas), 0) as total_estudiantes,
-        COALESCE(ROUND(AVG(NULLIF(c.valoracion, 0))::numeric, 2), 4.8) as promedio_calificacion
-       FROM cursos c
-       WHERE c.instructor_id = $1 AND c.estado = 'disponible'`,
-      [targetId]
-    );
+    let stats = { total_cursos: 0, total_estudiantes: 0, promedio_calificacion: '4.8' };
+    try {
+      const statsResult = await query(
+        `SELECT 
+          COUNT(c.id) as total_cursos,
+          COALESCE(SUM(c.total_ventas), 0) as total_estudiantes,
+          COALESCE(ROUND(CAST(AVG(c.valoracion) AS numeric), 1), 4.8) as promedio_calificacion
+         FROM cursos c
+         WHERE c.instructor_id = $1`,
+        [targetId]
+      );
+      if (statsResult.rows.length > 0) {
+        stats = {
+          total_cursos: statsResult.rows[0].total_cursos || 0,
+          total_estudiantes: statsResult.rows[0].total_estudiantes || 0,
+          promedio_calificacion: statsResult.rows[0].promedio_calificacion || '4.8'
+        };
+      }
+    } catch (e) {
+      console.warn('Error al calcular stats de instructor, usando valores por defecto:', e);
+    }
 
     res.json({
       data: {
         instructor,
         courses: coursesResult.rows,
-        stats: statsResult.rows[0]
+        stats
       }
     });
   } catch (error) {
