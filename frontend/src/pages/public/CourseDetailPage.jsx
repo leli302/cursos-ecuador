@@ -61,15 +61,34 @@ export default function CourseDetailPage() {
     return mod.lecciones.filter(l => l && typeof l === 'object' && l.id);
   };
 
+  const parseJsonArray = (val, fallback = []) => {
+    if (!val) return fallback;
+    if (Array.isArray(val)) return val;
+    if (typeof val === 'string') {
+      try {
+        const parsed = JSON.parse(val);
+        if (Array.isArray(parsed)) return parsed;
+      } catch (e) {
+        return [val];
+      }
+    }
+    return fallback;
+  };
+
   useEffect(() => {
     const fetchCourse = async () => {
       try {
         const { data } = await api.get(`/courses/${id}`);
-        setData(data);
-        // Expand first module if present
-        if (data.modules?.length > 0) setExpandedModules({ [data.modules[0].id]: true });
+        if (data && (data.course || data.data?.course)) {
+          const payload = data.course ? data : data.data;
+          setData(payload);
+          if (payload.modules?.length > 0) setExpandedModules({ [payload.modules[0].id]: true });
+        } else {
+          setData(null);
+        }
       } catch (error) {
-        console.error(error);
+        console.error('Error cargando detalle del curso:', error);
+        setData(null);
       } finally {
         setLoading(false);
       }
@@ -307,7 +326,7 @@ export default function CourseDetailPage() {
                 <CheckCircle2 size={20} /> Lo que aprenderás en este curso
               </h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px 20px' }}>
-                {(Array.isArray(course.lo_que_aprenderas) ? course.lo_que_aprenderas : [
+                {parseJsonArray(course.lo_que_aprenderas, [
                   'Comprender los fundamentos teóricos y prácticos del área.',
                   'Desarrollar proyectos reales aplicados a la industria ecuatoriana.',
                   'Dominar las herramientas estándar utilizadas por empresas líderes.',
@@ -330,7 +349,7 @@ export default function CourseDetailPage() {
                   <Users size={18} style={{ color: 'var(--accent-teal)' }} /> Este curso está dirigido a:
                 </h4>
                 <ul className="flex flex-col gap-2 text-sm text-secondary" style={{ paddingLeft: 8 }}>
-                  {(Array.isArray(course.dirigido_a) ? course.dirigido_a : [
+                  {parseJsonArray(course.dirigido_a, [
                     'Estudiantes universitarios y técnicos.',
                     'Profesionales que buscan actualizar sus conocimientos.',
                     'Emprendedores y dueños de negocios.',

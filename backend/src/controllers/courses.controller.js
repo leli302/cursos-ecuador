@@ -212,6 +212,11 @@ const getPremiumCourses = async (req, res, next) => {
 // GET /api/courses/:id
 const getCourseById = async (req, res, next) => {
   try {
+    const courseId = parseInt(req.params.id);
+    if (isNaN(courseId)) {
+      return res.status(404).json({ error: 'ID de curso inválido.' });
+    }
+
     const result = await query(
       `SELECT c.*, cat.nombre as categoria_nombre,
               u.nombre as instructor_nombre, u.apellido as instructor_apellido,
@@ -223,7 +228,7 @@ const getCourseById = async (req, res, next) => {
        LEFT JOIN categorias cat ON c.categoria_id = cat.id
        LEFT JOIN usuarios u ON c.instructor_id = u.id
        WHERE c.id = $1`,
-      [req.params.id]
+      [courseId]
     );
 
     if (result.rows.length === 0) {
