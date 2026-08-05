@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
-import { Search, ShoppingCart, User, Menu, X, BookOpen, LayoutDashboard, LogOut, Crown, GraduationCap, Settings, ChevronDown } from 'lucide-react';
+import { Search, ShoppingCart, User, Menu, X, BookOpen, LayoutDashboard, LogOut, Crown, GraduationCap, Settings, ChevronDown, DollarSign } from 'lucide-react';
 
 export default function Navbar() {
   const { user, isAuthenticated, isAdmin, isInstructor, logout } = useAuth();
@@ -152,9 +152,14 @@ export default function Navbar() {
                         <LayoutDashboard size={16} /> Panel Admin
                       </Link>
                     ) : isInstructor() ? (
-                      <Link to="/instructor/cursos" onClick={() => setUserMenu(false)} className="flex items-center gap-3" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--accent-teal)', fontSize: 'var(--text-sm)', transition: 'all 0.15s' }}>
-                        <LayoutDashboard size={16} /> Panel Instructor
-                      </Link>
+                      <>
+                        <Link to="/instructor/cursos" onClick={() => setUserMenu(false)} className="flex items-center gap-3" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--accent-teal)', fontSize: 'var(--text-sm)', transition: 'all 0.15s' }}>
+                          <LayoutDashboard size={16} /> Panel Instructor
+                        </Link>
+                        <Link to="/instructor/comisiones" onClick={() => setUserMenu(false)} className="flex items-center gap-3" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--accent-green)', fontSize: 'var(--text-sm)', transition: 'all 0.15s' }}>
+                          <DollarSign size={16} /> Mis Comisiones
+                        </Link>
+                      </>
                     ) : (
                       <>
                         <Link to="/mi-panel" onClick={() => setUserMenu(false)} className="flex items-center gap-3" style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', transition: 'all 0.15s' }}>
@@ -214,7 +219,10 @@ export default function Navbar() {
             <Link to="/admin" onClick={() => setMobileMenu(false)} className="flex items-center gap-3" style={{ padding: '12px 0', color: 'var(--accent-teal)' }}><LayoutDashboard size={16} /> Panel Admin</Link>
           )}
           {isInstructor() && (
-            <Link to="/instructor/cursos" onClick={() => setMobileMenu(false)} className="flex items-center gap-3" style={{ padding: '12px 0', color: 'var(--accent-teal)' }}><LayoutDashboard size={16} /> Panel Instructor</Link>
+            <>
+              <Link to="/instructor/cursos" onClick={() => setMobileMenu(false)} className="flex items-center gap-3" style={{ padding: '12px 0', color: 'var(--accent-teal)' }}><LayoutDashboard size={16} /> Panel Instructor</Link>
+              <Link to="/instructor/comisiones" onClick={() => setMobileMenu(false)} className="flex items-center gap-3" style={{ padding: '12px 0', color: 'var(--accent-green)' }}><DollarSign size={16} /> Mis Comisiones</Link>
+            </>
           )}
         </div>
       )}

@@ -75,6 +75,7 @@ app.use('/api/certificates', require('./routes/certificates.routes'));
 app.use('/api/reviews', require('./routes/reviews.routes'));
 app.use('/api/waitlist', require('./routes/waitlist.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
+app.use('/api/commissions', require('./routes/commissions.routes'));
 
 // Ruta de salud
 app.get('/api/health', (req, res) => {

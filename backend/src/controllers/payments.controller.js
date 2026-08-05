@@ -1,5 +1,6 @@
 const { query, getClient } = require('../config/database');
 const { logAction } = require('../utils/logger');
+const { registerCommission } = require('./commissions.controller');
 
 // POST /api/payments
 const processPayment = async (req, res, next) => {
@@ -116,6 +117,20 @@ const processPayment = async (req, res, next) => {
         'UPDATE cursos SET total_ventas = total_ventas + 1 WHERE id = $1',
         [item.curso_id]
       );
+
+      // Registrar comisión del instructor
+      try {
+        const itemPrice = await client.query(
+          'SELECT precio FROM orden_detalle WHERE orden_id = $1 AND curso_id = $2',
+          [order.rows[0].id, item.curso_id]
+        );
+        const montoVenta = itemPrice.rows.length > 0 ? parseFloat(itemPrice.rows[0].precio) : 0;
+        if (montoVenta > 0) {
+          await registerCommission(client, item.curso_id, order.rows[0].id, montoVenta);
+        }
+      } catch (commErr) {
+        console.error('Error registrando comisión:', commErr.message);
+      }
     }
 
     await client.query('COMMIT');

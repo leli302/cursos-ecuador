@@ -28,6 +28,8 @@ import AdminOrdersPage from './pages/admin/AdminOrdersPage';
 import InstructorCoursesPage from './pages/instructor/InstructorCoursesPage';
 import CourseContentPage from './pages/instructor/CourseContentPage';
 import InstructorStudentsPage from './pages/instructor/InstructorStudentsPage';
+import InstructorCommissionsPage from './pages/instructor/InstructorCommissionsPage';
+import AdminCommissionsPage from './pages/admin/AdminCommissionsPage';
 
 // Protected Route component
 const ProtectedRoute = ({ children, roles = [] }) => {
@@ -70,6 +72,7 @@ function AppContent() {
           <Route path="/instructor/cursos" element={<ProtectedRoute roles={['administrador', 'instructor']}><InstructorCoursesPage /></ProtectedRoute>} />
           <Route path="/instructor/curso/:id/contenido" element={<ProtectedRoute roles={['administrador', 'instructor']}><CourseContentPage /></ProtectedRoute>} />
           <Route path="/instructor/curso/:id/alumnos" element={<ProtectedRoute roles={['administrador', 'instructor']}><InstructorStudentsPage /></ProtectedRoute>} />
+          <Route path="/instructor/comisiones" element={<ProtectedRoute roles={['administrador', 'instructor']}><InstructorCommissionsPage /></ProtectedRoute>} />
 
           {/* Admin */}
           <Route path="/admin" element={<ProtectedRoute roles={['administrador']}><AdminDashboardPage /></ProtectedRoute>} />
@@ -77,6 +80,7 @@ function AppContent() {
           <Route path="/admin/usuarios" element={<ProtectedRoute roles={['administrador']}><AdminUsersPage /></ProtectedRoute>} />
           <Route path="/admin/categorias" element={<ProtectedRoute roles={['administrador']}><AdminCategoriesPage /></ProtectedRoute>} />
           <Route path="/admin/ordenes" element={<ProtectedRoute roles={['administrador']}><AdminOrdersPage /></ProtectedRoute>} />
+          <Route path="/admin/comisiones" element={<ProtectedRoute roles={['administrador']}><AdminCommissionsPage /></ProtectedRoute>} />
 
           {/* 404 */}
           <Route path="*" element={

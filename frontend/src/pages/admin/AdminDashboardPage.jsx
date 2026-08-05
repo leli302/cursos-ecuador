@@ -76,12 +76,13 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Quick Links */}
-      <div className="grid grid-4 mt-8 stagger-children">
+      <div className="mt-8 stagger-children" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 'var(--space-4)' }}>
         {[
           { to: '/admin/cursos', icon: <BookOpen size={20} />, label: 'Gestionar Cursos', color: 'var(--accent-teal)' },
           { to: '/admin/usuarios', icon: <Users size={20} />, label: 'Gestionar Usuarios', color: 'var(--accent-blue)' },
           { to: '/admin/categorias', icon: <BarChart3 size={20} />, label: 'Categorías', color: 'var(--accent-purple)' },
-          { to: '/admin/ordenes', icon: <ShoppingCart size={20} />, label: 'Órdenes', color: 'var(--accent-gold)' }
+          { to: '/admin/ordenes', icon: <ShoppingCart size={20} />, label: 'Órdenes', color: 'var(--accent-gold)' },
+          { to: '/admin/comisiones', icon: <DollarSign size={20} />, label: 'Comisiones', color: 'var(--accent-green)' }
         ].map((link, i) => (
           <Link key={i} to={link.to} className="card flex items-center gap-3" style={{ textDecoration: 'none', padding: 'var(--space-5)' }}>
             <span style={{ color: link.color }}>{link.icon}</span>
