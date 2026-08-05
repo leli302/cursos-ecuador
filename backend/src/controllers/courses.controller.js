@@ -214,7 +214,8 @@ const getCourseById = async (req, res, next) => {
     const result = await query(
       `SELECT c.*, cat.nombre as categoria_nombre,
               u.nombre as instructor_nombre, u.apellido as instructor_apellido,
-              u.avatar as instructor_avatar,
+              u.avatar as instructor_avatar, u.bio as instructor_bio,
+              u.titulo_profesional as instructor_titulo, u.experiencia as instructor_experiencia,
               (SELECT COUNT(*) FROM resenas WHERE curso_id = c.id) as total_resenas,
               (SELECT COALESCE(AVG(calificacion), 0) FROM resenas WHERE curso_id = c.id) as promedio_calificacion
        FROM cursos c

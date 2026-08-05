@@ -50,11 +50,13 @@ export default function CatalogPage() {
   };
 
   const updateFilter = (key, value) => {
-    const newFilters = { ...filters, [key]: value, page: 1 };
+    const newFilters = { ...filters, [key]: value };
+    if (key !== 'page') newFilters.page = 1;
     setFilters(newFilters);
     const params = new URLSearchParams();
     Object.entries(newFilters).forEach(([k, v]) => { if (v) params.set(k, v); });
     setSearchParams(params);
+    if (key !== 'page') window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const clearFilters = () => {

@@ -253,49 +253,51 @@ export default function CourseDetailPage() {
                         {/* Blurred Locked Topics Container with CTA Card Overlay */}
                         <div style={{ position: 'relative', minHeight: 200, padding: 'var(--space-6)', overflow: 'hidden' }}>
                           {/* Blurred placeholder topic items */}
-                          <div style={{ filter: 'blur(7px)', opacity: 0.25, userSelect: 'none', pointerEvents: 'none' }} className="flex flex-col gap-3">
-                            <div className="flex items-center justify-between p-3 card" style={{ background: 'var(--bg-secondary)' }}>
+                          <div style={{ filter: 'blur(6px)', opacity: 0.35, userSelect: 'none', pointerEvents: 'none' }} className="flex flex-col gap-3">
+                            <div className="flex items-center justify-between p-3" style={{ background: 'var(--bg-surface)', borderRadius: 'var(--radius-md)' }}>
                               <div className="flex items-center gap-3">
                                 <Lock size={16} />
-                                <span className="text-sm font-semibold">Lección 1: Fundamentos y Conceptos Clave de la Unidad</span>
+                                <span className="text-sm font-semibold">Lección 1: Fundamentos y Conceptos Clave</span>
                               </div>
                               <span className="text-xs">15 min</span>
                             </div>
-                            <div className="flex items-center justify-between p-3 card" style={{ background: 'var(--bg-secondary)' }}>
+                            <div className="flex items-center justify-between p-3" style={{ background: 'var(--bg-surface)', borderRadius: 'var(--radius-md)' }}>
                               <div className="flex items-center gap-3">
                                 <Lock size={16} />
-                                <span className="text-sm font-semibold">Lección 2: Aplicación Práctica y Ejercicios Guiados</span>
+                                <span className="text-sm font-semibold">Lección 2: Aplicación Práctica</span>
                               </div>
                               <span className="text-xs">25 min</span>
                             </div>
-                            <div className="flex items-center justify-between p-3 card" style={{ background: 'var(--bg-secondary)' }}>
+                            <div className="flex items-center justify-between p-3" style={{ background: 'var(--bg-surface)', borderRadius: 'var(--radius-md)' }}>
                               <div className="flex items-center gap-3">
                                 <Lock size={16} />
-                                <span className="text-sm font-semibold">Lección 3: Evaluación Práctica y Material Descargable</span>
+                                <span className="text-sm font-semibold">Lección 3: Evaluación y Material</span>
                               </div>
                               <span className="text-xs">20 min</span>
                             </div>
                           </div>
 
-                          {/* Glassmorphic Locked Overlay Card */}
+                          {/* Light Theme Glassmorphic Locked Overlay */}
                           <div style={{
-                            position: 'absolute', inset: 12,
-                            background: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(12px)',
-                            borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)',
+                            position: 'absolute', inset: 8,
+                            background: 'rgba(255, 255, 255, 0.88)', backdropFilter: 'blur(14px)',
+                            borderRadius: 'var(--radius-lg)', border: '1px solid rgba(13,148,136,0.15)',
                             display: 'flex', flexDirection: 'column', alignItems: 'center',
-                            justifyContent: 'center', padding: '24px', textAlign: 'center',
-                            boxShadow: 'var(--shadow-lg)'
+                            justifyContent: 'center', padding: '28px', textAlign: 'center',
+                            boxShadow: '0 4px 24px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)'
                           }} className="animate-fade-in">
                             <div style={{
-                              padding: 12, borderRadius: '50%', background: 'rgba(78, 205, 196, 0.12)',
-                              color: 'var(--accent-teal)', marginBottom: 12
+                              padding: 14, borderRadius: '50%',
+                              background: 'linear-gradient(135deg, rgba(13,148,136,0.1), rgba(37,99,235,0.1))',
+                              color: 'var(--accent-teal)', marginBottom: 14,
+                              boxShadow: '0 0 0 4px rgba(13,148,136,0.06)'
                             }}>
                               <Lock size={26} />
                             </div>
-                            <h4 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: 6 }}>
-                              Contenido Bloqueado de la Unidad
+                            <h4 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: 6, color: 'var(--text-primary)' }}>
+                              Contenido Bloqueado
                             </h4>
-                            <p className="text-xs text-muted" style={{ maxWidth: 420, marginBottom: 18, lineHeight: 1.5 }}>
+                            <p className="text-xs" style={{ color: 'var(--text-secondary)', maxWidth: 380, marginBottom: 18, lineHeight: 1.6 }}>
                               Inscríbete o adquiere el curso para desbloquear los temas, videos HD, evaluaciones y material de esta unidad.
                             </p>
                             <div className="flex items-center gap-3 flex-wrap justify-center">
@@ -324,13 +326,45 @@ export default function CourseDetailPage() {
               </div>
             </div>
 
+            {/* Instructor Profile Card */}
+            <div className="card mb-8">
+              <h3 className="mb-4 flex items-center gap-2" style={{ fontSize: '1.25rem' }}>
+                <Users size={20} style={{ color: 'var(--accent-teal)' }} /> Acerca del Instructor
+              </h3>
+              <div className="flex gap-4 items-start flex-wrap sm:flex-nowrap">
+                <div style={{
+                  width: 64, height: 64, borderRadius: '50%',
+                  background: 'var(--gradient-primary)', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: '1.5rem',
+                  flexShrink: 0, boxShadow: 'var(--shadow-sm)'
+                }}>
+                  {course.instructor_avatar ? (
+                    <img src={course.instructor_avatar} alt="Instructor" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                  ) : (
+                    `${(course.instructor_nombre || 'I')[0]}${(course.instructor_apellido || '')[0] || ''}`
+                  )}
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 2 }}>
+                    {course.instructor_nombre} {course.instructor_apellido}
+                  </h4>
+                  <p className="text-xs" style={{ color: 'var(--accent-teal)', fontWeight: 600, marginBottom: 8 }}>
+                    {course.instructor_titulo || 'Instructor Certificado'} {course.instructor_experiencia ? `• ${course.instructor_experiencia}` : ''}
+                  </p>
+                  <p className="text-sm text-secondary" style={{ lineHeight: 1.6 }}>
+                    {course.instructor_bio || 'Experto y profesional apasionado por compartir conocimientos prácticos con metodologías adaptadas al mercado real.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Versions */}
             {versions?.length > 1 && (
               <div className="mb-8">
                 <h3 className="mb-4">Historial de Versiones</h3>
                 <div className="flex flex-col gap-2">
                   {versions.map(v => (
-                    <div key={v.id} className="flex items-center gap-3 p-4" style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-md)' }}>
+                    <div key={v.id} className="flex items-center gap-3 p-4" style={{ background: 'var(--bg-card)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
                       <span className="badge badge-purple">v{v.numero_version}</span>
                       <span className="text-sm" style={{ flex: 1 }}>{v.descripcion || v.cambios}</span>
                       <span className="badge badge-green">{v.estado}</span>
