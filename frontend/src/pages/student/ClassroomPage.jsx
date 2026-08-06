@@ -95,8 +95,8 @@ export default function ClassroomPage() {
         }))
       );
 
-      // Actualizar lección activa si corresponde
-      if (activeLesson && activeLesson.id === lesson.id) {
+      // Actualizar lección activa si corresponde (y si no vamos a saltar a la siguiente)
+      if (activeLesson && activeLesson.id === lesson.id && !isCompleted) {
         setActiveLesson(prev => ({ ...prev, completado: isCompleted }));
       }
 
@@ -106,6 +106,32 @@ export default function ClassroomPage() {
         toast.success('¡Lección completada!');
         if (data.certificate) {
           toast.success('🎉 ¡Felicidades! Has completado el curso y ganado un certificado.', { duration: 6000 });
+        }
+
+        // Buscar siguiente lección
+        let nextLesson = null;
+        let foundCurrent = false;
+        
+        for (const mod of modules) {
+          if (!mod.lecciones) continue;
+          for (const les of mod.lecciones) {
+            if (foundCurrent) {
+              nextLesson = les;
+              break;
+            }
+            if (les.id === lesson.id) {
+              foundCurrent = true;
+            }
+          }
+          if (nextLesson) break;
+        }
+
+        if (nextLesson) {
+          setActiveLesson(nextLesson);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          // Si era la última lección y se completó, solo actualizar su estado visual
+          setActiveLesson(prev => ({ ...prev, completado: isCompleted }));
         }
       }
     } catch (error) {
