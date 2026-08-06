@@ -212,7 +212,7 @@ const getPremiumCourses = async (req, res, next) => {
 // GET /api/courses/:id
 const getCourseById = async (req, res, next) => {
   try {
-    const courseId = parseInt(req.params.id);
+    const courseId = parseInt(req.params.id, 10);
     if (isNaN(courseId)) {
       return res.status(404).json({ error: 'ID de curso inválido.' });
     }
@@ -220,10 +220,7 @@ const getCourseById = async (req, res, next) => {
     const result = await query(
       `SELECT c.*, cat.nombre as categoria_nombre,
               u.nombre as instructor_nombre, u.apellido as instructor_apellido,
-              u.avatar as instructor_avatar, u.bio as instructor_bio,
-              u.titulo_profesional as instructor_titulo, u.experiencia as instructor_experiencia,
-              (SELECT COUNT(*) FROM resenas WHERE curso_id = c.id) as total_resenas,
-              (SELECT COALESCE(AVG(calificacion), 0) FROM resenas WHERE curso_id = c.id) as promedio_calificacion
+              u.avatar as instructor_avatar
        FROM cursos c
        LEFT JOIN categorias cat ON c.categoria_id = cat.id
        LEFT JOIN usuarios u ON c.instructor_id = u.id
@@ -237,62 +234,93 @@ const getCourseById = async (req, res, next) => {
 
     const course = result.rows[0];
 
-    // Obtener módulos con lecciones
-    const modules = await query(
-      `SELECT m.*, 
-              json_agg(
-                json_build_object(
-                  'id', l.id, 'titulo', l.titulo, 'descripcion', l.descripcion,
-                  'duracion_minutos', l.duracion_minutos, 'orden', l.orden, 'es_gratis', l.es_gratis
-                ) ORDER BY l.orden
-              ) FILTER (WHERE l.id IS NOT NULL) as lecciones
-       FROM modulos m
-       LEFT JOIN lecciones l ON m.id = l.modulo_id
-       WHERE m.curso_id = $1
-       GROUP BY m.id
-       ORDER BY m.orden`,
-      [req.params.id]
-    );
+    // Módulos con lecciones
+    let modulesList = [];
+    try {
+      const modules = await query(
+        `SELECT m.*, 
+                json_agg(
+                  json_build_object(
+                    'id', l.id, 'titulo', l.titulo, 'descripcion', l.descripcion,
+                    'duracion_minutos', l.duracion_minutos, 'orden', l.orden, 'es_gratis', l.es_gratis
+                  ) ORDER BY l.orden
+                ) FILTER (WHERE l.id IS NOT NULL) as lecciones
+         FROM modulos m
+         LEFT JOIN lecciones l ON m.id = l.modulo_id
+         WHERE m.curso_id = $1
+         GROUP BY m.id
+         ORDER BY m.orden`,
+        [courseId]
+      );
+      modulesList = modules.rows;
+    } catch (e) {
+      console.error('Error cargando módulos:', e.message);
+    }
 
-    // Obtener versiones
-    const versions = await query(
-      `SELECT * FROM curso_versiones WHERE curso_id = $1 ORDER BY creado_en DESC`,
-      [req.params.id]
-    );
+    // Versiones
+    let versionsList = [];
+    try {
+      const versions = await query(
+        `SELECT * FROM curso_versiones WHERE curso_id = $1 ORDER BY creado_en DESC`,
+        [courseId]
+      );
+      versionsList = versions.rows;
+    } catch (e) {
+      console.error('Error cargando versiones:', e.message);
+    }
 
-    // Obtener aulas con disponibilidad
-    const classrooms = await query(
-      `SELECT * FROM aulas WHERE curso_id = $1 AND estado != 'cerrada' ORDER BY nombre`,
-      [req.params.id]
-    );
+    // Aulas
+    let classroomsList = [];
+    try {
+      const classrooms = await query(
+        `SELECT * FROM aulas WHERE curso_id = $1 AND estado != 'cerrada' ORDER BY nombre`,
+        [courseId]
+      );
+      classroomsList = classrooms.rows;
+    } catch (e) {
+      console.error('Error cargando aulas:', e.message);
+    }
 
-    // Obtener disponibilidad
-    const availability = await query(
-      `SELECT * FROM disponibilidad_curso WHERE curso_id = $1 ORDER BY creado_en DESC LIMIT 1`,
-      [req.params.id]
-    );
+    // Disponibilidad
+    let availabilityData = null;
+    try {
+      const availability = await query(
+        `SELECT * FROM disponibilidad_curso WHERE curso_id = $1 ORDER BY creado_en DESC LIMIT 1`,
+        [courseId]
+      );
+      availabilityData = availability.rows[0] || null;
+    } catch (e) {
+      console.error('Error cargando disponibilidad:', e.message);
+    }
 
-    // Cursos relacionados (misma categoría)
-    const related = await query(
-      `SELECT c.id, c.nombre, c.precio, c.imagen, c.valoracion, c.total_ventas, c.nivel,
-              cat.nombre as categoria_nombre
-       FROM cursos c
-       LEFT JOIN categorias cat ON c.categoria_id = cat.id
-       WHERE c.categoria_id = $1 AND c.id != $2 AND (c.estado IS NULL OR c.estado != 'no_disponible')
-       ORDER BY c.valoracion DESC
-       LIMIT 4`,
-      [course.categoria_id, course.id]
-    );
+    // Cursos relacionados
+    let relatedList = [];
+    try {
+      const related = await query(
+        `SELECT c.id, c.nombre, c.precio, c.imagen, c.valoracion, c.total_ventas, c.nivel,
+                cat.nombre as categoria_nombre
+         FROM cursos c
+         LEFT JOIN categorias cat ON c.categoria_id = cat.id
+         WHERE c.categoria_id = $1 AND c.id != $2 AND (c.estado IS NULL OR c.estado != 'no_disponible')
+         ORDER BY c.valoracion DESC
+         LIMIT 4`,
+        [course.categoria_id || 0, courseId]
+      );
+      relatedList = related.rows;
+    } catch (e) {
+      console.error('Error cargando cursos relacionados:', e.message);
+    }
 
     res.json({
       course,
-      modules: modules.rows,
-      versions: versions.rows,
-      classrooms: classrooms.rows,
-      availability: availability.rows[0] || null,
-      related: related.rows
+      modules: modulesList,
+      versions: versionsList,
+      classrooms: classroomsList,
+      availability: availabilityData,
+      related: relatedList
     });
   } catch (error) {
+    console.error('Error en getCourseById:', error);
     next(error);
   }
 };
