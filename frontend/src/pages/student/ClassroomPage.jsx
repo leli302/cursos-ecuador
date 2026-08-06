@@ -77,6 +77,9 @@ export default function ClassroomPage() {
 
   const handleToggleComplete = async (lesson) => {
     try {
+      console.log('--- Iniciando completado ---');
+      console.log('Lección actual:', lesson.id, lesson.titulo);
+      
       const isCompleted = !lesson.completado;
       const { data } = await api.post('/progress', {
         curso_id: parseInt(id),
@@ -95,11 +98,6 @@ export default function ClassroomPage() {
         }))
       );
 
-      // Actualizar lección activa si corresponde (y si no vamos a saltar a la siguiente)
-      if (activeLesson && activeLesson.id === lesson.id && !isCompleted) {
-        setActiveLesson(prev => ({ ...prev, completado: isCompleted }));
-      }
-
       setProgress(data.progress);
       
       if (isCompleted) {
@@ -108,33 +106,34 @@ export default function ClassroomPage() {
           toast.success('🎉 ¡Felicidades! Has completado el curso y ganado un certificado.', { duration: 6000 });
         }
 
-        // Buscar siguiente lección
-        let nextLesson = null;
-        let foundCurrent = false;
+        // Buscar siguiente lección usando flatMap para hacer un solo arreglo
+        const allLessons = modules.flatMap(mod => mod.lecciones || []);
+        console.log('Total lecciones en curso:', allLessons.length);
         
-        for (const mod of modules) {
-          if (!mod.lecciones) continue;
-          for (const les of mod.lecciones) {
-            if (foundCurrent) {
-              nextLesson = les;
-              break;
-            }
-            if (les.id === lesson.id) {
-              foundCurrent = true;
-            }
-          }
-          if (nextLesson) break;
+        const currentIndex = allLessons.findIndex(l => String(l.id) === String(lesson.id));
+        console.log('Índice lección actual:', currentIndex);
+        
+        let nextLesson = null;
+        if (currentIndex !== -1 && currentIndex + 1 < allLessons.length) {
+          nextLesson = allLessons[currentIndex + 1];
         }
-
+        
         if (nextLesson) {
+          console.log('Avanzando a siguiente lección:', nextLesson.id, nextLesson.titulo);
           setActiveLesson(nextLesson);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-          // Si era la última lección y se completó, solo actualizar su estado visual
+          console.log('No hay más lecciones. Solo actualizamos estado visual.');
           setActiveLesson(prev => ({ ...prev, completado: isCompleted }));
+        }
+      } else {
+        // Si se desmarcó, solo actualizamos visualmente
+        if (activeLesson && String(activeLesson.id) === String(lesson.id)) {
+          setActiveLesson(prev => ({ ...prev, completado: false }));
         }
       }
     } catch (error) {
+      console.error('Error completando leccion:', error);
       toast.error('Error al actualizar el progreso');
     }
   };
