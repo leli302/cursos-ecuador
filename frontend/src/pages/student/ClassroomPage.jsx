@@ -73,7 +73,8 @@ export default function ClassroomPage() {
       }
     };
     fetchClassroom();
-  }, [id, navigate, toast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const handleToggleComplete = async (lesson) => {
     try {
