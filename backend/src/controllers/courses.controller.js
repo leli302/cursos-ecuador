@@ -534,7 +534,7 @@ const freeEnroll = async (req, res, next) => {
       return res.status(400).json({ error: 'ID de curso inválido.' });
     }
 
-    // Verificar si el curso existe (solo columnas seguras)
+    // Verificar si el curso existe
     const courseRes = await query('SELECT id, nombre FROM cursos WHERE id = $1', [courseId]);
     if (courseRes.rows.length === 0) {
       return res.status(404).json({ error: 'El curso no existe.' });
@@ -550,74 +550,19 @@ const freeEnroll = async (req, res, next) => {
       return res.json({ message: 'Ya estás matriculado en este curso.', enrolled: true, alreadyEnrolled: true });
     }
 
-    // Detectar qué columnas tiene la tabla inscripciones
-    let hasVersionId = false;
-    let hasAulaId = false;
-    try {
-      const colCheck = await query(
-        `SELECT column_name FROM information_schema.columns 
-         WHERE table_name = 'inscripciones' AND column_name IN ('version_id', 'aula_id')`
-      );
-      const cols = colCheck.rows.map(r => r.column_name);
-      hasVersionId = cols.includes('version_id');
-      hasAulaId = cols.includes('aula_id');
-    } catch (e) {
-      // Si falla la detección, intentar sin esas columnas
-    }
-
-    // Obtener versión y aula solo si las columnas existen
-    let versionId = null;
-    let aulaId = null;
-
-    if (hasVersionId) {
-      try {
-        const versionRes = await query(
-          "SELECT id FROM curso_versiones WHERE curso_id = $1 ORDER BY creado_en DESC LIMIT 1",
-          [courseId]
-        );
-        versionId = versionRes.rows[0]?.id || null;
-      } catch (e) { /* versión opcional */ }
-    }
-
-    if (hasAulaId) {
-      try {
-        const aulaRes = await query(
-          "SELECT id FROM aulas WHERE curso_id = $1 AND (estado = 'activa' OR estado = 'abierta') ORDER BY creado_en ASC LIMIT 1",
-          [courseId]
-        );
-        aulaId = aulaRes.rows[0]?.id || null;
-      } catch (e) { /* aula opcional */ }
-    }
-
-    // Construir INSERT dinámico según columnas disponibles
-    let insertCols = ['usuario_id', 'curso_id', 'estado'];
-    let insertVals = [userId, courseId, 'activa'];
-    let insertPlaceholders = ['$1', '$2', '$3'];
-    let paramIndex = 4;
-
-    if (hasAulaId) {
-      insertCols.push('aula_id');
-      insertVals.push(aulaId);
-      insertPlaceholders.push(`$${paramIndex++}`);
-    }
-
-    if (hasVersionId) {
-      insertCols.push('version_id');
-      insertVals.push(versionId);
-      insertPlaceholders.push(`$${paramIndex++}`);
-    }
-
+    // Inscripción simple — solo columnas que SIEMPRE existen
     await query(
-      `INSERT INTO inscripciones (${insertCols.join(', ')}) VALUES (${insertPlaceholders.join(', ')})`,
-      insertVals
+      `INSERT INTO inscripciones (usuario_id, curso_id, estado, fecha_inscripcion)
+       VALUES ($1, $2, 'activa', NOW())`,
+      [userId, courseId]
     );
 
-    // Incrementar contador de inscritos
+    // Incrementar contador de inscritos (no crítico)
     try {
-      await query('UPDATE cursos SET total_ventas = total_ventas + 1 WHERE id = $1', [courseId]);
+      await query('UPDATE cursos SET total_ventas = COALESCE(total_ventas, 0) + 1 WHERE id = $1', [courseId]);
     } catch (e) { /* no crítico */ }
 
-    // Log de la acción
+    // Log de la acción (no crítico)
     try {
       await logAction(userId, 'FREE_ENROLLMENT', `Inscripción gratuita: ${courseRes.rows[0].nombre}`, req.ip);
     } catch (e) { /* log opcional */ }
@@ -627,12 +572,17 @@ const freeEnroll = async (req, res, next) => {
       enrolled: true
     });
   } catch (error) {
-    // Si es error de unicidad (ya inscrito), manejarlo elegantemente
+    // Si es error de unicidad (ya inscrito)
     if (error.code === '23505') {
       return res.json({ message: 'Ya estás matriculado en este curso.', enrolled: true, alreadyEnrolled: true });
     }
-    console.error('Error en freeEnroll:', error.message, error.stack);
-    next(error);
+    console.error('Error en freeEnroll:', error.message, error.detail || '', error.code || '');
+    // Devolver error detallado para diagnóstico
+    res.status(500).json({ 
+      error: `Error al matricularte: ${error.message || 'Error desconocido'}`,
+      detail: error.detail || null,
+      code: error.code || null
+    });
   }
 };
 
