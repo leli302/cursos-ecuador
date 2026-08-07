@@ -108,28 +108,34 @@ const getLibraryCourse = async (req, res, next) => {
                 FROM lecciones l 
                 LEFT JOIN progreso_usuario pu ON pu.leccion_id = l.id AND pu.usuario_id = $2
                 WHERE l.modulo_id = m.id
-              ) as lecciones,
-              CASE WHEN to_regclass('evaluaciones') IS NOT NULL AND to_regclass('intentos_evaluacion') IS NOT NULL THEN
-                (
-                  SELECT json_agg(
-                    json_build_object(
-                      'id', e.id, 'titulo', e.titulo, 'instrucciones', e.instrucciones,
-                      'porcentaje_aprobacion', e.porcentaje_aprobacion, 'orden', e.orden,
-                      'aprobado', COALESCE((SELECT aprobado FROM intentos_evaluacion ie WHERE ie.evaluacion_id = e.id AND ie.usuario_id = $2 ORDER BY fecha_intento DESC LIMIT 1), false)
-                    ) ORDER BY e.orden
-                  )
-                  FROM evaluaciones e WHERE e.modulo_id = m.id
-                )
-              ELSE NULL END as evaluaciones
+              ) as lecciones
        FROM modulos m
        WHERE m.curso_id = $1
        ORDER BY m.orden`,
       [req.params.courseId, req.user.id]
     );
 
+    const modulesList = modules.rows;
+
+    // Safely attach evaluations if tables exist
+    try {
+      for (const mod of modulesList) {
+        const evals = await query(
+          `SELECT e.*,
+                  COALESCE((SELECT ie.aprobado FROM intentos_evaluacion ie WHERE ie.evaluacion_id = e.id AND ie.usuario_id = $1 ORDER BY ie.fecha_intento DESC LIMIT 1), false) as aprobado
+           FROM evaluaciones e WHERE e.modulo_id = $2 ORDER BY e.orden`,
+          [req.user.id, mod.id]
+        );
+        mod.evaluaciones = evals.rows;
+      }
+    } catch (e) {
+      // If quiz tables do not exist yet, default to empty array
+      modulesList.forEach(mod => { mod.evaluaciones = []; });
+    }
+
     res.json({
       course: course.rows[0],
-      modules: modules.rows
+      modules: modulesList
     });
   } catch (error) { next(error); }
 };
