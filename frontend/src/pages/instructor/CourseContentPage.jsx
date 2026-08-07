@@ -197,7 +197,7 @@ export default function CourseContentPage() {
 
   // LESSON CRUD
   const handleSaveLesson = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     setSaving(true);
     try {
       if (modifyingLesson.mode === 'new') {

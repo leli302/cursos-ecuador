@@ -42,10 +42,10 @@ const updateLesson = async (req, res, next) => {
     const { titulo, descripcion, contenido, duracion_minutos, orden, es_gratis } = req.body;
     const result = await query(
       `UPDATE lecciones SET titulo = COALESCE($1, titulo), descripcion = COALESCE($2, descripcion),
-       contenido = COALESCE($3, contenido),
+       contenido = $3,
        duracion_minutos = COALESCE($4, duracion_minutos), orden = COALESCE($5, orden),
        es_gratis = COALESCE($6, es_gratis) WHERE id = $7 RETURNING *`,
-      [titulo, descripcion, contenido, duracion_minutos, orden, es_gratis, req.params.id]
+      [titulo, descripcion, contenido !== undefined ? contenido : null, duracion_minutos, orden, es_gratis, req.params.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Lección no encontrada.' });
     res.json({ message: 'Lección actualizada.', lesson: result.rows[0] });
