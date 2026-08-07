@@ -1197,3 +1197,53 @@ tbody tr:hover {
     gap: 8px !important;
   }
 }
+
+/* ---- Quill Editor Styles ---- */
+.quill {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+}
+.quill .ql-container {
+  flex: 1 !important;
+  font-size: 1rem !important;
+  font-family: var(--font-body, 'Inter', sans-serif) !important;
+  overflow-y: auto;
+}
+.quill .ql-editor {
+  min-height: 400px;
+  padding: 24px 32px !important;
+  line-height: 1.8;
+  color: #1e293b;
+}
+.quill .ql-editor h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; color: #0f172a; }
+.quill .ql-editor h2 { font-size: 1.4rem; font-weight: 600; margin-bottom: 10px; color: #1e293b; }
+.quill .ql-editor h3 { font-size: 1.15rem; font-weight: 600; margin-bottom: 8px; color: #334155; }
+.quill .ql-editor p { margin-bottom: 12px; }
+.quill .ql-editor ul, .quill .ql-editor ol { padding-left: 24px; margin-bottom: 12px; }
+.quill .ql-editor blockquote { border-left: 4px solid var(--accent-teal, #0D9488); padding-left: 16px; color: #475569; font-style: italic; }
+.quill .ql-toolbar {
+  border: none !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  padding: 8px 12px !important;
+}
+.quill .ql-container {
+  border: none !important;
+}
+.quill .ql-editor.ql-blank::before {
+  color: #94a3b8;
+  font-style: normal;
+}
+
+/* ---- Classroom lesson HTML content styles ---- */
+.markdown-content h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 12px; }
+.markdown-content h2 { font-size: 1.3rem; font-weight: 600; margin-bottom: 10px; }
+.markdown-content h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
+.markdown-content p { margin-bottom: 10px; }
+.markdown-content ul, .markdown-content ol { padding-left: 24px; margin-bottom: 12px; }
+.markdown-content blockquote { border-left: 4px solid var(--accent-teal, #0D9488); padding-left: 16px; color: #64748b; font-style: italic; margin-bottom: 12px; }
+.markdown-content strong { font-weight: 700; }
+.markdown-content em { font-style: italic; }
+.markdown-content u { text-decoration: underline; }
+.markdown-content a { color: var(--accent-blue, #2563EB); text-decoration: underline; }

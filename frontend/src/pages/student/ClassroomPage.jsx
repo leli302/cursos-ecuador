@@ -279,9 +279,15 @@ export default function ClassroomPage() {
                   </div>
                   
                   <div className="markdown-content mt-4" style={{ lineHeight: 1.7, fontSize: '0.95rem' }}>
-                    <ReactMarkdown>
-                      {activeLesson.contenido || activeLesson.descripcion || 'En esta lección aprenderás los conceptos clave y prácticos de este tema, explicados paso a paso con ejemplos aplicados.'}
-                    </ReactMarkdown>
+                    {(() => {
+                      const content = activeLesson.contenido || activeLesson.descripcion || '<p>En esta lección aprenderás los conceptos clave y prácticos de este tema, explicados paso a paso con ejemplos aplicados.</p>';
+                      // If content contains HTML tags, render as HTML (from Quill editor)
+                      if (content.includes('<') && content.includes('>')) {
+                        return <div dangerouslySetInnerHTML={{ __html: content }} />;
+                      }
+                      // Otherwise render as Markdown (legacy content)
+                      return <ReactMarkdown>{content}</ReactMarkdown>;
+                    })()}
                   </div>
                 </div>
 

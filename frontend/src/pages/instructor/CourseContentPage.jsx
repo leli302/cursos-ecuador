@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../../api/axios';
 import { useToast } from '../../context/ToastContext';
-import MDEditor from '@uiw/react-md-editor';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import { 
   ChevronLeft, Plus, Edit2, Trash2, ArrowUp, ArrowDown, 
   Play, BookOpen, Clock, Save, X, Upload, File, FileText, 
@@ -541,21 +542,30 @@ export default function CourseContentPage() {
                 )}
               </div>
 
-              {/* Right Column: Markdown Editor */}
+              {/* Right Column: Rich Text Editor */}
               <div className="lg:col-span-8 flex flex-col h-full" style={{ minHeight: '600px' }}>
                 <div className="card flex flex-col h-full" style={{ padding: '0', overflow: 'hidden' }}>
                   <div className="flex justify-between items-center" style={{ padding: 'var(--space-4) var(--space-6)', borderBottom: '1px solid var(--border-subtle)', background: 'rgba(255,255,255,0.01)' }}>
                     <h3 className="font-semibold m-0" style={{ fontSize: 'var(--text-lg)' }}>Contenido de la Lección</h3>
-                    <a href="https://www.markdownguide.org/cheat-sheet/" target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1"><BookOpen size={14} /> Guía Markdown</a>
                   </div>
-                  <div data-color-mode="light" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: '500px' }}>
-                    <MDEditor
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '500px', background: '#fff' }}>
+                    <ReactQuill
+                      theme="snow"
                       value={lessonForm.contenido}
-                      onChange={(val) => setLessonForm({ ...lessonForm, contenido: val || '' })}
-                      height="100%"
-                      style={{ flex: 1, border: 'none', borderRadius: 0 }}
-                      textareaProps={{
-                        placeholder: "## Introducción\nEscribe aquí el texto de tu lección usando Markdown..."
+                      onChange={(val) => setLessonForm({ ...lessonForm, contenido: val })}
+                      placeholder="Escribe aquí el contenido de tu lección..."
+                      style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+                      modules={{
+                        toolbar: [
+                          [{ 'header': [1, 2, 3, false] }],
+                          ['bold', 'italic', 'underline', 'strike'],
+                          [{ 'color': [] }, { 'background': [] }],
+                          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                          [{ 'align': [] }],
+                          ['link', 'image', 'video'],
+                          ['blockquote', 'code-block'],
+                          ['clean']
+                        ]
                       }}
                     />
                   </div>
