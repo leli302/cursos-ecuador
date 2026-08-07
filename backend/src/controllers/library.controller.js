@@ -52,12 +52,17 @@ const getLibrary = async (req, res, next) => {
 // GET /api/library/course/:courseId
 const getLibraryCourse = async (req, res, next) => {
   try {
-    // Verificar inscripción y obtener datos del aula
+    // Verificar inscripción u origen de instructor/admin
     const enrolled = await query(
       `SELECT i.id, a.fecha_inicio as aula_fecha_inicio, a.nombre as aula_nombre
-       FROM inscripciones i
+       FROM cursos c
+       LEFT JOIN inscripciones i ON i.curso_id = c.id AND i.usuario_id = $1 AND i.estado = 'activa'
        LEFT JOIN aulas a ON i.aula_id = a.id
-       WHERE i.usuario_id = $1 AND i.curso_id = $2 AND i.estado = 'activa'`,
+       WHERE c.id = $2 AND (
+         i.id IS NOT NULL OR 
+         c.instructor_id = $1 OR 
+         EXISTS (SELECT 1 FROM usuario_roles ur JOIN roles r ON ur.rol_id = r.id WHERE ur.usuario_id = $1 AND r.nombre = 'administrador')
+       )`,
       [req.user.id, req.params.courseId]
     );
     if (enrolled.rows.length === 0) {

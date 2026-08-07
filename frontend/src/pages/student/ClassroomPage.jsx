@@ -10,12 +10,7 @@ import ReactMarkdown from 'react-markdown';
 export default function ClassroomPage() {
   const { isAdmin, isInstructor } = useAuth();
 
-  if (isAdmin()) {
-    return <Navigate to="/admin" replace />;
-  }
-  if (isInstructor()) {
-    return <Navigate to="/instructor/cursos" replace />;
-  }
+
   const { id } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
