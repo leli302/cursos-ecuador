@@ -347,7 +347,7 @@ export default function CourseContentPage() {
                                 </div>
                               </div>
 
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-3 shrink-0" style={{ flexShrink: 0 }}>
                                 <span className="text-xs text-muted flex items-center gap-1"><Clock size={12} /> {lesson.duracion_minutos} min</span>
                                 <span className="text-xs text-muted flex items-center gap-1"><Paperclip size={12} /> {lessonResources[lesson.id]?.length || '...'}</span>
                                 <div className="flex items-center gap-1">
