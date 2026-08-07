@@ -1,12 +1,5 @@
-const { Pool } = require('pg');
-
-const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'cursos_ecuador',
-  password: 'admin',
-  port: 5432,
-});
+require('dotenv').config();
+const db = require('./src/config/database');
 
 async function migrate() {
   try {
@@ -45,7 +38,7 @@ async function migrate() {
       return html;
     };
 
-    const res = await pool.query('SELECT id, contenido, descripcion FROM lecciones');
+    const res = await db.query('SELECT id, contenido, descripcion FROM lecciones');
     for (let row of res.rows) {
       let changed = false;
       let newContenido = row.contenido;
@@ -61,7 +54,7 @@ async function migrate() {
       }
 
       if (changed) {
-        await pool.query(
+        await db.query(
           'UPDATE lecciones SET contenido = $1, descripcion = $2 WHERE id = $3',
           [newContenido, newDesc, row.id]
         );
@@ -73,7 +66,7 @@ async function migrate() {
   } catch (err) {
     console.error('Error:', err);
   } finally {
-    pool.end();
+    process.exit(0);
   }
 }
 
