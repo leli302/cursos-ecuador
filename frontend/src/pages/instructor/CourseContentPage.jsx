@@ -548,7 +548,7 @@ export default function CourseContentPage() {
                     <h3 className="font-semibold m-0" style={{ fontSize: 'var(--text-lg)' }}>Contenido de la Lección</h3>
                     <a href="https://www.markdownguide.org/cheat-sheet/" target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1"><BookOpen size={14} /> Guía Markdown</a>
                   </div>
-                  <div data-color-mode="dark" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: '500px' }}>
+                  <div data-color-mode="light" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: '500px' }}>
                     <MDEditor
                       value={lessonForm.contenido}
                       onChange={(val) => setLessonForm({ ...lessonForm, contenido: val || '' })}
