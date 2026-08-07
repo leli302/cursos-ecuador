@@ -246,8 +246,8 @@ export default function CourseContentPage() {
   }
 
   return (
-    <div className="page">
-      <div className="container">
+    <div className="page" style={{ padding: '0 var(--space-8)' }}>
+      <div style={{ maxWidth: '1600px', width: '100%' }}>
         {/* Header */}
         <div className="mb-6">
           <Link to="/instructor/cursos" className="flex items-center gap-1 text-sm text-muted hover:text-primary">
