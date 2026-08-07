@@ -67,7 +67,7 @@ async function generateAllContent() {
       console.log(`✓ Curso actualizado: ${curso.nombre}`);
     }
     
-    console.log(\`\\n¡Generación completada! Se actualizaron \${leccionesActualizadas} lecciones con contenido formateado.\`);
+    console.log(`\n¡Generación completada! Se actualizaron ${leccionesActualizadas} lecciones con contenido formateado.`);
   } catch (error) {
     console.error('Error durante la generación:', error);
   } finally {
