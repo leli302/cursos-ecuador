@@ -109,9 +109,10 @@ async function generateAIContent() {
         const leccionesResult = await pool.query('SELECT id, titulo, descripcion, duracion_minutos FROM lecciones WHERE modulo_id = $1 ORDER BY orden', [modulo.id]);
         
         for (const leccion of leccionesResult.rows) {
-          // Si la lección ya tiene un contenido largo, asumimos que ya fue generada por la IA y la saltamos
-          if (leccion.descripcion && leccion.descripcion.length > 500) {
-            console.log(`    ⏭️ Saltando: ${leccion.titulo} (Ya generada)`);
+          // Si la lección ya tiene un contenido largo Y NO tiene la frase de la plantilla estática, asumimos que fue generada por IA
+          const esPlantillaEstatica = leccion.descripcion && leccion.descripcion.includes('Bienvenido a esta lección fundamental del módulo');
+          if (leccion.descripcion && leccion.descripcion.length > 500 && !esPlantillaEstatica) {
+            console.log(`    ⏭️ Saltando: ${leccion.titulo} (Ya generada por IA)`);
             continue;
           }
           
