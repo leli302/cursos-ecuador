@@ -104,16 +104,18 @@ const getLibraryCourse = async (req, res, next) => {
                 LEFT JOIN progreso_usuario pu ON pu.leccion_id = l.id AND pu.usuario_id = $2
                 WHERE l.modulo_id = m.id
               ) as lecciones,
-              (
-                SELECT json_agg(
-                  json_build_object(
-                    'id', e.id, 'titulo', e.titulo, 'instrucciones', e.instrucciones,
-                    'porcentaje_aprobacion', e.porcentaje_aprobacion, 'orden', e.orden,
-                    'aprobado', COALESCE((SELECT aprobado FROM intentos_evaluacion ie WHERE ie.evaluacion_id = e.id AND ie.usuario_id = $2 ORDER BY fecha_intento DESC LIMIT 1), false)
-                  ) ORDER BY e.orden
+              CASE WHEN to_regclass('evaluaciones') IS NOT NULL AND to_regclass('intentos_evaluacion') IS NOT NULL THEN
+                (
+                  SELECT json_agg(
+                    json_build_object(
+                      'id', e.id, 'titulo', e.titulo, 'instrucciones', e.instrucciones,
+                      'porcentaje_aprobacion', e.porcentaje_aprobacion, 'orden', e.orden,
+                      'aprobado', COALESCE((SELECT aprobado FROM intentos_evaluacion ie WHERE ie.evaluacion_id = e.id AND ie.usuario_id = $2 ORDER BY fecha_intento DESC LIMIT 1), false)
+                    ) ORDER BY e.orden
+                  )
+                  FROM evaluaciones e WHERE e.modulo_id = m.id
                 )
-                FROM evaluaciones e WHERE e.modulo_id = m.id
-              ) as evaluaciones
+              ELSE NULL END as evaluaciones
        FROM modulos m
        WHERE m.curso_id = $1
        ORDER BY m.orden`,
