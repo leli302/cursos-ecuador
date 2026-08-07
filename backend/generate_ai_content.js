@@ -129,12 +129,15 @@ async function generateAIContent() {
             await pool.query('UPDATE lecciones SET descripcion = $1 WHERE id = $2', [contenidoMarkdown, leccion.id]);
             actualizadas++;
             console.log(`    ✅ Guardado.`);
-            
-            // Pausa de 15 segundos para evitar el Rate Limit gratuito de Gemini (5 RPM)
-            await new Promise(resolve => setTimeout(resolve, 15000));
-            
           } catch (aiError) {
             console.error(`    ❌ Error de Gemini para ${leccion.titulo}:`, aiError.message);
+            if (aiError.message.includes('429')) {
+              console.log('    ⏳ Límite alcanzado. Pausando 40 segundos por seguridad...');
+              await new Promise(resolve => setTimeout(resolve, 40000));
+            }
+          } finally {
+            // Pausa obligatoria de 15 segundos en cada iteración (incluso si hay error) para respetar las 5 RPM
+            await new Promise(resolve => setTimeout(resolve, 15000));
           }
         }
       }
