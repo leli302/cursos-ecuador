@@ -1,15 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const quizController = require('../controllers/quiz.controller');
-const { verifyToken, isAdminOrInstructor } = require('../middleware/auth');
+const { auth } = require('../middleware/auth');
+const { isAdminOrInstructor } = require('../middleware/roles');
 
 // Estudiantes: Obtener quizzes de un módulo
-router.get('/module/:moduleId', verifyToken, quizController.getModuleQuizzes);
+router.get('/module/:moduleId', auth, quizController.getModuleQuizzes);
 
 // Estudiantes: Enviar respuestas de un quiz para calificar
-router.post('/:evaluacionId/submit', verifyToken, quizController.submitQuiz);
+router.post('/:evaluacionId/submit', auth, quizController.submitQuiz);
 
 // Instructores: Crear nuevo quiz
-router.post('/', verifyToken, isAdminOrInstructor, quizController.createQuiz);
+router.post('/', auth, isAdminOrInstructor, quizController.createQuiz);
 
 module.exports = router;
