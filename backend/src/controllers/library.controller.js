@@ -12,17 +12,17 @@ const getLibrary = async (req, res, next) => {
               (SELECT fecha_estimada FROM disponibilidad_curso WHERE curso_id = c.id ORDER BY creado_en DESC LIMIT 1) as fecha_disponible,
               COALESCE(
                 (
-                  SELECT ROUND(
+                  SELECT LEAST(ROUND(
                     (
-                      (SELECT COUNT(*) FROM progreso_usuario WHERE usuario_id = $1 AND curso_id = c.id AND completado = true) +
-                      (SELECT COUNT(*) FROM intentos_evaluacion ie JOIN evaluaciones e ON ie.evaluacion_id = e.id JOIN modulos m ON e.modulo_id = m.id WHERE ie.usuario_id = $1 AND m.curso_id = c.id AND ie.aprobado = true)
+                      (SELECT COUNT(DISTINCT leccion_id) FROM progreso_usuario WHERE usuario_id = $1 AND curso_id = c.id AND completado = true) +
+                      (SELECT COUNT(DISTINCT ie.evaluacion_id) FROM intentos_evaluacion ie JOIN evaluaciones e ON ie.evaluacion_id = e.id JOIN modulos m ON e.modulo_id = m.id WHERE ie.usuario_id = $1 AND m.curso_id = c.id AND ie.aprobado = true)
                     )::numeric 
                     / 
                     NULLIF(
                       (SELECT COUNT(*) FROM lecciones l JOIN modulos m ON l.modulo_id = m.id WHERE m.curso_id = c.id) +
                       (SELECT COUNT(*) FROM evaluaciones e JOIN modulos m ON e.modulo_id = m.id WHERE m.curso_id = c.id)
                     , 0) * 100
-                  )
+                  ), 100)
                 ), 0
               ) as progreso
        FROM inscripciones i

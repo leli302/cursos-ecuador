@@ -271,7 +271,7 @@ export default function CourseContentPage() {
         </div>
 
         {/* Two columns */}
-        <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 'var(--space-6)', alignItems: 'start' }}>
+        <div className="course-content-grid" style={{ display: 'grid', gap: 'var(--space-6)', alignItems: 'start' }}>
           
           {/* Sidebar: Modules */}
           <div className="flex flex-col gap-4">
