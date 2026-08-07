@@ -109,8 +109,11 @@ async function generateAIContent() {
         const leccionesResult = await pool.query('SELECT id, titulo, descripcion, duracion_minutos FROM lecciones WHERE modulo_id = $1 ORDER BY orden', [modulo.id]);
         
         for (const leccion of leccionesResult.rows) {
-          // Si quieres forzar la sobreescritura de todas las lecciones quita esta condición:
-          // if (leccion.descripcion && leccion.descripcion.length > 500) continue; 
+          // Si la lección ya tiene un contenido largo, asumimos que ya fue generada por la IA y la saltamos
+          if (leccion.descripcion && leccion.descripcion.length > 500) {
+            console.log(`    ⏭️ Saltando: ${leccion.titulo} (Ya generada)`);
+            continue;
+          }
           
           console.log(`    ⏳ Generando IA para: ${leccion.titulo}...`);
           try {
@@ -126,8 +129,8 @@ async function generateAIContent() {
             actualizadas++;
             console.log(`    ✅ Guardado.`);
             
-            // Pausa de 2 segundos para no saturar la API
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            // Pausa de 15 segundos para evitar el Rate Limit gratuito de Gemini (5 RPM)
+            await new Promise(resolve => setTimeout(resolve, 15000));
             
           } catch (aiError) {
             console.error(`    ❌ Error de Gemini para ${leccion.titulo}:`, aiError.message);
