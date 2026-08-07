@@ -316,7 +316,7 @@ export default function CourseContentPage() {
                       <h2 className="font-bold text-lg mt-1">{currentModule?.titulo}</h2>
                       <p className="text-muted text-sm mt-1">{currentModule?.descripcion || 'Sin descripción.'}</p>
                     </div>
-                    <button className="btn btn-primary" onClick={() => { setModifyingLesson({ mode: 'new', module_id: activeModuleId }); setLessonForm({ titulo: '', descripcion: '', duracion_minutos: 15, orden: 1, es_gratis: false }); }}>
+                    <button className="btn btn-primary" onClick={() => { setModifyingLesson({ mode: 'new', module_id: activeModuleId }); setLessonForm({ titulo: '', descripcion: '', contenido: '', duracion_minutos: 15, orden: 1, es_gratis: false }); }}>
                       <Plus size={16} /> Agregar Lección
                     </button>
                   </div>
@@ -332,34 +332,28 @@ export default function CourseContentPage() {
                       {lecciones.map((lesson, lessonIndex) => (
                         <div key={lesson.id}>
                           {/* Lesson Header */}
-                          <div className="card" style={{ padding: 'var(--space-3) var(--space-4)', background: expandedLessonId === lesson.id ? 'rgba(78,205,196,0.04)' : 'rgba(255,255,255,0.015)', borderLeft: expandedLessonId === lesson.id ? '3px solid var(--accent-teal)' : '3px solid transparent' }}>
-                            <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-3" style={{ flex: 1, minWidth: 0, cursor: 'pointer' }} onClick={() => toggleLesson(lesson.id)}>
-                                <div className="flex justify-center items-center" style={{ width: '32px', height: '32px', background: 'rgba(78,205,196,0.1)', borderRadius: '50%', flexShrink: 0 }}>
-                                  <Play size={14} className="text-primary" />
+                          <div className="card" style={{ padding: 'var(--space-3) var(--space-4)', background: expandedLessonId === lesson.id ? 'rgba(78,205,196,0.04)' : 'rgba(255,255,255,0.015)', borderLeft: expandedLessonId === lesson.id ? '3px solid var(--accent-teal)' : '3px solid transparent', overflow: 'hidden' }}>
+                            <div className="lesson-row">
+                              <div className="lesson-info flex items-center gap-3" style={{ cursor: 'pointer' }} onClick={() => toggleLesson(lesson.id)}>
+                                <div className="flex justify-center items-center" style={{ width: '28px', height: '28px', background: 'rgba(78,205,196,0.1)', borderRadius: '50%', flexShrink: 0 }}>
+                                  <Play size={12} className="text-primary" />
                                 </div>
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                  <div className="flex items-center gap-2">
-                                    <h4 className="font-semibold text-sm truncate m-0">{lesson.titulo}</h4>
-                                    {lesson.es_gratis && <span className="badge badge-green text-xs" style={{ padding: '2px 6px' }}>Gratis</span>}
-                                  </div>
-                                  <p className="text-xs text-muted truncate mt-0.5">{lesson.descripcion || 'Sin descripción'}</p>
+                                <div style={{ minWidth: 0, flex: 1 }}>
+                                  <h4 className="font-semibold text-sm m-0" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{lesson.titulo}</h4>
+                                  {lesson.es_gratis && <span className="badge badge-green text-xs" style={{ padding: '1px 5px', fontSize: '0.65rem' }}>Gratis</span>}
                                 </div>
                               </div>
 
-                              <div className="flex items-center gap-3 shrink-0" style={{ flexShrink: 0 }}>
-                                <span className="text-xs text-muted flex items-center gap-1"><Clock size={12} /> {lesson.duracion_minutos} min</span>
-                                <span className="text-xs text-muted flex items-center gap-1"><Paperclip size={12} /> {lessonResources[lesson.id]?.length || '...'}</span>
-                                <div className="flex items-center gap-1">
-                                  <button className="btn-icon btn-xs" disabled={lessonIndex === 0} onClick={() => handleMoveLesson(activeModuleId, lessonIndex, 'up')}><ArrowUp size={12} /></button>
-                                  <button className="btn-icon btn-xs" disabled={lessonIndex === lecciones.length - 1} onClick={() => handleMoveLesson(activeModuleId, lessonIndex, 'down')}><ArrowDown size={12} /></button>
-                                  <button className="btn-icon btn-xs text-primary" onClick={() => { 
-                                    setModifyingLesson({ mode: 'edit', module_id: activeModuleId, lesson }); 
-                                    setLessonForm({ titulo: lesson.titulo, descripcion: lesson.descripcion || '', contenido: lesson.contenido || '', duracion_minutos: lesson.duracion_minutos || 15, orden: lesson.orden, es_gratis: lesson.es_gratis || false }); 
-                                    fetchResources(lesson.id);
-                                  }}><Edit2 size={12} /></button>
-                                  <button className="btn-icon btn-xs" style={{ color: 'var(--accent-red)' }} onClick={() => handleDeleteLesson(lesson.id)}><Trash2 size={12} /></button>
-                                </div>
+                              <div className="lesson-actions">
+                                <span className="text-xs text-muted" style={{ whiteSpace: 'nowrap' }}>{lesson.duracion_minutos}m</span>
+                                <button className="btn-icon btn-xs" disabled={lessonIndex === 0} onClick={() => handleMoveLesson(activeModuleId, lessonIndex, 'up')}><ArrowUp size={12} /></button>
+                                <button className="btn-icon btn-xs" disabled={lessonIndex === lecciones.length - 1} onClick={() => handleMoveLesson(activeModuleId, lessonIndex, 'down')}><ArrowDown size={12} /></button>
+                                <button className="btn-icon btn-xs text-primary" onClick={() => { 
+                                  setModifyingLesson({ mode: 'edit', module_id: activeModuleId, lesson }); 
+                                  setLessonForm({ titulo: lesson.titulo, descripcion: lesson.descripcion || '', contenido: lesson.contenido || '', duracion_minutos: lesson.duracion_minutos || 15, orden: lesson.orden, es_gratis: lesson.es_gratis || false }); 
+                                  fetchResources(lesson.id);
+                                }}><Edit2 size={12} /></button>
+                                <button className="btn-icon btn-xs" style={{ color: 'var(--accent-red)' }} onClick={() => handleDeleteLesson(lesson.id)}><Trash2 size={12} /></button>
                               </div>
                             </div>
                           </div>

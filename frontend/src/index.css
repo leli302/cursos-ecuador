@@ -680,9 +680,38 @@ textarea.form-input {
 
 .course-content-grid {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 240px 1fr;
   gap: var(--space-6);
   align-items: start;
+}
+
+/* Lesson row: force text truncation so buttons stay visible */
+.lesson-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.lesson-row .lesson-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.lesson-row .lesson-info p,
+.lesson-row .lesson-info h4 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lesson-row .lesson-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 @media (max-width: 1024px) {
@@ -1014,7 +1043,7 @@ tbody tr:hover {
 
 .course-content-grid {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 240px 1fr;
   gap: var(--space-6);
   align-items: start;
 }
