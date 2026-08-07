@@ -13,15 +13,9 @@ const getLibrary = async (req, res, next) => {
               COALESCE(
                 (
                   SELECT ROUND(
-                    (
-                      (SELECT COUNT(DISTINCT leccion_id) FROM progreso_usuario WHERE usuario_id = $1 AND curso_id = c.id AND completado = true) +
-                      (SELECT COUNT(DISTINCT ie.evaluacion_id) FROM intentos_evaluacion ie JOIN evaluaciones e ON ie.evaluacion_id = e.id JOIN modulos m ON e.modulo_id = m.id WHERE ie.usuario_id = $1 AND m.curso_id = c.id AND ie.aprobado = true)
-                    )::numeric 
+                    (SELECT COUNT(DISTINCT leccion_id) FROM progreso_usuario WHERE usuario_id = $1 AND curso_id = c.id AND completado = true)::numeric 
                     / 
-                    NULLIF(
-                      (SELECT COUNT(*) FROM lecciones l JOIN modulos m ON l.modulo_id = m.id WHERE m.curso_id = c.id) +
-                      (SELECT COUNT(*) FROM evaluaciones e JOIN modulos m ON e.modulo_id = m.id WHERE m.curso_id = c.id)
-                    , 0) * 100
+                    NULLIF((SELECT COUNT(*) FROM lecciones l JOIN modulos m ON l.modulo_id = m.id WHERE m.curso_id = c.id), 0) * 100
                   )
                 ), 0
               ) as progreso
