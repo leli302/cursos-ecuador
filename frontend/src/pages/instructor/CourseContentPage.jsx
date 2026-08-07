@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../../api/axios';
 import { useToast } from '../../context/ToastContext';
+import MDEditor from '@uiw/react-md-editor';
 import { 
   ChevronLeft, Plus, Edit2, Trash2, ArrowUp, ArrowDown, 
   Play, BookOpen, Clock, Save, X, Upload, File, FileText, 
@@ -547,13 +548,17 @@ export default function CourseContentPage() {
                     <h3 className="font-semibold m-0" style={{ fontSize: 'var(--text-lg)' }}>Contenido de la Lección</h3>
                     <a href="https://www.markdownguide.org/cheat-sheet/" target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1"><BookOpen size={14} /> Guía Markdown</a>
                   </div>
-                  <textarea 
-                    className="form-input"
-                    value={lessonForm.contenido} 
-                    onChange={(e) => setLessonForm({ ...lessonForm, contenido: e.target.value })} 
-                    placeholder="## Introducción&#10;Escribe aquí el texto de tu lección usando Markdown..." 
-                    style={{ flex: 1, minHeight: '500px', width: '100%', padding: 'var(--space-6)', resize: 'none', border: 'none', background: 'transparent', color: 'inherit', fontFamily: 'monospace', fontSize: '0.95rem', outline: 'none' }} 
-                  />
+                  <div data-color-mode="dark" style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: '500px' }}>
+                    <MDEditor
+                      value={lessonForm.contenido}
+                      onChange={(val) => setLessonForm({ ...lessonForm, contenido: val || '' })}
+                      height="100%"
+                      style={{ flex: 1, border: 'none', borderRadius: 0 }}
+                      textareaProps={{
+                        placeholder: "## Introducción\nEscribe aquí el texto de tu lección usando Markdown..."
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
