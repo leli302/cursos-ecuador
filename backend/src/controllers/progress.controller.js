@@ -35,7 +35,7 @@ const updateProgress = async (req, res, next) => {
       );
     }
 
-    // Calcular progreso general del curso
+    // Calcular progreso general del curso incluyendo lecciones y evaluaciones
     const totalLessons = await query(
       `SELECT COUNT(*) as total FROM lecciones l
        JOIN modulos m ON l.modulo_id = m.id
@@ -49,8 +49,26 @@ const updateProgress = async (req, res, next) => {
       [req.user.id, curso_id]
     );
 
-    const totalProgress = totalLessons.rows[0].total > 0
-      ? Math.round((completedLessons.rows[0].total / totalLessons.rows[0].total) * 100)
+    const totalQuizzes = await query(
+      `SELECT COUNT(*) as total FROM evaluaciones e
+       JOIN modulos m ON e.modulo_id = m.id
+       WHERE m.curso_id = $1`,
+      [curso_id]
+    );
+
+    const completedQuizzes = await query(
+      `SELECT COUNT(*) as total FROM intentos_evaluacion ie
+       JOIN evaluaciones e ON ie.evaluacion_id = e.id
+       JOIN modulos m ON e.modulo_id = m.id
+       WHERE ie.usuario_id = $1 AND m.curso_id = $2 AND ie.aprobado = true`,
+      [req.user.id, curso_id]
+    );
+
+    const totalItems = parseInt(totalLessons.rows[0].total) + parseInt(totalQuizzes.rows[0].total);
+    const completedItems = parseInt(completedLessons.rows[0].total) + parseInt(completedQuizzes.rows[0].total);
+
+    const totalProgress = totalItems > 0
+      ? Math.round((completedItems / totalItems) * 100)
       : 0;
 
     // Si completó 100%, generar certificado automáticamente

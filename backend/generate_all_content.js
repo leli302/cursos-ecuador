@@ -14,15 +14,15 @@ const getTemplate = (curso, modulo, leccion) => {
   
 Esta clase pertenece al módulo *${modulo.titulo}* del curso **${curso.nombre}**.
 
-### 🎯 Objetivo de la clase
+### Objetivo de la clase
 En esta sesión exploraremos los conceptos fundamentales y las mejores prácticas aplicadas en el entorno profesional. Al finalizar, serás capaz de comprender cómo implementar estas técnicas en proyectos reales.
 
-### 💡 Conceptos Clave
+### Conceptos Clave
 - **Fundamentos**: Entenderemos la teoría detrás de esta herramienta.
 - **Aplicación Práctica**: Veremos casos de uso reales donde esta tecnología brilla.
 - **Optimización**: Tips y trucos para hacer tu trabajo más eficiente.
 
-### 💻 Ejemplo Práctico
+### Ejemplo Práctico
 A continuación, un pequeño fragmento de ejemplo (pseudocódigo o estructura sugerida) para que te familiarices con la sintaxis y el flujo de trabajo:
 
 \`\`\`javascript
@@ -56,12 +56,9 @@ async function generateAllContent() {
         const lecciones = leccionesResult.rows;
 
         for (const leccion of lecciones) {
-          // Si la descripción está vacía, es muy corta, o es el texto genérico
-          if (!leccion.descripcion || leccion.descripcion.length < 50 || leccion.descripcion.includes('Descripción de')) {
-            const nuevoContenido = getTemplate(curso, modulo, leccion);
-            await pool.query('UPDATE lecciones SET descripcion = $1 WHERE id = $2', [nuevoContenido, leccion.id]);
-            leccionesActualizadas++;
-          }
+          const nuevoContenido = getTemplate(curso, modulo, leccion);
+          await pool.query('UPDATE lecciones SET descripcion = $1 WHERE id = $2', [nuevoContenido, leccion.id]);
+          leccionesActualizadas++;
         }
       }
       console.log(`✓ Curso actualizado: ${curso.nombre}`);
