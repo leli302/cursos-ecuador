@@ -58,6 +58,7 @@ app.use('/storage', express.static(storagePath));
 
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/users', require('./routes/users.routes'));
+app.use('/api/quizzes', require('./routes/quiz.routes'));
 app.use('/api/courses', require('./routes/courses.routes'));
 app.use('/api/categories', require('./routes/categories.routes'));
 app.use('/api/versions', require('./routes/versions.routes'));

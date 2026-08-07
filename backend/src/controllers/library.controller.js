@@ -79,27 +79,39 @@ const getLibraryCourse = async (req, res, next) => {
 
     const modules = await query(
       `SELECT m.*,
-              json_agg(
-                json_build_object(
-                  'id', l.id, 'titulo', l.titulo, 'descripcion', l.descripcion,
-                  'duracion_minutos', l.duracion_minutos, 'orden', l.orden,
-                  'completado', COALESCE(pu.completado, false),
-                  'porcentaje', COALESCE(pu.porcentaje, 0),
-                  'recursos', (
-                    SELECT json_agg(json_build_object(
-                      'id', rm.id, 'tipo', rm.tipo, 'titulo', rm.titulo,
-                      'url_archivo', rm.url_archivo, 'tamano_mb', rm.tamano_mb,
-                      'duracion_segundos', rm.duracion_segundos
-                    ) ORDER BY rm.orden)
-                    FROM recursos_multimedia rm WHERE rm.leccion_id = l.id
-                  )
-                ) ORDER BY l.orden
-              ) FILTER (WHERE l.id IS NOT NULL) as lecciones
+              (
+                SELECT json_agg(
+                  json_build_object(
+                    'id', l.id, 'titulo', l.titulo, 'descripcion', l.descripcion,
+                    'duracion_minutos', l.duracion_minutos, 'orden', l.orden,
+                    'completado', COALESCE(pu.completado, false),
+                    'porcentaje', COALESCE(pu.porcentaje, 0),
+                    'recursos', (
+                      SELECT json_agg(json_build_object(
+                        'id', rm.id, 'tipo', rm.tipo, 'titulo', rm.titulo,
+                        'url_archivo', rm.url_archivo, 'tamano_mb', rm.tamano_mb,
+                        'duracion_segundos', rm.duracion_segundos
+                      ) ORDER BY rm.orden)
+                      FROM recursos_multimedia rm WHERE rm.leccion_id = l.id
+                    )
+                  ) ORDER BY l.orden
+                ) 
+                FROM lecciones l 
+                LEFT JOIN progreso_usuario pu ON pu.leccion_id = l.id AND pu.usuario_id = $2
+                WHERE l.modulo_id = m.id
+              ) as lecciones,
+              (
+                SELECT json_agg(
+                  json_build_object(
+                    'id', e.id, 'titulo', e.titulo, 'instrucciones', e.instrucciones,
+                    'porcentaje_aprobacion', e.porcentaje_aprobacion, 'orden', e.orden,
+                    'aprobado', COALESCE((SELECT aprobado FROM intentos_evaluacion ie WHERE ie.evaluacion_id = e.id AND ie.usuario_id = $2 ORDER BY fecha_intento DESC LIMIT 1), false)
+                  ) ORDER BY e.orden
+                )
+                FROM evaluaciones e WHERE e.modulo_id = m.id
+              ) as evaluaciones
        FROM modulos m
-       LEFT JOIN lecciones l ON m.id = l.modulo_id
-       LEFT JOIN progreso_usuario pu ON pu.leccion_id = l.id AND pu.usuario_id = $2
        WHERE m.curso_id = $1
-       GROUP BY m.id
        ORDER BY m.orden`,
       [req.params.courseId, req.user.id]
     );

@@ -3,7 +3,8 @@ import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { ArrowLeft, BookOpen, PlayCircle, CheckCircle, FileText, Download, Check, Award, Sparkles, X, QrCode } from 'lucide-react';
+import { ArrowLeft, BookOpen, PlayCircle, CheckCircle, FileText, Download, Check, Award, Sparkles, X, QrCode, FileQuestion } from 'lucide-react';
+import QuizViewer from '../../components/QuizViewer';
 
 export default function ClassroomPage() {
   const { isAdmin, isInstructor } = useAuth();
@@ -21,6 +22,7 @@ export default function ClassroomPage() {
   const [course, setCourse] = useState(null);
   const [modules, setModules] = useState([]);
   const [activeLesson, setActiveLesson] = useState(null);
+  const [activeQuiz, setActiveQuiz] = useState(null);
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
 
@@ -50,21 +52,32 @@ export default function ClassroomPage() {
         let completed = 0;
         
         // Buscar primera lección para activar
-        let firstLesson = null;
+        let firstItem = null;
         if (data.modules && data.modules.length > 0) {
           for (const mod of data.modules) {
             if (mod.lecciones && mod.lecciones.length > 0) {
               for (const les of mod.lecciones) {
                 total++;
                 if (les.completado) completed++;
-                if (!firstLesson) firstLesson = les;
+                if (!firstItem) firstItem = { type: 'lesson', data: les };
+              }
+            }
+            if (mod.evaluaciones && mod.evaluaciones.length > 0) {
+              for (const ev of mod.evaluaciones) {
+                total++;
+                if (ev.aprobado) completed++;
+                if (!firstItem) firstItem = { type: 'quiz', data: ev };
               }
             }
           }
         }
         
         setProgress(total > 0 ? Math.round((completed / total) * 100) : 0);
-        setActiveLesson(firstLesson);
+        
+        if (firstItem) {
+          if (firstItem.type === 'lesson') setActiveLesson(firstItem.data);
+          else setActiveQuiz(firstItem.data);
+        }
       } catch (error) {
         toast.error('Error al cargar las clases del curso');
         navigate('/mi-biblioteca');
@@ -139,6 +152,32 @@ export default function ClassroomPage() {
     }
   };
 
+  const handleQuizCompleted = async (quizId, score) => {
+    // Actualizar estado local de quizzes
+    setModules(prevModules => 
+      prevModules.map(mod => ({
+        ...mod,
+        evaluaciones: mod.evaluaciones?.map(ev => 
+          ev.id === quizId ? { ...ev, aprobado: true } : ev
+        )
+      }))
+    );
+    
+    // Recalcular progreso localmente
+    let total = 0;
+    let completed = 0;
+    modules.forEach(mod => {
+      mod.lecciones?.forEach(l => { total++; if (l.completado) completed++; });
+      mod.evaluaciones?.forEach(ev => { total++; if (ev.id === quizId || ev.aprobado) completed++; });
+    });
+    setProgress(total > 0 ? Math.round((completed / total) * 100) : 0);
+    
+    toast.success('¡Evaluación superada!');
+    if (completed === total && total > 0) {
+      toast.success('🎉 ¡Felicidades! Has completado el curso y ganado un certificado.', { duration: 6000 });
+    }
+  };
+
   if (loading) return (
     <div className="page container">
       <div className="skeleton" style={{ height: 400, borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-8)' }} />
@@ -172,9 +211,14 @@ export default function ClassroomPage() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 'var(--space-6)', alignItems: 'start' }}>
           
-          {/* Left: Active Lesson Viewer */}
+          {/* Left: Active Lesson or Quiz Viewer */}
           <div className="flex flex-col gap-6">
-            {activeLesson ? (
+            {activeQuiz ? (
+              <QuizViewer 
+                quiz={activeQuiz} 
+                onQuizCompleted={handleQuizCompleted} 
+              />
+            ) : activeLesson ? (
               <>
                 {/* Mock Video Player */}
                 <div style={{ 
@@ -293,7 +337,7 @@ export default function ClassroomPage() {
                       mod.lecciones.map((lesson, lesIdx) => (
                         <div 
                           key={lesson.id} 
-                          onClick={() => setActiveLesson(lesson)}
+                          onClick={() => { setActiveLesson(lesson); setActiveQuiz(null); }}
                           style={{
                             padding: '10px 12px',
                             borderRadius: 'var(--radius-md)',
@@ -330,6 +374,47 @@ export default function ClassroomPage() {
                     ) : (
                       <p className="text-xs text-muted">No contiene lecciones.</p>
                     )}
+
+                    {/* Evaluaciones del Módulo */}
+                    {mod.evaluaciones && mod.evaluaciones.length > 0 && mod.evaluaciones.map((evaluacion) => (
+                      <div 
+                        key={`eval-${evaluacion.id}`} 
+                        onClick={() => { setActiveQuiz(evaluacion); setActiveLesson(null); }}
+                        style={{
+                          padding: '10px 12px',
+                          borderRadius: 'var(--radius-md)',
+                          background: activeQuiz && activeQuiz.id === evaluacion.id ? 'rgba(78,205,196,0.1)' : 'rgba(255,255,255,0.01)',
+                          border: activeQuiz && activeQuiz.id === evaluacion.id ? '1px solid var(--accent-teal)' : '1px solid var(--border-subtle)',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          marginTop: '4px'
+                        }}
+                        className="hover-card"
+                      >
+                        <div style={{ flexShrink: 0 }}>
+                          {evaluacion.aprobado ? (
+                            <CheckCircle size={16} style={{ color: 'var(--accent-green)' }} />
+                          ) : (
+                            <FileQuestion size={16} style={{ color: 'var(--accent-teal)' }} />
+                          )}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ 
+                            fontSize: '0.8rem', 
+                            fontWeight: activeQuiz && activeQuiz.id === evaluacion.id ? 700 : 500,
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            margin: 0,
+                            color: 'var(--accent-teal)'
+                          }}>
+                            Eval. {evaluacion.titulo}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
