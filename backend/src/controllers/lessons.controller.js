@@ -42,7 +42,7 @@ const updateLesson = async (req, res, next) => {
     const { titulo, descripcion, contenido, duracion_minutos, orden, es_gratis } = req.body;
     const result = await query(
       `UPDATE lecciones SET titulo = COALESCE($1, titulo), descripcion = COALESCE($2, descripcion),
-       contenido = $3,
+       contenido = COALESCE($3, contenido),
        duracion_minutos = COALESCE($4, duracion_minutos), orden = COALESCE($5, orden),
        es_gratis = COALESCE($6, es_gratis) WHERE id = $7 RETURNING *`,
       [titulo, descripcion, contenido !== undefined ? contenido : null, duracion_minutos, orden, es_gratis, req.params.id]

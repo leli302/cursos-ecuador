@@ -241,7 +241,7 @@ const getCourseById = async (req, res, next) => {
         `SELECT m.*, 
                 json_agg(
                   json_build_object(
-                    'id', l.id, 'titulo', l.titulo, 'descripcion', l.descripcion,
+                    'id', l.id, 'titulo', l.titulo, 'descripcion', l.descripcion, 'contenido', l.contenido,
                     'duracion_minutos', l.duracion_minutos, 'orden', l.orden, 'es_gratis', l.es_gratis
                   ) ORDER BY l.orden
                 ) FILTER (WHERE l.id IS NOT NULL) as lecciones

@@ -92,7 +92,7 @@ const getLibraryCourse = async (req, res, next) => {
               (
                 SELECT json_agg(
                   json_build_object(
-                    'id', l.id, 'titulo', l.titulo, 'descripcion', l.descripcion,
+                    'id', l.id, 'titulo', l.titulo, 'descripcion', l.descripcion, 'contenido', l.contenido,
                     'duracion_minutos', l.duracion_minutos, 'orden', l.orden,
                     'completado', COALESCE(pu.completado, false),
                     'porcentaje', COALESCE(pu.porcentaje, 0),

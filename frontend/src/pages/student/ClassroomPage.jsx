@@ -285,7 +285,7 @@ export default function ClassroomPage() {
                   
                   <div className="markdown-content mt-4" style={{ lineHeight: 1.7, fontSize: '0.95rem' }}>
                     <ReactMarkdown>
-                      {activeLesson.descripcion || 'En esta lección aprenderás los conceptos clave y prácticos de este tema, explicados paso a paso con ejemplos aplicados.'}
+                      {activeLesson.contenido || activeLesson.descripcion || 'En esta lección aprenderás los conceptos clave y prácticos de este tema, explicados paso a paso con ejemplos aplicados.'}
                     </ReactMarkdown>
                   </div>
                 </div>
