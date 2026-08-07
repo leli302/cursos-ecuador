@@ -26,7 +26,7 @@ export default function CourseContentPage() {
 
   // Form states
   const [moduleForm, setModuleForm] = useState({ titulo: '', descripcion: '', orden: 1 });
-  const [lessonForm, setLessonForm] = useState({ titulo: '', descripcion: '', duracion_minutos: 15, orden: 1, es_gratis: false });
+  const [lessonForm, setLessonForm] = useState({ titulo: '', descripcion: '', contenido: '', duracion_minutos: 15, orden: 1, es_gratis: false });
 
   const fetchData = async () => {
     setLoading(true);
@@ -204,10 +204,10 @@ export default function CourseContentPage() {
         const parentModule = modules.find(m => m.id === modifyingLesson.module_id);
         const lecciones = parentModule?.lecciones || [];
         const nextOrder = lecciones.length > 0 ? Math.max(...lecciones.map(l => l.orden || 0)) + 1 : 1;
-        await api.post('/lessons', { modulo_id: modifyingLesson.module_id, titulo: lessonForm.titulo, descripcion: lessonForm.descripcion, duracion_minutos: parseInt(lessonForm.duracion_minutos || 0), orden: nextOrder, es_gratis: lessonForm.es_gratis });
+        await api.post('/lessons', { modulo_id: modifyingLesson.module_id, titulo: lessonForm.titulo, descripcion: lessonForm.descripcion, contenido: lessonForm.contenido, duracion_minutos: parseInt(lessonForm.duracion_minutos || 0), orden: nextOrder, es_gratis: lessonForm.es_gratis });
         toast.success('Lección creada exitosamente');
       } else {
-        await api.put(`/lessons/${modifyingLesson.lesson.id}`, { titulo: lessonForm.titulo, descripcion: lessonForm.descripcion, duracion_minutos: parseInt(lessonForm.duracion_minutos || 0), orden: modifyingLesson.lesson.orden, es_gratis: lessonForm.es_gratis });
+        await api.put(`/lessons/${modifyingLesson.lesson.id}`, { titulo: lessonForm.titulo, descripcion: lessonForm.descripcion, contenido: lessonForm.contenido, duracion_minutos: parseInt(lessonForm.duracion_minutos || 0), orden: modifyingLesson.lesson.orden, es_gratis: lessonForm.es_gratis });
         toast.success('Lección actualizada exitosamente');
       }
       setModifyingLesson(null);
@@ -353,7 +353,7 @@ export default function CourseContentPage() {
                                 <div className="flex items-center gap-1">
                                   <button className="btn-icon btn-xs" disabled={lessonIndex === 0} onClick={() => handleMoveLesson(activeModuleId, lessonIndex, 'up')}><ArrowUp size={12} /></button>
                                   <button className="btn-icon btn-xs" disabled={lessonIndex === lecciones.length - 1} onClick={() => handleMoveLesson(activeModuleId, lessonIndex, 'down')}><ArrowDown size={12} /></button>
-                                  <button className="btn-icon btn-xs text-primary" onClick={() => { setModifyingLesson({ mode: 'edit', module_id: activeModuleId, lesson }); setLessonForm({ titulo: lesson.titulo, descripcion: lesson.descripcion || '', duracion_minutos: lesson.duracion_minutos || 15, orden: lesson.orden, es_gratis: lesson.es_gratis || false }); }}><Edit2 size={12} /></button>
+                                  <button className="btn-icon btn-xs text-primary" onClick={() => { setModifyingLesson({ mode: 'edit', module_id: activeModuleId, lesson }); setLessonForm({ titulo: lesson.titulo, descripcion: lesson.descripcion || '', contenido: lesson.contenido || '', duracion_minutos: lesson.duracion_minutos || 15, orden: lesson.orden, es_gratis: lesson.es_gratis || false }); }}><Edit2 size={12} /></button>
                                   <button className="btn-icon btn-xs" style={{ color: 'var(--accent-red)' }} onClick={() => handleDeleteLesson(lesson.id)}><Trash2 size={12} /></button>
                                 </div>
                               </div>
@@ -466,7 +466,7 @@ export default function CourseContentPage() {
       {/* Modal: Lesson */}
       {modifyingLesson && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }} className="animate-fade-in">
-          <div className="card-glass animate-scale" style={{ width: '100%', maxWidth: 500, padding: 'var(--space-6)' }}>
+          <div className="card-glass animate-scale" style={{ width: '100%', maxWidth: 800, padding: 'var(--space-6)', maxHeight: '90vh', overflowY: 'auto' }}>
             <div className="flex justify-between items-center mb-6">
               <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 700, margin: 0 }}>{modifyingLesson.mode === 'new' ? 'Crear Lección' : 'Editar Lección'}</h3>
               <button className="btn-icon" onClick={() => setModifyingLesson(null)}><X size={20} /></button>
@@ -477,8 +477,15 @@ export default function CourseContentPage() {
                 <input type="text" className="form-input" value={lessonForm.titulo} onChange={(e) => setLessonForm({ ...lessonForm, titulo: e.target.value })} placeholder="Ej: ¿Qué es JSX?" required />
               </div>
               <div className="form-group">
-                <label className="form-label">Descripción</label>
-                <textarea className="form-input" value={lessonForm.descripcion} onChange={(e) => setLessonForm({ ...lessonForm, descripcion: e.target.value })} placeholder="Detalles de la lección..." rows={3} style={{ resize: 'vertical' }} />
+                <label className="form-label">Descripción Breve</label>
+                <textarea className="form-input" value={lessonForm.descripcion} onChange={(e) => setLessonForm({ ...lessonForm, descripcion: e.target.value })} placeholder="Detalles de la lección..." rows={2} style={{ resize: 'vertical' }} />
+              </div>
+              <div className="form-group">
+                <label className="form-label flex justify-between items-center">
+                  <span>Contenido de la Lección (Soporta Markdown)</span>
+                  <a href="https://www.markdownguide.org/cheat-sheet/" target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">Ver Guía Markdown</a>
+                </label>
+                <textarea className="form-input" value={lessonForm.contenido} onChange={(e) => setLessonForm({ ...lessonForm, contenido: e.target.value })} placeholder="## Introducción&#10;Escribe aquí el texto de tu lección usando Markdown..." rows={12} style={{ resize: 'vertical', fontFamily: 'monospace', fontSize: '0.9rem' }} required />
               </div>
               <div className="grid grid-2 gap-4">
                 <div className="form-group">
