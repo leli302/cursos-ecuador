@@ -4,7 +4,7 @@ import api from '../../api/axios';
 import { useToast } from '../../context/ToastContext';
 import { 
   Plus, Edit, Trash2, BookOpen, GraduationCap, Star, Settings, Save, X, 
-  Upload, Image as ImageIcon, Eye, DollarSign, Clock, Tag, Layers, Calendar, CheckCircle2, ShieldCheck, Crown
+  Upload, Image as ImageIcon, Eye, DollarSign, Clock, Tag, Layers, Calendar, CheckCircle2, ShieldCheck, Crown, Play
 } from 'lucide-react';
 
 export default function InstructorCoursesPage() {
@@ -360,6 +360,14 @@ export default function InstructorCoursesPage() {
                           style={{ fontSize: '0.8rem', padding: '6px 10px' }}
                         >
                           <Settings size={14} /> Ajustes
+                        </button>
+                        <button 
+                          className="btn btn-outline flex items-center justify-center"
+                          onClick={() => window.open(`/classroom/${course.id}`, '_blank')}
+                          title="Ver en Aula Virtual"
+                          style={{ padding: '6px 10px', color: 'var(--accent-teal)' }}
+                        >
+                          <Play size={14} />
                         </button>
                         <button 
                           className="btn btn-outline flex items-center justify-center"

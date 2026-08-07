@@ -5,7 +5,7 @@ import { useToast } from '../../context/ToastContext';
 import { 
   Plus, Edit, Trash2, Search, X, Save, ChevronLeft, ChevronRight,
   BookOpen, Image as ImageIcon, Upload, Eye, GraduationCap, Star,
-  DollarSign, Tag, Settings, LayoutGrid, List, Crown, CheckCircle2, AlertCircle
+  DollarSign, Tag, Settings, LayoutGrid, List, Crown, CheckCircle2, AlertCircle, Play
 } from 'lucide-react';
 
 export default function AdminCoursesPage() {
@@ -317,10 +317,18 @@ export default function AdminCoursesPage() {
                         <div className="flex gap-2 justify-end">
                           <button 
                             className="btn-icon" 
-                            title="Ver vista previa" 
+                            title="Ver vista previa de venta" 
                             onClick={() => window.open(`/curso/${c.id}`, '_blank')}
                           >
                             <Eye size={16} />
+                          </button>
+                          <button 
+                            className="btn-icon" 
+                            title="Ver en Aula Virtual" 
+                            onClick={() => window.open(`/classroom/${c.id}`, '_blank')}
+                            style={{ color: 'var(--accent-teal)' }}
+                          >
+                            <Play size={16} />
                           </button>
                           <button 
                             className="btn-icon" 
@@ -377,7 +385,9 @@ export default function AdminCoursesPage() {
                     <div className="flex justify-between items-center mt-auto pt-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
                       <span className="font-bold text-sm" style={{ color: 'var(--accent-green)' }}>${parseFloat(c.precio || 0).toFixed(2)}</span>
                       <div className="flex gap-1">
-                        <button className="btn-icon" onClick={() => openModal(c)}><Edit size={14} /></button>
+                        <button className="btn-icon" title="Ver en Aula Virtual" onClick={() => window.open(`/classroom/${c.id}`, '_blank')} style={{ color: 'var(--accent-teal)' }}><Play size={14} /></button>
+                        <button className="btn-icon" title="Ver landing" onClick={() => window.open(`/curso/${c.id}`, '_blank')}><Eye size={14} /></button>
+                        <button className="btn-icon" title="Editar" onClick={() => openModal(c)}><Edit size={14} /></button>
                         <button className="btn-icon" onClick={() => handleDelete(c.id)} style={{ color: 'var(--accent-red)' }}><Trash2 size={14} /></button>
                       </div>
                     </div>
