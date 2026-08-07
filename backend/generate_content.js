@@ -170,11 +170,7 @@ sql += `-- MIGRACIÓN: REPARACIÓN Y GENERACIÓN DE TODO EL CONTENIDO\n`;
 sql += `-- =============================================\n\n`;
 
 sql += `-- 1. Limpiar TODAS las lecciones y módulos existentes para evitar duplicados y contenido basura\n`;
-sql += `DELETE FROM progreso_lecciones;\n`;
-sql += `DELETE FROM lecciones;\n`;
-sql += `DELETE FROM modulos;\n\n`;
-sql += `ALTER SEQUENCE modulos_id_seq RESTART WITH 1;\n`;
-sql += `ALTER SEQUENCE lecciones_id_seq RESTART WITH 1;\n\n`;
+sql += `TRUNCATE TABLE modulos RESTART IDENTITY CASCADE;\n\n`;
 
 for (const c of courses) {
   sql += `-- =============================================\n`;
