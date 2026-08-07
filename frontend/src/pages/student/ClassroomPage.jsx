@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { ArrowLeft, BookOpen, PlayCircle, CheckCircle, FileText, Download, Check, Award, Sparkles, X, QrCode, FileQuestion } from 'lucide-react';
 import QuizViewer from '../../components/QuizViewer';
+import ReactMarkdown from 'react-markdown';
 
 export default function ClassroomPage() {
   const { isAdmin, isInstructor } = useAuth();
@@ -282,9 +283,11 @@ export default function ClassroomPage() {
                     </button>
                   </div>
                   
-                  <p className="text-muted text-sm" style={{ lineHeight: 1.6 }}>
-                    {activeLesson.descripcion || 'En esta lección aprenderás los conceptos clave y prácticos de este tema, explicados paso a paso con ejemplos aplicados.'}
-                  </p>
+                  <div className="markdown-content mt-4" style={{ lineHeight: 1.7, fontSize: '0.95rem' }}>
+                    <ReactMarkdown>
+                      {activeLesson.descripcion || 'En esta lección aprenderás los conceptos clave y prácticos de este tema, explicados paso a paso con ejemplos aplicados.'}
+                    </ReactMarkdown>
+                  </div>
                 </div>
 
                 {/* Resources */}
