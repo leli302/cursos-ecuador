@@ -205,7 +205,7 @@ export default function ClassroomPage() {
           {course.nombre}
         </h1>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 'var(--space-6)', alignItems: 'start' }}>
+        <div className="classroom-grid">
           
           {/* Left: Active Lesson or Quiz Viewer */}
           <div className="flex flex-col gap-6">

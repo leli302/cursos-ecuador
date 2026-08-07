@@ -1048,6 +1048,10 @@ tbody tr:hover {
   align-items: start;
 }
 
+.classroom-grid {
+  grid-template-columns: 1fr !important;
+}
+
   .course-detail-sidebar {
     position: relative !important;
     top: auto !important;
@@ -1148,6 +1152,13 @@ tbody tr:hover {
   .grid-2 {
     grid-template-columns: 1fr !important;
   }
+}
+
+.classroom-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: var(--space-6);
+  align-items: start;
 }
 
 /* ---- Mobile Portrait (max 480px) ---- */
