@@ -98,8 +98,31 @@ export default function CourseContentPage() {
       await api.delete(`/media/${resourceId}`);
       toast.success('Recurso eliminado');
       fetchResources(lessonId);
+    } catch (e) { toast.error('Error al eliminar'); }
+  };
+
+  const [linkModal, setLinkModal] = useState(null); // { lessonId }
+  const [linkForm, setLinkForm] = useState({ titulo: '', url: '', tipo: 'enlace' });
+
+  const handleAddLinkResource = async (e) => {
+    e.preventDefault();
+    setUploading(true);
+    try {
+      await api.post('/media/upload', {
+        leccion_id: linkModal.lessonId,
+        tipo: linkForm.tipo,
+        titulo: linkForm.titulo,
+        url: linkForm.url,
+        orden: (lessonResources[linkModal.lessonId]?.length || 0) + 1
+      });
+      toast.success('Enlace añadido exitosamente');
+      fetchResources(linkModal.lessonId);
+      setLinkModal(null);
+      setLinkForm({ titulo: '', url: '', tipo: 'enlace' });
     } catch (e) {
-      toast.error('Error al eliminar el recurso');
+      toast.error(e.response?.data?.error || 'Error al añadir el enlace');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -344,17 +367,24 @@ export default function CourseContentPage() {
                                 <h5 className="font-semibold text-sm flex items-center gap-2 m-0">
                                   <Paperclip size={14} /> Recursos de la Lección ({lessonResources[lesson.id]?.length || 0})
                                 </h5>
-                                <label className="btn btn-outline btn-sm flex items-center gap-1" style={{ cursor: 'pointer' }}>
-                                  <Upload size={14} /> {uploading ? 'Subiendo...' : 'Subir Archivo'}
-                                  <input type="file" style={{ display: 'none' }} disabled={uploading}
-                                    accept="video/*,application/pdf,image/*,.ppt,.pptx,.zip,.rar"
-                                    onChange={(e) => {
-                                      const file = e.target.files[0];
-                                      if (file) { handleUploadResource(lesson.id, file, detectTipo(file)); }
-                                      e.target.value = '';
-                                    }}
-                                  />
-                                </label>
+                                <div className="flex gap-2">
+                                  <label className="btn btn-outline btn-sm m-0 flex items-center gap-2 cursor-pointer" style={{ borderRadius: 'var(--radius-full)' }}>
+                                    <Upload size={14} /> Subir Archivo
+                                    <input
+                                      type="file"
+                                      style={{ display: 'none' }}
+                                      accept="video/*,application/pdf,image/*,.ppt,.pptx,.zip,.rar"
+                                      onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) { handleUploadResource(lesson.id, file, detectTipo(file)); }
+                                        e.target.value = '';
+                                      }}
+                                    />
+                                  </label>
+                                  <button onClick={() => setLinkModal({ lessonId: lesson.id })} className="btn btn-outline btn-sm m-0 flex items-center gap-2" style={{ borderRadius: 'var(--radius-full)' }}>
+                                    <Plus size={14} /> Añadir Enlace
+                                  </button>
+                                </div>
                               </div>
 
                               <div className="text-xs text-muted mb-3" style={{ padding: '6px 10px', background: 'rgba(78,205,196,0.05)', borderRadius: 'var(--radius-sm)' }}>
@@ -465,6 +495,40 @@ export default function CourseContentPage() {
               <div className="flex gap-3 mt-6">
                 <button type="button" className="btn btn-outline w-full" onClick={() => setModifyingLesson(null)}>Cancelar</button>
                 <button type="submit" className="btn btn-primary w-full" disabled={saving}><Save size={16} /> {saving ? 'Guardando...' : 'Guardar'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Add Link */}
+      {linkModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }} className="animate-fade-in">
+          <div className="card-glass animate-scale" style={{ width: '100%', maxWidth: 500, padding: 'var(--space-6)' }}>
+            <div className="flex justify-between items-center mb-6">
+              <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 700, margin: 0 }}>Añadir Enlace Externo</h3>
+              <button className="btn-icon" onClick={() => setLinkModal(null)}><X size={20} /></button>
+            </div>
+            <form onSubmit={handleAddLinkResource}>
+              <div className="form-group">
+                <label className="form-label">Título del Recurso</label>
+                <input type="text" className="form-input" value={linkForm.titulo} onChange={(e) => setLinkForm({ ...linkForm, titulo: e.target.value })} placeholder="Ej: Diapositivas de la clase" required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Enlace / URL</label>
+                <input type="url" className="form-input" value={linkForm.url} onChange={(e) => setLinkForm({ ...linkForm, url: e.target.value })} placeholder="https://youtube.com/... o https://drive.google.com/..." required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Tipo de Recurso</label>
+                <select className="form-input" value={linkForm.tipo} onChange={(e) => setLinkForm({ ...linkForm, tipo: e.target.value })}>
+                  <option value="video">Video (YouTube/Vimeo)</option>
+                  <option value="pdf">Documento PDF (Drive)</option>
+                  <option value="enlace">Enlace Web General</option>
+                </select>
+              </div>
+              <div className="flex gap-3 mt-6">
+                <button type="button" className="btn btn-outline w-full" onClick={() => setLinkModal(null)}>Cancelar</button>
+                <button type="submit" className="btn btn-primary w-full" disabled={uploading}><Save size={16} /> {uploading ? 'Añadiendo...' : 'Añadir Enlace'}</button>
               </div>
             </form>
           </div>

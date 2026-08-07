@@ -3,23 +3,32 @@ const { query } = require('../config/database');
 // POST /api/media/upload
 const uploadMedia = async (req, res, next) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'Archivo requerido.' });
+    const { leccion_id, tipo, titulo, duracion_segundos, orden, url: externalUrl } = req.body;
+    
+    let finalUrl = '';
+    let finalSize = 0;
+    
+    // Si se envía una URL externa (YouTube, Drive, etc), la usamos en lugar de un archivo
+    if (externalUrl) {
+      finalUrl = externalUrl;
+    } else if (req.file) {
+      const fieldMap = { video: 'videos', pdf: 'pdfs', imagen: 'imagenes' };
+      const folder = fieldMap[tipo] || 'recursos';
+      finalUrl = `/storage/cursos/${folder}/${req.file.filename}`;
+      finalSize = (req.file.size / (1024 * 1024)).toFixed(2);
+    } else {
+      return res.status(400).json({ error: 'Debes subir un archivo o proporcionar un enlace válido.' });
     }
 
-    const { leccion_id, tipo, titulo, duracion_segundos, orden } = req.body;
-    const fieldMap = { video: 'videos', pdf: 'pdfs', imagen: 'imagenes' };
-    const folder = fieldMap[tipo] || 'recursos';
-    const url = `/storage/cursos/${folder}/${req.file.filename}`;
-    const tamano = (req.file.size / (1024 * 1024)).toFixed(2);
+    const finalTitle = titulo || (req.file ? req.file.originalname : 'Enlace Externo');
 
     const result = await query(
       `INSERT INTO recursos_multimedia (leccion_id, tipo, titulo, url_archivo, tamano_mb, duracion_segundos, orden)
        VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-      [leccion_id, tipo, titulo || req.file.originalname, url, tamano, duracion_segundos || 0, orden || 1]
+      [leccion_id, tipo, finalTitle, finalUrl, finalSize, duracion_segundos || 0, orden || 1]
     );
 
-    res.status(201).json({ message: 'Archivo subido.', resource: result.rows[0] });
+    res.status(201).json({ message: 'Recurso guardado.', resource: result.rows[0] });
   } catch (error) { next(error); }
 };
 

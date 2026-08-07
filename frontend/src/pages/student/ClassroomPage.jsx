@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { ArrowLeft, BookOpen, PlayCircle, CheckCircle, FileText, Download, Check, Award, Sparkles, X, QrCode, FileQuestion } from 'lucide-react';
+import { ArrowLeft, BookOpen, PlayCircle, CheckCircle, FileText, Download, Check, Award, Sparkles, X, QrCode, FileQuestion, ExternalLink } from 'lucide-react';
 import QuizViewer from '../../components/QuizViewer';
 import ReactMarkdown from 'react-markdown';
 
@@ -303,11 +303,19 @@ export default function ClassroomPage() {
                             <FileText size={18} style={{ color: 'var(--accent-teal)' }} />
                             <div>
                               <p className="text-sm font-semibold">{rec.titulo || 'Archivo complementario'}</p>
-                              <p className="text-xs text-muted">{rec.tamano_mb ? `${rec.tamano_mb} MB` : 'Recurso adicional'} · {rec.tipo.toUpperCase()}</p>
+                              <p className="text-xs text-muted">{rec.tamano_mb && rec.tamano_mb > 0 ? `${rec.tamano_mb} MB` : 'Enlace'} · {rec.tipo.toUpperCase()}</p>
                             </div>
                           </div>
-                          <a href={rec.url_archivo} download className="btn btn-icon" style={{ background: 'rgba(78,205,196,0.1)', color: 'var(--accent-teal)', borderRadius: '50%' }}>
-                            <Download size={14} />
+                          <a 
+                            href={rec.url_archivo} 
+                            download={!rec.url_archivo.startsWith('http')} 
+                            target={rec.url_archivo.startsWith('http') ? '_blank' : '_self'}
+                            rel="noreferrer"
+                            className="btn btn-icon" 
+                            style={{ background: 'rgba(78,205,196,0.1)', color: 'var(--accent-teal)', borderRadius: '50%' }}
+                            title={rec.url_archivo.startsWith('http') ? 'Abrir Enlace' : 'Descargar'}
+                          >
+                            {rec.url_archivo.startsWith('http') ? <ExternalLink size={14} /> : <Download size={14} />}
                           </a>
                         </div>
                       ))}
