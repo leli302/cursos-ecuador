@@ -5,7 +5,7 @@ import { useToast } from '../../context/ToastContext';
 import { 
   ChevronLeft, Plus, Edit2, Trash2, ArrowUp, ArrowDown, 
   Play, BookOpen, Clock, Save, X, Upload, File, FileText, 
-  Image, Video, Download, Paperclip
+  Image, Video, Download, Paperclip, ExternalLink
 } from 'lucide-react';
 
 export default function CourseContentPage() {
@@ -353,7 +353,11 @@ export default function CourseContentPage() {
                                 <div className="flex items-center gap-1">
                                   <button className="btn-icon btn-xs" disabled={lessonIndex === 0} onClick={() => handleMoveLesson(activeModuleId, lessonIndex, 'up')}><ArrowUp size={12} /></button>
                                   <button className="btn-icon btn-xs" disabled={lessonIndex === lecciones.length - 1} onClick={() => handleMoveLesson(activeModuleId, lessonIndex, 'down')}><ArrowDown size={12} /></button>
-                                  <button className="btn-icon btn-xs text-primary" onClick={() => { setModifyingLesson({ mode: 'edit', module_id: activeModuleId, lesson }); setLessonForm({ titulo: lesson.titulo, descripcion: lesson.descripcion || '', contenido: lesson.contenido || '', duracion_minutos: lesson.duracion_minutos || 15, orden: lesson.orden, es_gratis: lesson.es_gratis || false }); }}><Edit2 size={12} /></button>
+                                  <button className="btn-icon btn-xs text-primary" onClick={() => { 
+                                    setModifyingLesson({ mode: 'edit', module_id: activeModuleId, lesson }); 
+                                    setLessonForm({ titulo: lesson.titulo, descripcion: lesson.descripcion || '', contenido: lesson.contenido || '', duracion_minutos: lesson.duracion_minutos || 15, orden: lesson.orden, es_gratis: lesson.es_gratis || false }); 
+                                    fetchResources(lesson.id);
+                                  }}><Edit2 size={12} /></button>
                                   <button className="btn-icon btn-xs" style={{ color: 'var(--accent-red)' }} onClick={() => handleDeleteLesson(lesson.id)}><Trash2 size={12} /></button>
                                 </div>
                               </div>
@@ -463,54 +467,109 @@ export default function CourseContentPage() {
         </div>
       )}
 
-      {/* Modal: Lesson */}
+      {/* Overlay Full Screen: Lesson Editor */}
       {modifyingLesson && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }} className="animate-fade-in">
-          <div className="card-glass animate-scale" style={{ width: '100%', maxWidth: 800, padding: 'var(--space-6)', maxHeight: '90vh', overflowY: 'auto' }}>
-            <div className="flex justify-between items-center mb-6">
-              <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 700, margin: 0 }}>{modifyingLesson.mode === 'new' ? 'Crear Lección' : 'Editar Lección'}</h3>
-              <button className="btn-icon" onClick={() => setModifyingLesson(null)}><X size={20} /></button>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--bg-primary)', zIndex: 9999, display: 'flex', flexDirection: 'column' }} className="animate-fade-in">
+          {/* Header */}
+          <div className="flex justify-between items-center" style={{ padding: 'var(--space-4) var(--space-8)', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-secondary)' }}>
+            <h2 style={{ margin: 0, fontSize: 'var(--text-xl)', fontWeight: 700 }}>
+              {modifyingLesson.mode === 'new' ? 'Crear Nueva Lección' : 'Editar Lección'}
+            </h2>
+            <div className="flex gap-3">
+              <button type="button" className="btn btn-outline" onClick={() => setModifyingLesson(null)}>Cancelar</button>
+              <button type="button" className="btn btn-primary" onClick={handleSaveLesson} disabled={saving}>
+                <Save size={16} /> {saving ? 'Guardando...' : 'Guardar Lección'}
+              </button>
             </div>
-            <form onSubmit={handleSaveLesson}>
-              <div className="form-group">
-                <label className="form-label">Título de la Lección</label>
-                <input type="text" className="form-input" value={lessonForm.titulo} onChange={(e) => setLessonForm({ ...lessonForm, titulo: e.target.value })} placeholder="Ej: ¿Qué es JSX?" required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Descripción Breve</label>
-                <textarea className="form-input" value={lessonForm.descripcion} onChange={(e) => setLessonForm({ ...lessonForm, descripcion: e.target.value })} placeholder="Detalles de la lección..." rows={2} style={{ resize: 'vertical' }} />
-              </div>
-              <div className="form-group">
-                <label className="form-label flex justify-between items-center">
-                  <span>Contenido de la Lección (Soporta Markdown)</span>
-                  <a href="https://www.markdownguide.org/cheat-sheet/" target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">Ver Guía Markdown</a>
-                </label>
-                <textarea className="form-input" value={lessonForm.contenido} onChange={(e) => setLessonForm({ ...lessonForm, contenido: e.target.value })} placeholder="## Introducción&#10;Escribe aquí el texto de tu lección usando Markdown..." rows={12} style={{ resize: 'vertical', fontFamily: 'monospace', fontSize: '0.9rem' }} required />
-              </div>
-              <div className="grid grid-2 gap-4">
-                <div className="form-group">
-                  <label className="form-label">Duración (Minutos)</label>
-                  <input type="number" min="1" className="form-input" value={lessonForm.duracion_minutos} onChange={(e) => setLessonForm({ ...lessonForm, duracion_minutos: e.target.value })} required />
+          </div>
+
+          {/* Body */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-8)' }}>
+            <div className="grid lg:grid-cols-12 gap-8" style={{ maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
+              
+              {/* Left Column: Details & Resources */}
+              <div className="lg:col-span-4 flex flex-col gap-6">
+                <div className="card" style={{ padding: 'var(--space-6)' }}>
+                  <h3 className="font-semibold mb-4" style={{ fontSize: 'var(--text-lg)', margin: 0 }}>Detalles de la Lección</h3>
+                  <div className="form-group mt-4">
+                    <label className="form-label">Título</label>
+                    <input type="text" className="form-input" value={lessonForm.titulo} onChange={(e) => setLessonForm({ ...lessonForm, titulo: e.target.value })} placeholder="Ej: ¿Qué es JSX?" required />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Descripción Breve</label>
+                    <textarea className="form-input" value={lessonForm.descripcion} onChange={(e) => setLessonForm({ ...lessonForm, descripcion: e.target.value })} placeholder="Detalles de la lección..." rows={3} style={{ resize: 'vertical' }} />
+                  </div>
+                  <div className="grid grid-2 gap-4">
+                    <div className="form-group">
+                      <label className="form-label">Duración (Min)</label>
+                      <input type="number" min="1" className="form-input" value={lessonForm.duracion_minutos} onChange={(e) => setLessonForm({ ...lessonForm, duracion_minutos: e.target.value })} required />
+                    </div>
+                    <div className="form-group flex items-center" style={{ marginTop: '24px' }}>
+                      <label className="flex items-center gap-2 text-sm" style={{ cursor: 'pointer' }}>
+                        <input type="checkbox" checked={lessonForm.es_gratis} onChange={(e) => setLessonForm({ ...lessonForm, es_gratis: e.target.checked })} />
+                        <span>Gratuita (Preview)</span>
+                      </label>
+                    </div>
+                  </div>
                 </div>
-                <div className="form-group flex items-center" style={{ marginTop: '24px' }}>
-                  <label className="flex items-center gap-2 text-sm" style={{ cursor: 'pointer' }}>
-                    <input type="checkbox" checked={lessonForm.es_gratis} onChange={(e) => setLessonForm({ ...lessonForm, es_gratis: e.target.checked })} />
-                    <span>¿Lección gratuita? (Preview)</span>
-                  </label>
+
+                {/* Resources Manager (Only if editing) */}
+                {modifyingLesson.mode === 'edit' && (
+                  <div className="card" style={{ padding: 'var(--space-6)' }}>
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="font-semibold m-0" style={{ fontSize: 'var(--text-lg)' }}>Recursos</h3>
+                      <div className="flex gap-2">
+                        <label className="btn-icon btn-sm btn-outline cursor-pointer" title="Subir Archivo">
+                          <Upload size={14} />
+                          <input type="file" style={{ display: 'none' }} accept="video/*,application/pdf,image/*,.ppt,.pptx,.zip,.rar" onChange={(e) => { const f = e.target.files[0]; if (f) handleUploadResource(modifyingLesson.lesson.id, f, detectTipo(f)); e.target.value = ''; }} />
+                        </label>
+                        <button className="btn-icon btn-sm btn-outline" title="Añadir Enlace" onClick={(e) => { e.preventDefault(); setLinkModal({ lessonId: modifyingLesson.lesson.id }); }}><File size={14} /></button>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col gap-2">
+                      {(!lessonResources[modifyingLesson.lesson.id] || lessonResources[modifyingLesson.lesson.id].length === 0) ? (
+                        <p className="text-sm text-muted">No hay recursos adjuntos.</p>
+                      ) : (
+                        lessonResources[modifyingLesson.lesson.id].map(res => (
+                          <div key={res.id} className="flex justify-between items-center p-2" style={{ background: 'rgba(255,255,255,0.02)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
+                            <div className="flex items-center gap-2 overflow-hidden">
+                              {res.tipo === 'video' ? <Video size={14} className="text-primary shrink-0" /> : res.tipo === 'enlace' ? <ExternalLink size={14} className="text-primary shrink-0" /> : <FileText size={14} className="text-primary shrink-0" />}
+                              <span className="text-xs truncate">{res.titulo}</span>
+                            </div>
+                            <button className="btn-icon btn-xs" style={{ color: 'var(--accent-red)' }} onClick={() => handleDeleteResource(res.id, modifyingLesson.lesson.id)}><Trash2 size={12} /></button>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Right Column: Markdown Editor */}
+              <div className="lg:col-span-8 flex flex-col h-full" style={{ minHeight: '600px' }}>
+                <div className="card flex flex-col h-full" style={{ padding: '0', overflow: 'hidden' }}>
+                  <div className="flex justify-between items-center" style={{ padding: 'var(--space-4) var(--space-6)', borderBottom: '1px solid var(--border-subtle)', background: 'rgba(255,255,255,0.01)' }}>
+                    <h3 className="font-semibold m-0" style={{ fontSize: 'var(--text-lg)' }}>Contenido de la Lección</h3>
+                    <a href="https://www.markdownguide.org/cheat-sheet/" target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1"><BookOpen size={14} /> Guía Markdown</a>
+                  </div>
+                  <textarea 
+                    className="form-input"
+                    value={lessonForm.contenido} 
+                    onChange={(e) => setLessonForm({ ...lessonForm, contenido: e.target.value })} 
+                    placeholder="## Introducción&#10;Escribe aquí el texto de tu lección usando Markdown..." 
+                    style={{ flex: 1, minHeight: '500px', width: '100%', padding: 'var(--space-6)', resize: 'none', border: 'none', background: 'transparent', color: 'inherit', fontFamily: 'monospace', fontSize: '0.95rem', outline: 'none' }} 
+                  />
                 </div>
               </div>
-              <div className="flex gap-3 mt-6">
-                <button type="button" className="btn btn-outline w-full" onClick={() => setModifyingLesson(null)}>Cancelar</button>
-                <button type="submit" className="btn btn-primary w-full" disabled={saving}><Save size={16} /> {saving ? 'Guardando...' : 'Guardar'}</button>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
 
       {/* Modal: Add Link */}
       {linkModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }} className="animate-fade-in">
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000, padding: '20px' }} className="animate-fade-in">
           <div className="card-glass animate-scale" style={{ width: '100%', maxWidth: 500, padding: 'var(--space-6)' }}>
             <div className="flex justify-between items-center mb-6">
               <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 700, margin: 0 }}>Añadir Enlace Externo</h3>
